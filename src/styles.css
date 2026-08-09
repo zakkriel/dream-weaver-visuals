@@ -260,3 +260,94 @@
     color: var(--dc-on-accent);
   }
 }
+
+/* ---- world card: accent edge, mood wash, ornament motif ------------- */
+
+.dc-world-card {
+  --dc-world-rgb: var(--dc-world-accent-rgb, 201 162 39);
+}
+
+.dc-world-edge {
+  background-image: linear-gradient(
+    180deg,
+    transparent,
+    rgb(var(--dc-world-rgb) / 0.85) 22%,
+    rgb(var(--dc-world-rgb) / 0.85) 78%,
+    transparent
+  );
+  box-shadow: 0 0 18px rgb(var(--dc-world-rgb) / 0.45);
+}
+
+.dc-world-wash {
+  background-image: radial-gradient(
+    140% 90% at 0% 0%,
+    rgb(var(--dc-world-rgb) / 0.16),
+    transparent 62%
+  );
+  transition: opacity var(--dc-dur) var(--dc-ease);
+  opacity: 0.85;
+}
+
+.group:hover .dc-world-wash {
+  opacity: 1;
+}
+
+/* mood steers the card's weather only — never its layout, never a word */
+.dc-world-card[data-mood="mist"] .dc-world-wash {
+  background-image: radial-gradient(150% 110% at 50% 0%, rgb(var(--dc-world-rgb) / 0.2), transparent 70%);
+  filter: saturate(0.75);
+}
+
+.dc-world-card[data-mood="nocturne"] .dc-world-wash {
+  background-image:
+    radial-gradient(120% 80% at 12% 0%, rgb(var(--dc-world-rgb) / 0.22), transparent 60%),
+    radial-gradient(100% 70% at 100% 100%, rgba(8, 12, 20, 0.55), transparent 60%);
+}
+
+.dc-world-card[data-mood="ember"] .dc-world-wash {
+  background-image: radial-gradient(130% 90% at 20% 108%, rgb(var(--dc-world-rgb) / 0.26), transparent 64%);
+}
+
+.dc-world-card[data-mood="bleak"] .dc-world-wash {
+  filter: saturate(0.4);
+}
+
+.dc-world-card[data-mood="daylight"] .dc-world-wash {
+  background-image: linear-gradient(180deg, rgb(var(--dc-world-rgb) / 0.16), transparent 55%);
+}
+
+/* ornament draws a corner motif; `none` and unknown words draw nothing */
+.dc-world-motif {
+  opacity: 0.28;
+  color: rgb(var(--dc-world-rgb));
+  -webkit-mask-image: radial-gradient(100% 100% at 100% 0%, #000 30%, transparent 72%);
+  mask-image: radial-gradient(100% 100% at 100% 0%, #000 30%, transparent 72%);
+}
+
+.dc-world-card[data-ornament="filigree"] .dc-world-motif {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+
+.dc-world-card[data-ornament="rivet"] .dc-world-motif {
+  background-image: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 10px);
+}
+
+.dc-world-card[data-ornament="vine"] .dc-world-motif {
+  background-image: repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 7px);
+}
+
+.dc-world-card[data-ornament="circuit"] .dc-world-motif {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 6px);
+}
+
+/* primary act: enter the world */
+.dc-enter {
+  background-color: var(--dc-world-accent);
+  color: var(--dc-world-on-accent);
+  box-shadow: 0 0 22px rgb(var(--dc-world-rgb) / 0.3);
+}
+
+.dc-enter:hover {
+  background-color: var(--dc-world-accent-strong);
+}
