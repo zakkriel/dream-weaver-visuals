@@ -1,0 +1,88 @@
+/* World moods (SPEC-019). One block per atmosphere word the backend may send. Raw colors are OK here —
+   skins/ is the only place the no-raw-color guard allows them.
+
+   These override ATMOSPHERE tokens only: background, surface translucency, blur, scrim, glow. They never
+   touch the accent (a world supplies that, and theme.ts derives the rest from it), and they never touch
+   spacing, radius or type — a mood changes how a surface FEELS, never where anything sits.
+
+   A mood the client has never heard of matches nothing here and simply leaves the base tokens in place.
+   That is the degradation path, and it needs no allowlist anywhere in JS. */
+
+/* nocturne — midnight water, lamplight. The Drowned Lantern's own weather. */
+[data-mood="nocturne"] {
+  --dc-bg: #0d1320;
+  --dc-surface: rgba(20, 27, 44, 0.60);
+  --dc-surface-raised: rgba(26, 34, 54, 0.78);
+  --dc-border: rgba(174, 150, 90, 0.22);
+  --dc-text: #e8e2d4;
+  --dc-text-muted: #9aa3b2;
+  --dc-glass-blur: 10px;
+  --dc-text-glow: 0 0 18px rgba(201, 162, 39, 0.28);
+  --dc-atmosphere:
+    radial-gradient(1100px 520px at 78% -8%, rgba(201, 162, 39, 0.10), transparent 60%),
+    linear-gradient(180deg, #0b1018, #0d1320 55%, #090d15);
+  --dc-scene-scrim: linear-gradient(90deg, rgba(9, 13, 21, 0.94) 38%, rgba(9, 13, 21, 0.55));
+}
+
+/* mist — cold grey light, everything slightly withheld. */
+[data-mood="mist"] {
+  --dc-bg: #e9edf0;
+  --dc-surface: rgba(255, 255, 255, 0.72);
+  --dc-surface-raised: #ffffff;
+  --dc-border: #c3ccd4;
+  --dc-text: #22282e;
+  --dc-text-muted: #66727c;
+  --dc-glass-blur: 8px;
+  --dc-atmosphere: linear-gradient(180deg, #eef2f5, #e2e8ec 60%, #d8e0e5);
+  --dc-scene-scrim: linear-gradient(90deg, rgba(233, 237, 240, 0.92) 38%, rgba(233, 237, 240, 0.55));
+}
+
+/* daylight — flat, bright, nothing hidden by the light itself. */
+[data-mood="daylight"] {
+  --dc-bg: #fbfaf6;
+  --dc-surface: #ffffff;
+  --dc-surface-raised: #ffffff;
+  --dc-border: #ddd8cc;
+  --dc-text: #1e1c18;
+  --dc-text-muted: #6b675e;
+  --dc-glass-blur: 0px;
+  --dc-atmosphere: linear-gradient(180deg, #fffef9, #f7f4ec);
+  --dc-scene-scrim: linear-gradient(90deg, rgba(251, 250, 246, 0.93) 38%, rgba(251, 250, 246, 0.55));
+}
+
+/* ember — banked heat, low red light, the room after something burned. */
+[data-mood="ember"] {
+  --dc-bg: #1a100c;
+  --dc-surface: rgba(43, 24, 18, 0.64);
+  --dc-surface-raised: rgba(54, 30, 22, 0.80);
+  --dc-border: rgba(214, 118, 58, 0.26);
+  --dc-text: #f2e3d6;
+  --dc-text-muted: #b39586;
+  --dc-glass-blur: 8px;
+  --dc-text-glow: 0 0 18px rgba(214, 118, 58, 0.30);
+  --dc-atmosphere:
+    radial-gradient(900px 460px at 20% 108%, rgba(214, 118, 58, 0.20), transparent 62%),
+    linear-gradient(180deg, #150c09, #1a100c 60%, #100807);
+  --dc-scene-scrim: linear-gradient(90deg, rgba(16, 8, 7, 0.94) 38%, rgba(16, 8, 7, 0.55));
+}
+
+/* bleak — colour drained out; the world is not hostile, it just does not care. */
+[data-mood="bleak"] {
+  --dc-bg: #1b1c1d;
+  --dc-surface: rgba(38, 40, 42, 0.66);
+  --dc-surface-raised: rgba(48, 50, 52, 0.82);
+  --dc-border: rgba(160, 164, 168, 0.20);
+  --dc-text: #dcdedf;
+  --dc-text-muted: #8d9295;
+  --dc-glass-blur: 6px;
+  --dc-atmosphere: linear-gradient(180deg, #17181a, #1b1c1d 60%, #131415);
+  --dc-scene-scrim: linear-gradient(90deg, rgba(19, 20, 21, 0.94) 38%, rgba(19, 20, 21, 0.55));
+}
+
+/* Ornament motifs. A flourish token the chrome may draw with; `none` is the base and needs no block.
+   Kept to ONE token on purpose — richer motifs are real design work, and inventing five of them here
+   before anything asks for them would be scaffolding. */
+[data-ornament="filigree"] { --dc-ornament: radial-gradient(circle, var(--dc-border-accent) 1px, transparent 1px); }
+[data-ornament="rivet"]    { --dc-ornament: repeating-linear-gradient(90deg, var(--dc-border-accent) 0 2px, transparent 2px 10px); }
+[data-ornament="vine"]     { --dc-ornament: repeating-linear-gradient(45deg, var(--dc-border-accent) 0 1px, transparent 1px 7px); }
+[data-ornament="circuit"]  { --dc-ornament: repeating-linear-gradient(0deg, var(--dc-border-accent) 0 1px, transparent 1px 6px); }

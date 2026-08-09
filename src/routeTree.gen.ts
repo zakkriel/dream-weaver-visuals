@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as WWorldIdIndexRouteImport } from './routes/w.$worldId.index'
+import { Route as WWorldIdPlayRouteImport } from './routes/w.$worldId.play'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WWorldIdIndexRoute = WWorldIdIndexRouteImport.update({
+  id: '/w/$worldId/',
+  path: '/w/$worldId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WWorldIdPlayRoute = WWorldIdPlayRouteImport.update({
+  id: '/w/$worldId/play',
+  path: '/w/$worldId/play',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/w/$worldId/play': typeof WWorldIdPlayRoute
+  '/w/$worldId/': typeof WWorldIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/w/$worldId/play': typeof WWorldIdPlayRoute
+  '/w/$worldId': typeof WWorldIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/w/$worldId/play': typeof WWorldIdPlayRoute
+  '/w/$worldId/': typeof WWorldIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/w/$worldId/play' | '/w/$worldId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/w/$worldId/play' | '/w/$worldId'
+  id: '__root__' | '/' | '/w/$worldId/play' | '/w/$worldId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  WWorldIdPlayRoute: typeof WWorldIdPlayRoute
+  WWorldIdIndexRoute: typeof WWorldIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,22 +68,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/w/$worldId/': {
+      id: '/w/$worldId/'
+      path: '/w/$worldId'
+      fullPath: '/w/$worldId/'
+      preLoaderRoute: typeof WWorldIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/w/$worldId/play': {
+      id: '/w/$worldId/play'
+      path: '/w/$worldId/play'
+      fullPath: '/w/$worldId/play'
+      preLoaderRoute: typeof WWorldIdPlayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  WWorldIdPlayRoute: WWorldIdPlayRoute,
+  WWorldIdIndexRoute: WWorldIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

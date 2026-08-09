@@ -5,140 +5,349 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Design system definition.
+ * DreamChat visual layer.
  *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ * Every value below is a --dc-* custom property so the whole block can be
+ * lifted verbatim into dreamchat-frontend/src/ds/skins/fantasy.css.
+ * Components never carry raw colours.
  */
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-ring-offset-background: var(--background);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
-}
-
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.984 0.003 247.858);
-  --sidebar-foreground: oklch(0.129 0.042 264.695);
-  --sidebar-primary: oklch(0.208 0.042 265.755);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.968 0.007 247.896);
-  --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-  --sidebar-border: oklch(0.929 0.013 255.508);
-  --sidebar-ring: oklch(0.704 0.04 256.788);
+  /* ---- surface ---------------------------------------------------- */
+  --dc-bg: #0d1320;
+  --dc-surface: rgba(20, 27, 44, 0.6);
+  --dc-surface-raised: rgba(30, 40, 66, 0.7);
+  --dc-overlay: rgba(8, 11, 20, 0.62);
+
+  /* ---- line ------------------------------------------------------- */
+  --dc-border: rgba(150, 124, 66, 0.32);
+  --dc-border-accent: #6b5a2e;
+  /* NEW: hairline that fades at both ends, replacing solid dividers */
+  --dc-divider: linear-gradient(
+    90deg,
+    transparent,
+    rgba(150, 124, 66, 0.42) 18%,
+    rgba(150, 124, 66, 0.42) 82%,
+    transparent
+  );
+
+  /* ---- text ------------------------------------------------------- */
+  --dc-text: #e9e3d3;
+  --dc-text-muted: #a8adbd;
+
+  /* ---- accent ----------------------------------------------------- */
+  --dc-accent: #c9a227;
+  --dc-accent-strong: #e0b65c;
+  --dc-on-accent: #1a1206;
+
+  /* ---- type ------------------------------------------------------- */
+  --dc-font-display: "Cinzel", Georgia, serif;
+  --dc-font-body: "EB Garamond", Georgia, serif;
+  /* NEW: a chrome/UI face — the pack notes there is none today */
+  --dc-font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --dc-text-xs: 0.75rem;
+  --dc-text-sm: 0.875rem;
+  --dc-text-md: 1rem;
+  --dc-text-lg: 1.25rem;
+  --dc-text-xl: 1.5rem;
+  --dc-text-2xl: 2rem;
+  --dc-text-3xl: 2.75rem;
+  --dc-leading-tight: 1.2;
+  --dc-leading-normal: 1.5;
+  --dc-leading-relaxed: 1.7;
+  --dc-tracking-label: 0.18em;
+
+  /* ---- space ------------------------------------------------------ */
+  --dc-space-1: 0.25rem;
+  --dc-space-2: 0.5rem;
+  --dc-space-3: 0.75rem;
+  --dc-space-4: 1rem;
+  --dc-space-5: 1.5rem;
+  --dc-space-6: 2rem;
+  --dc-space-7: 3rem;
+  --dc-space-8: 4rem;
+  /* NEW: the reference's floating-island gutter */
+  --dc-gutter: 20px;
+
+  /* ---- radius (raised to the reference's 20–28 range) -------------- */
+  --dc-radius-sm: 8px;
+  --dc-radius-md: 14px;
+  --dc-radius-lg: 22px;
+  --dc-radius-xl: 28px;
+  --dc-radius-pill: 999px;
+
+  /* ---- depth ------------------------------------------------------ */
+  --dc-shadow-1: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --dc-shadow-2: 0 16px 48px rgba(0, 0, 0, 0.6);
+  /* NEW: third tier for lifted / hovered islands */
+  --dc-shadow-3: 0 28px 80px rgba(0, 0, 0, 0.7);
+  --dc-glow: 0 0 22px rgba(201, 162, 39, 0.32);
+  --dc-text-glow: 0 0 28px rgba(201, 162, 39, 0.45), 0 0 4px rgba(224, 182, 92, 0.55);
+  --dc-ring: 0 0 0 3px rgba(201, 162, 39, 0.5);
+  /* NEW: inset top highlight on glass */
+  --dc-inset-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+
+  /* ---- motion ----------------------------------------------------- */
+  --dc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dc-dur: 180ms;
+  /* NEW: ambient loop durations */
+  --dc-dur-ambient: 9s;
+  --dc-dur-breath: 5.5s;
+
+  /* ---- atmosphere / glass ----------------------------------------- */
+  --dc-atmosphere:
+    radial-gradient(1100px 520px at 78% -8%, rgba(201, 162, 39, 0.1), transparent 60%),
+    linear-gradient(180deg, #0b1018, #0d1320 55%, #090d15);
+  --dc-scene-scrim:
+    linear-gradient(
+      90deg,
+      #0b1018 0%,
+      rgba(11, 16, 24, 0.92) 30%,
+      rgba(11, 16, 24, 0.45) 62%,
+      rgba(11, 16, 24, 0.12) 100%
+    ),
+    linear-gradient(180deg, rgba(11, 16, 24, 0.15), rgba(8, 12, 20, 0.7));
+  --dc-panel-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 40%);
+  --dc-glass-blur: 10px;
+  /* NEW: film grain + vignette layers */
+  --dc-grain-opacity: 0.045;
+  --dc-vignette: radial-gradient(120% 90% at 50% 40%, transparent 45%, rgba(3, 5, 10, 0.55) 100%);
+
+  /* per-world accent, overridden inline from theme.accent */
+  --dc-world-accent: var(--dc-accent);
+  --dc-world-accent-strong: var(--dc-accent-strong);
+  --dc-world-on-accent: var(--dc-on-accent);
+  --dc-ornament: none;
 }
 
-.dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.208 0.042 265.755);
-  --sidebar-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-accent: oklch(0.279 0.041 260.031);
-  --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.551 0.027 264.364);
+@theme inline {
+  --color-dc-bg: var(--dc-bg);
+  --color-dc-surface: var(--dc-surface);
+  --color-dc-surface-raised: var(--dc-surface-raised);
+  --color-dc-overlay: var(--dc-overlay);
+  --color-dc-border: var(--dc-border);
+  --color-dc-border-accent: var(--dc-border-accent);
+  --color-dc-text: var(--dc-text);
+  --color-dc-text-muted: var(--dc-text-muted);
+  --color-dc-accent: var(--dc-accent);
+  --color-dc-accent-strong: var(--dc-accent-strong);
+  --color-dc-on-accent: var(--dc-on-accent);
+  --color-dc-world: var(--dc-world-accent);
+  --color-dc-world-strong: var(--dc-world-accent-strong);
+
+  --font-display: var(--dc-font-display);
+  --font-body: var(--dc-font-body);
+  --font-ui: var(--dc-font-ui);
+
+  --radius-dc-sm: var(--dc-radius-sm);
+  --radius-dc-md: var(--dc-radius-md);
+  --radius-dc-lg: var(--dc-radius-lg);
+  --radius-dc-xl: var(--dc-radius-xl);
+
+  --shadow-dc-1: var(--dc-shadow-1);
+  --shadow-dc-2: var(--dc-shadow-2);
+  --shadow-dc-3: var(--dc-shadow-3);
+}
+
+/* ---- ambient layers ------------------------------------------------ */
+
+@utility dc-atmosphere {
+  background-image: var(--dc-atmosphere);
+  background-color: var(--dc-bg);
+}
+
+@utility dc-grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: var(--dc-grain-opacity);
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@utility dc-vignette {
+  background-image: var(--dc-vignette);
+}
+
+@utility dc-glass {
+  background-color: var(--dc-surface);
+  background-image: var(--dc-panel-sheen);
+  border: 1px solid var(--dc-border);
+  backdrop-filter: blur(var(--dc-glass-blur));
+  box-shadow: var(--dc-shadow-1), var(--dc-inset-highlight);
+}
+
+@utility dc-divider {
+  height: 1px;
+  border: 0;
+  background-image: var(--dc-divider);
+}
+
+@utility dc-focus {
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--dc-ring);
+  }
+}
+
+@utility dc-label {
+  font-family: var(--dc-font-ui);
+  font-size: var(--dc-text-xs);
+  letter-spacing: var(--dc-tracking-label);
+  text-transform: uppercase;
+}
+
+/* ambient breathing halo — stops under reduced motion */
+@keyframes dc-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.035);
+  }
+}
+
+@keyframes dc-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -8px, 0);
+  }
+}
+
+@utility dc-breathe {
+  animation: dc-breathe var(--dc-dur-breath) var(--dc-ease) infinite;
+}
+
+@utility dc-drift {
+  animation: dc-drift var(--dc-dur-ambient) var(--dc-ease) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dc-dur: 0ms;
+  }
+  .dc-breathe,
+  .dc-drift {
+    animation: none !important;
+  }
 }
 
 @layer base {
   * {
-    border-color: var(--color-border);
+    border-color: var(--dc-border);
   }
 
+  html,
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--dc-bg);
+    color: var(--dc-text);
+    font-family: var(--dc-font-body);
   }
+
+  ::selection {
+    background: var(--dc-accent);
+    color: var(--dc-on-accent);
+  }
+}
+
+/* ---- world card: accent edge, mood wash, ornament motif ------------- */
+
+.dc-world-card {
+  --dc-world-rgb: var(--dc-world-accent-rgb, 201 162 39);
+}
+
+.dc-world-edge {
+  background-image: linear-gradient(
+    180deg,
+    transparent,
+    rgb(var(--dc-world-rgb) / 0.85) 22%,
+    rgb(var(--dc-world-rgb) / 0.85) 78%,
+    transparent
+  );
+  box-shadow: 0 0 18px rgb(var(--dc-world-rgb) / 0.45);
+}
+
+.dc-world-wash {
+  background-image: radial-gradient(
+    140% 90% at 0% 0%,
+    rgb(var(--dc-world-rgb) / 0.16),
+    transparent 62%
+  );
+  transition: opacity var(--dc-dur) var(--dc-ease);
+  opacity: 0.85;
+}
+
+.group:hover .dc-world-wash {
+  opacity: 1;
+}
+
+/* mood steers the card's weather only — never its layout, never a word */
+.dc-world-card[data-mood="mist"] .dc-world-wash {
+  background-image: radial-gradient(150% 110% at 50% 0%, rgb(var(--dc-world-rgb) / 0.2), transparent 70%);
+  filter: saturate(0.75);
+}
+
+.dc-world-card[data-mood="nocturne"] .dc-world-wash {
+  background-image:
+    radial-gradient(120% 80% at 12% 0%, rgb(var(--dc-world-rgb) / 0.22), transparent 60%),
+    radial-gradient(100% 70% at 100% 100%, rgba(8, 12, 20, 0.55), transparent 60%);
+}
+
+.dc-world-card[data-mood="ember"] .dc-world-wash {
+  background-image: radial-gradient(130% 90% at 20% 108%, rgb(var(--dc-world-rgb) / 0.26), transparent 64%);
+}
+
+.dc-world-card[data-mood="bleak"] .dc-world-wash {
+  filter: saturate(0.4);
+}
+
+.dc-world-card[data-mood="daylight"] .dc-world-wash {
+  background-image: linear-gradient(180deg, rgb(var(--dc-world-rgb) / 0.16), transparent 55%);
+}
+
+/* ornament draws a corner motif; `none` and unknown words draw nothing */
+.dc-world-motif {
+  opacity: 0.28;
+  color: rgb(var(--dc-world-rgb));
+  -webkit-mask-image: radial-gradient(100% 100% at 100% 0%, #000 30%, transparent 72%);
+  mask-image: radial-gradient(100% 100% at 100% 0%, #000 30%, transparent 72%);
+}
+
+.dc-world-card[data-ornament="filigree"] .dc-world-motif {
+  background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 9px 9px;
+}
+
+.dc-world-card[data-ornament="rivet"] .dc-world-motif {
+  background-image: repeating-linear-gradient(90deg, currentColor 0 2px, transparent 2px 10px);
+}
+
+.dc-world-card[data-ornament="vine"] .dc-world-motif {
+  background-image: repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 7px);
+}
+
+.dc-world-card[data-ornament="circuit"] .dc-world-motif {
+  background-image: repeating-linear-gradient(0deg, currentColor 0 1px, transparent 1px 6px);
+}
+
+/* primary act: enter the world */
+.dc-enter {
+  background-color: var(--dc-world-accent);
+  color: var(--dc-world-on-accent);
+  box-shadow: 0 0 22px rgb(var(--dc-world-rgb) / 0.3);
+}
+
+.dc-enter:hover {
+  background-color: var(--dc-world-accent-strong);
 }

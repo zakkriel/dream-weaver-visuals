@@ -1,0 +1,158 @@
+[
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "interpretation",
+    "chain": [
+      {
+        "type": "Communicated",
+        "stated": "I ask Mara about the tide"
+      }
+    ]
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "narration",
+    "message": {
+      "speaker_id": null,
+      "speaker_label": "",
+      "kind": "narration",
+      "text": "Scene: the common room, and the rain on the shutters."
+    }
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "narration",
+    "message": {
+      "speaker_id": "2ac70000-0000-0000-0000-0000000000a2",
+      "speaker_label": "Mara",
+      "kind": "speech",
+      "text": "The tide turns at dusk."
+    }
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "narration",
+    "message": {
+      "speaker_id": "2ac70000-0000-0000-0000-0000000000a4",
+      "speaker_label": "a hooded figure by the bar",
+      "kind": "action",
+      "text": "draws back into the smoke"
+    }
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "scene",
+    "scene": {
+      "schema_version": "scene_current/2",
+      "place": {
+        "id": "210c0000-0000-0000-0000-0000000000d1",
+        "label": "The Drowned Lantern",
+        "description": "Low beams, salt-rot, one hearth, a bar with a hatch, a back door to the alley.",
+        "tone": "tense"
+      },
+      "participants": [
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000a2",
+          "label": "Mara",
+          "kind": "actor",
+          "image": {
+            "schema_version": "image_ref/1",
+            "asset_id": "2ac70000-0000-0000-0000-0000000000a2",
+            "path": "/worlds/22222222-2222-2222-2222-222222222222/images/2ac70000-0000-0000-0000-0000000000a2"
+          }
+        },
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000a3",
+          "label": "the muscle by the bar",
+          "kind": "actor",
+          "image": {
+            "schema_version": "image_ref/1",
+            "asset_id": "2ac70000-0000-0000-0000-0000000000a3",
+            "path": "/worlds/22222222-2222-2222-2222-222222222222/images/2ac70000-0000-0000-0000-0000000000a3"
+          }
+        },
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000a4",
+          "label": "a hooded figure by the bar",
+          "kind": "actor",
+          "image": null
+        },
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000aa",
+          "label": "a hooded figure by the ballast crate",
+          "kind": "actor",
+          "image": null
+        }
+      ],
+      "now": {
+        "tick": 52,
+        "display_label": "Arrival"
+      },
+      "journey": null,
+      "current": [
+        "Mara",
+        "I stepped into the Drowned Lantern.",
+        "I ask Mara about the tide"
+      ]
+    }
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "journey",
+    "journey": null
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "result",
+    "result": {
+      "committed": [
+        "8f14e45f-ceea-467a-9c3e-bd2fa1b3d5aa"
+      ],
+      "halt_reason": "completed",
+      "ticks_advanced": 2,
+      "unresolved_candidates": [],
+      "telegraphs": []
+    }
+  },
+  {
+    "schema_version": "beat_frame/2",
+    "kind": "trace",
+    "reasoning_log": {
+      "decompose": [
+        {
+          "type": "Communicated",
+          "stated": "I ask Mara about the tide"
+        }
+      ],
+      "world_turn": [
+        {
+          "clock_delta_s": 2,
+          "rolls": [
+            {
+              "tier": "large",
+              "chance": 6e-06,
+              "roll": 0.61,
+              "fired": false
+            },
+            {
+              "tier": "medium",
+              "chance": 0.000147,
+              "roll": 0.389,
+              "fired": false
+            },
+            {
+              "tier": "small",
+              "chance": 0.008833,
+              "roll": 0.425,
+              "fired": false
+            }
+          ]
+        }
+      ],
+      "halt_reason": "completed",
+      "committed": [
+        "8f14e45f-ceea-467a-9c3e-bd2fa1b3d5aa"
+      ]
+    }
+  }
+]
