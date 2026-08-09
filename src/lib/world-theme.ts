@@ -30,9 +30,9 @@ function relativeLuminance([r, g, b]: [number, number, number]): number {
   return 0.2126 * srgbToLinear(r) + 0.7152 * srgbToLinear(g) + 0.0722 * srgbToLinear(b);
 }
 
-function lighten(rgb: [number, number, number], amount: number): string {
-  const [r, g, b] = rgb.map((c) => Math.round(c + (255 - c) * amount));
-  return `rgb(${r} ${g} ${b})`;
+function lighten([r, g, b]: [number, number, number], amount: number): string {
+  const up = (c: number) => Math.round(c + (255 - c) * amount);
+  return `rgb(${up(r)} ${up(g)} ${up(b)})`;
 }
 
 export interface AccentVars {
