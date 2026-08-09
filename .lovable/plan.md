@@ -1,19 +1,24 @@
 # DreamChat visual layer — foundation + Surface 1 (World picker)
 
-## First, a correction about "the current repo"
+## How this connects to your repo
 
-This Lovable project is **an empty starter** — `src/routes/index.tsx` is still the blank placeholder and `src/styles.css` is the default shadcn palette. There is no DreamChat design in it yet. I cannot reach your local machine either.
+Lovable cannot attach to, edit, or push into an existing GitHub repo — the integration only creates a *new* repo from a Lovable project and two-way-syncs that one. And `port-back.md` already rules out taking React/Tailwind/shadcn wholesale anyway.
 
-What I *can* use is the uploaded `dreamchat-frontend.zip`, and it turns out to carry everything the brief refers to:
+Agreed route: **build here, then sync this project to a new GitHub repo.** `dreamchat-frontend` stays untouched; you diff and cherry-pick from real files rather than copy-pasting chat output. I'll offer the GitHub connect step once Surface 1 is standing.
+
+This Lovable project is currently **an empty starter** — blank placeholder index, default shadcn palette. There is no DreamChat design in it yet.
+
+The uploaded `dreamchat-frontend.zip` carries everything the brief refers to, and I'll copy the pack in as read-only reference (excluding `.git` and `node_modules`):
 
 - `docs/20_design_ux/lovable-handoff/README.md` — the visual handoff pack (§3 law, §4 surface list)
 - `surfaces/01-…09-…md` — nine surface specs with payloads and field notes
-- `fixtures/payloads/*.json` — the real captured payloads (including the empty artifacts index and the 25-entry / 0-entry dossiers)
+- `fixtures/payloads/*.json` — the real captured payloads (empty artifacts index, 25-entry / 0-entry dossiers, null names)
 - `contracts/*.schema.json` — the nine schemas
 - `surfaces/screenshots/*.png` — the current-state floor
 - `src/ds/skins/fantasy.css`, `base.css`, `moods.css` — the shipped token contract
 
-So the plan is: lift the reference material (docs, payloads, schemas — never `.git`, never `node_modules`) into this project, rebuild the design language here at the target quality bar, and go surface by surface.
+Mockups are not in the zip (the pack says they live in the backend repo) — attach them per surface as your template describes.
+
 
 ## Approach
 
