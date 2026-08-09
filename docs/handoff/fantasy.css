@@ -1,0 +1,38 @@
+/* Fantasy skin — midnight navy + warm gold "illuminated chronicle". Raw colors OK (skins/). */
+[data-skin="fantasy"] {
+  --dc-bg: #0d1320;
+  /* translucent glass surfaces so the chrome floats over the scene */
+  --dc-surface: rgba(20, 27, 44, 0.60);
+  --dc-surface-raised: rgba(30, 40, 66, 0.70);
+  --dc-overlay: rgba(8, 11, 20, 0.62);
+  /* faint warm-gold hairline rim (the illuminated-manuscript line) */
+  --dc-border: rgba(150, 124, 66, 0.32);
+  --dc-border-accent: #6b5a2e;
+  --dc-text: #e9e3d3;
+  --dc-text-muted: #9aa0b2;
+  --dc-accent: #c9a227;
+  --dc-accent-strong: #e0b65c;
+  --dc-on-accent: #1a1206;
+  --dc-status-high: #c0533f;
+  --dc-status-med: #cd9a3c;
+  --dc-status-low: #9aa0b2;
+  --dc-font-display: "Cinzel", Georgia, serif;
+  --dc-font-body: "EB Garamond", Georgia, serif;
+  /* depth */
+  --dc-shadow-1: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --dc-shadow-2: 0 16px 48px rgba(0, 0, 0, 0.60);
+  --dc-glow: 0 0 22px rgba(201, 162, 39, 0.32);
+  --dc-text-glow: 0 0 28px rgba(201, 162, 39, 0.45), 0 0 4px rgba(224, 182, 92, 0.55);
+  --dc-ring: 0 0 0 3px rgba(201, 162, 39, 0.50);
+  /* atmosphere behind everything: warm light pool top-right + deep navy fall-off */
+  --dc-atmosphere:
+    radial-gradient(1100px 520px at 78% -8%, rgba(201, 162, 39, 0.10), transparent 60%),
+    linear-gradient(180deg, #0b1018, #0d1320 55%, #090d15);
+  /* scrim over the scene image: dark on the left (where content sits), revealing art on the right */
+  --dc-scene-scrim:
+    linear-gradient(90deg, #0b1018 0%, rgba(11, 16, 24, 0.92) 30%, rgba(11, 16, 24, 0.45) 62%, rgba(11, 16, 24, 0.12) 100%),
+    linear-gradient(180deg, rgba(11, 16, 24, 0.15), rgba(8, 12, 20, 0.70));
+  /* subtle top inner-highlight on glass panels */
+  --dc-panel-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 40%);
+  --dc-glass-blur: 10px;
+}
