@@ -20,11 +20,6 @@ function expand(hex: string): [number, number, number] | null {
     parseInt(full.slice(4, 6), 16),
   ];
 }
-    parseInt(h.slice(0, 2), 16),
-    parseInt(h.slice(2, 4), 16),
-    parseInt(h.slice(4, 6), 16),
-  ];
-}
 
 function srgbToLinear(c: number): number {
   const s = c / 255;
