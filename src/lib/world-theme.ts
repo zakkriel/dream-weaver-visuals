@@ -11,9 +11,15 @@ const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 
 function expand(hex: string): [number, number, number] | null {
   if (!HEX.test(hex)) return null;
-  let h = hex.slice(1);
-  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  const h = hex.slice(1);
+  const full =
+    h.length === 3 ? `${h[0]}${h[0]}${h[1]}${h[1]}${h[2]}${h[2]}` : h;
   return [
+    parseInt(full.slice(0, 2), 16),
+    parseInt(full.slice(2, 4), 16),
+    parseInt(full.slice(4, 6), 16),
+  ];
+}
     parseInt(h.slice(0, 2), 16),
     parseInt(h.slice(2, 4), 16),
     parseInt(h.slice(4, 6), 16),
