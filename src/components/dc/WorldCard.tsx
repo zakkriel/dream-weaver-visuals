@@ -17,7 +17,7 @@ export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
     <article
       {...atmosphere}
       style={style}
-      className="dc-world-card dc-glass group relative flex min-h-[19rem] flex-col overflow-hidden rounded-dc-lg p-7 transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(.4,0,.2,1)] hover:-translate-y-1 hover:shadow-dc-3"
+      className="dc-world-card dc-glass group relative flex min-h-[14rem] flex-col overflow-hidden rounded-dc-lg p-7 transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(.4,0,.2,1)] hover:-translate-y-1 hover:shadow-dc-3"
     >
       {/* accent edge light + wash — derived from theme.accent, never hand-picked */}
       <span aria-hidden className="dc-world-edge pointer-events-none absolute inset-y-0 left-0 w-px" />
@@ -25,7 +25,13 @@ export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
       <span aria-hidden className="dc-world-motif pointer-events-none absolute right-0 top-0 h-28 w-28" />
 
       <div className="relative flex-1">
-        <h2 className="font-display text-[1.65rem] leading-tight tracking-wide text-dc-text [overflow-wrap:anywhere]">
+        {world.theme?.mood && (
+          <p className="dc-label text-[color:var(--dc-world-accent-strong,var(--dc-accent-strong))]">
+            {world.theme.mood}
+          </p>
+        )}
+
+        <h2 className="mt-3 font-display text-[1.65rem] leading-tight tracking-wide text-dc-text [overflow-wrap:anywhere]">
           {world.display_name}
         </h2>
 
@@ -36,7 +42,8 @@ export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
         )}
       </div>
 
-      <hr aria-hidden className="dc-divider relative my-6" />
+      <hr aria-hidden className="dc-divider relative mt-6 mb-5" />
+
 
       <div className="relative flex flex-wrap items-center gap-3">
         {enterable ? (
