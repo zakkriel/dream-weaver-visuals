@@ -119,6 +119,14 @@
   --dc-world-accent-strong: var(--dc-accent-strong);
   --dc-world-on-accent: var(--dc-on-accent);
   --dc-ornament: none;
+  --dc-dashboard-bg: #03131b;
+  --dc-dashboard-panel: rgba(2, 20, 28, 0.91);
+  --dc-dashboard-panel-soft: rgba(3, 25, 34, 0.76);
+  --dc-dashboard-gold: #c8832f;
+  --dc-dashboard-gold-soft: #e7b56d;
+  --dc-dashboard-line: rgba(190, 119, 37, 0.52);
+  --dc-dashboard-copy: #cbb493;
+  --dc-dashboard-green: #29c47a;
 }
 
 @theme inline {
@@ -135,6 +143,14 @@
   --color-dc-on-accent: var(--dc-on-accent);
   --color-dc-world: var(--dc-world-accent);
   --color-dc-world-strong: var(--dc-world-accent-strong);
+  --color-dashboard-bg: var(--dc-dashboard-bg);
+  --color-dashboard-panel: var(--dc-dashboard-panel);
+  --color-dashboard-panel-soft: var(--dc-dashboard-panel-soft);
+  --color-dashboard-gold: var(--dc-dashboard-gold);
+  --color-dashboard-gold-soft: var(--dc-dashboard-gold-soft);
+  --color-dashboard-line: var(--dc-dashboard-line);
+  --color-dashboard-copy: var(--dc-dashboard-copy);
+  --color-dashboard-green: var(--dc-dashboard-green);
 
   --font-display: var(--dc-font-display);
   --font-body: var(--dc-font-body);
@@ -366,4 +382,80 @@
     radial-gradient(1.5px 1.5px at 62% 18%, rgba(233, 227, 211, 0.28), transparent 60%),
     radial-gradient(1.5px 1.5px at 80% 55%, rgba(201, 162, 39, 0.4), transparent 60%),
     radial-gradient(1px 1px at 38% 68%, rgba(233, 227, 211, 0.25), transparent 60%);
+}
+
+/* Dashboard mock visual layer: compact, ornate and image-led. */
+.dashboard-shell {
+  background:
+    linear-gradient(rgba(2, 15, 22, 0.91), rgba(2, 15, 22, 0.96)),
+    var(--dashboard-hero-image) center top / cover fixed;
+}
+
+.dashboard-panel {
+  position: relative;
+  border: 1px solid var(--dc-dashboard-line);
+  border-radius: 8px;
+  background: var(--dc-dashboard-panel);
+  box-shadow: inset 0 0 25px rgba(0, 0, 0, 0.35), 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+
+.dashboard-panel::before,
+.dashboard-panel::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  z-index: 3;
+}
+
+.dashboard-panel::before {
+  left: 4px;
+  top: 4px;
+  border-left: 1px solid var(--dc-dashboard-gold);
+  border-top: 1px solid var(--dc-dashboard-gold);
+  border-radius: 5px 0 0;
+}
+
+.dashboard-panel::after {
+  right: 4px;
+  bottom: 4px;
+  border-right: 1px solid var(--dc-dashboard-gold);
+  border-bottom: 1px solid var(--dc-dashboard-gold);
+  border-radius: 0 0 5px;
+}
+
+.dashboard-heading {
+  color: var(--dc-dashboard-gold-soft);
+  text-shadow: 0 0 14px rgba(200, 131, 47, 0.22);
+}
+
+.dashboard-world-crop,
+.dashboard-portrait-crop {
+  background-repeat: no-repeat;
+}
+
+.dashboard-world-crop {
+  background-image: var(--dashboard-worlds-image);
+  background-size: 400% 100%;
+}
+
+.dashboard-portrait-crop {
+  background-image: var(--dashboard-portraits-image);
+  background-size: 400% 100%;
+}
+
+.dashboard-world-crop[data-image-index="0"],
+.dashboard-portrait-crop[data-image-index="0"] { background-position: 0% center; }
+.dashboard-world-crop[data-image-index="1"],
+.dashboard-portrait-crop[data-image-index="1"] { background-position: 33.333% center; }
+.dashboard-world-crop[data-image-index="2"],
+.dashboard-portrait-crop[data-image-index="2"] { background-position: 66.666% center; }
+.dashboard-world-crop[data-image-index="3"],
+.dashboard-portrait-crop[data-image-index="3"] { background-position: 100% center; }
+
+@media (max-width: 980px) {
+  .dashboard-desktop-grid { grid-template-columns: 68px minmax(0, 1fr); }
+  .dashboard-aside { grid-column: 2; }
+  .dashboard-main { grid-column: 2; }
 }
