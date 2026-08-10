@@ -42,18 +42,18 @@ function WorldPicker() {
         <main className="min-w-0 flex-1 space-y-5">
           {/* threshold: painted sky, the product mark, the one instruction */}
           <OrnateFrame className="overflow-hidden">
-            <div className="relative min-h-[19rem]">
+            <div className="relative min-h-[22rem]">
               <img
                 src={housePlate}
                 alt=""
                 aria-hidden
                 width={1920}
                 height={720}
-                className="absolute inset-0 size-full object-cover object-[50%_35%] opacity-80"
+                className="absolute inset-0 size-full object-cover object-[62%_55%]"
               />
               <span
                 aria-hidden
-                className="absolute inset-0 [background-image:linear-gradient(90deg,rgba(9,13,21,0.96)_0%,rgba(9,13,21,0.82)_42%,rgba(9,13,21,0.28)_100%),linear-gradient(180deg,rgba(9,13,21,0.35),rgba(9,13,21,0.85))]"
+                className="absolute inset-0 [background-image:linear-gradient(90deg,rgba(9,13,21,0.94)_0%,rgba(9,13,21,0.72)_38%,rgba(9,13,21,0.18)_78%,rgba(9,13,21,0.05)_100%),linear-gradient(180deg,rgba(9,13,21,0.20),rgba(9,13,21,0.62))]"
               />
 
               <div className="relative flex min-h-[19rem] flex-col justify-center gap-4 p-8 md:p-12">
