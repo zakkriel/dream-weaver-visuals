@@ -9,7 +9,12 @@
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "gen:types": "json2ts -i contracts/world_directory.v2.schema.json -o src/api/types/world_directory.ts && json2ts -i contracts/scene_current.v3.schema.json -o src/api/types/scene_current.ts && json2ts -i contracts/beat_frame.v3.schema.json -o src/api/types/beat_frame.ts && json2ts -i contracts/carrying.v1.schema.json -o src/api/types/carrying.ts",
+    "verify:types": "bash scripts/verify-types.sh",
+    "verify:contract": "bash scripts/verify-contract.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -72,16 +77,19 @@
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.2.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
+    "json-schema-to-typescript": "^15.0.4",
     "nitro": "3.0.260603-beta",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
-    "vite": "^8.2.0"
+    "vite": "^8.2.0",
+    "vitest": "^4.1.10"
   }
 }

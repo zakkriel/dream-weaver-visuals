@@ -1,10 +1,11 @@
 {
-    "schema_version": "scene_current/2",
+    "schema_version": "scene_current/3",
     "place": {
         "id": "210c0000-0000-0000-0000-0000000000d1",
         "label": "The Drowned Lantern",
         "description": "Low beams, salt-rot, one hearth, a bar with a hatch, a back door to the alley.",
-        "tone": "tense"
+        "tone": "tense",
+        "image": null
     },
     "participants": [
         {
@@ -29,40 +30,34 @@
         },
         {
             "id": "2ac70000-0000-0000-0000-0000000000a4",
-            "label": "a hooded figure",
+            "label": "a hooded figure by the ballast crate",
             "kind": "actor",
             "image": {
                 "schema_version": "image_ref/1",
                 "asset_id": "asset_4ce8ad3b50fe58a4",
                 "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_4ce8ad3b50fe58a4"
             }
+        },
+        {
+            "id": "2ac70000-0000-0000-0000-0000000000aa",
+            "label": "a hooded figure by the bar",
+            "kind": "actor",
+            "image": {
+                "schema_version": "image_ref/1",
+                "asset_id": "asset_c822952a989e857d",
+                "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_c822952a989e857d"
+            }
         }
     ],
     "now": {
-        "tick": 62061,
+        "tick": 50001,
         "display_label": "Arrival"
     },
     "journey": null,
     "current": [
-        "a way opens between The Drowned Lantern and a huddle of driftwood shacks along the tideline #1786309829959189000-5",
-        "a way opens between a huddle of driftwood shacks along the tideline #1786309829959189000-5 and Salt Quay (seat test)",
-        "the road brings me to a huddle of driftwood shacks along the tideline #1786309829959189000-5",
-        "On arriving, I noticed someone already here.",
-        "I arrive.",
-        "Kade nods to Mara across the bar",
-        "Kade orders a round before the crossing",
-        "a commotion erupts from the cellar hatch",
-        "Kade murmurs something under his breath",
-        "Kade murmurs something under his breath",
-        "Kade greets Mara over the bar",
-        "Kade asks Mara for a second round",
-        "Kade greets Mara over the bar",
-        "Kade asks Mara for a second round",
-        "Kade raises a toast before the eruption",
-        "Kade orders a round before the crossing",
-        "a commotion erupts from the cellar hatch",
-        "Kade nods to Mara across the bar",
-        "a stray dog barks in the alley behind the tavern",
-        "Kade mutters into his cup"
+        "the road opens onto a huddle of driftwood shacks along the tideline #1786360058218690000-1",
+        "a way opens between The Drowned Lantern and a huddle of driftwood shacks along the tideline #1786360058218690000-1",
+        "a way opens between a huddle of driftwood shacks along the tideline #1786360058218690000-1 and Salt Quay (schema payload gen)",
+        "the road brings me to a huddle of driftwood shacks along the tideline #1786360058218690000-1"
     ]
 }

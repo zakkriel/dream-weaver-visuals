@@ -12,4 +12,19 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Extra vite config, passed through the way the wrapper documents above — no plugins added.
+  //
+  // Dev-only proxy for the projection API. Every request the app makes is a same-origin relative
+  // path (`/worlds/...`), so in dev it lands here and is forwarded to the backend. That means the app
+  // needs no CORS grant and no configured origin, and — the reason it matters here — in the Lovable
+  // preview, where there is no proxy and no backend, the fetch simply fails and the app falls back to
+  // its bundled fixtures. A failed fetch is debuggable from inside the editor; a failed CORS
+  // preflight is not. Override the target with BACKEND_URL.
+  vite: {
+    server: {
+      proxy: {
+        "/worlds": process.env["BACKEND_URL"] ?? "http://localhost:8080",
+      },
+    },
+  },
 });
