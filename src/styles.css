@@ -352,49 +352,6 @@
   background-color: var(--dc-world-accent-strong);
 }
 
-/* ---- ornate frame: gold corner brackets ---------------------------- */
-
-.dc-frame > .dc-corner {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  pointer-events: none;
-  opacity: 0.85;
-  border-color: color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-}
-
-.dc-frame > .dc-corner-tl {
-  border-top: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  top: 8px;
-  left: 8px;
-  border-top-left-radius: 6px;
-}
-
-.dc-frame > .dc-corner-tr {
-  border-top: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  border-right: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  top: 8px;
-  right: 8px;
-  border-top-right-radius: 6px;
-}
-
-.dc-frame > .dc-corner-bl {
-  border-bottom: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  border-left: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  bottom: 8px;
-  left: 8px;
-  border-bottom-left-radius: 6px;
-}
-
-.dc-frame > .dc-corner-br {
-  border-bottom: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  border-right: 1px solid color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  bottom: 8px;
-  right: 8px;
-  border-bottom-right-radius: 6px;
-}
-
 /* threshold plate — derived atmosphere, never invented art */
 .dc-threshold {
   background-image:
