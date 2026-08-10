@@ -1,10 +1,26 @@
-import { NOT_FOUND, fetchWorlds, type Fetched, type WorldDirectory } from "./index";
-import worldDirectoryFixture from "@/fixtures/world_directory.json";
-import sceneFixture from "@/fixtures/scene_current.json";
-import carryingFixture from "@/fixtures/carrying.json";
+import {
+  NOT_FOUND,
+  fetchWorlds,
+  streamBeat,
+  type BeatFrame,
+  type Carrying,
+  type Fetched,
+  type Press,
+  type Scene,
+  type WorldDirectory,
+} from "./index";
+import {
+  captureFor,
+  fixtureDirectory,
+  type WorldCapture,
+  isFixtureMode,
+  ensureEnvironment,
+  noteFixtureServe,
+  setFixtureMode,
+} from "./fixture-mode";
 
 /**
- * How a surface got its data. Surfaces render this, because a reader looking at fixture data in the
+ * How a surface got its data. Surfaces render this, because a reader looking at captured data in the
  * Lovable preview must not mistake it for the world.
  */
 export type Source = "live" | "fixture";
@@ -26,22 +42,78 @@ function noteDegrade(what: string, why: string): void {
 }
 
 /**
- * Read a WORLD-SCOPED payload live, falling back to the bundled capture when live is unreachable.
+ * Read the world directory. **This one always succeeds, and it decides the environment.**
  *
- * 404 is passed through as `missing` here **on purpose**: for a world-scoped read, a 404 is a real
- * answer about a real question — that world, that scene, that carrying does not exist for this
- * viewer — and showing somebody else's fixture world instead would be a lie (B-1, I-3).
+ * The directory is different in kind from every other read: `GET /worlds` always exists on a real
+ * backend, and an empty directory answers `200` with `worlds: []` rather than 404. So a 404 here does
+ * not mean "there are no worlds" — it means this origin is not talking to a backend at all.
  *
- * A schema mismatch is reported as `failed` for the same reason: the contract moved underneath us and
- * a stale capture would hide exactly the breakage the pin exists to surface.
+ * Every way of failing to obtain a valid pinned directory therefore degrades to the capture: network
+ * error, any non-2xx including 404, a non-JSON body (the preview's HTML catch-all), and a schema-pin
+ * failure. Each logs in dev, so real drift is loud — and `verify:contract` in CI is the gate that
+ * actually catches drift.
  *
- * ⚠️ Do NOT use this for the world directory. See `loadDirectory`.
+ * It is also the ONLY thing that sets fixture mode, in either direction. A successful live read turns
+ * it off, which is what makes fixture mode unreachable against a real backend.
+ *
+ * The return type has no failure case on purpose: the capture is a bundled import, so there is no
+ * runtime path where this yields nothing, and callers should not carry a dead branch.
  */
-export async function loadOrFixture<T>(
+export async function loadDirectory(): Promise<{ data: WorldDirectory; source: Source }> {
+  const degrade = (why: string) => {
+    noteDegrade("world directory", why);
+    setFixtureMode(true);
+    return { data: fixtureDirectory, source: "fixture" as const };
+  };
+
+  try {
+    const result = await fetchWorlds();
+    if (result === NOT_FOUND) {
+      return degrade("the endpoint answered 404, so this origin has no backend");
+    }
+    setFixtureMode(false);
+    return { data: result, source: "live" };
+  } catch (err) {
+    if (err instanceof Error && err.name === "SchemaMismatchError") {
+      return degrade(`${err.message} — the contract moved; check verify:contract`);
+    }
+    return degrade(err instanceof Error ? err.message : "the read failed");
+  }
+}
+
+/**
+ * Read a WORLD-SCOPED payload: the scene, what is carried, anything hung off one world id.
+ *
+ * **In live mode nothing here has changed.** A 404 is passed through as `missing`, because for a
+ * world-scoped read a 404 is a real answer to a real question — that world, that scene does not exist
+ * for this viewer — and showing another world's capture instead would be a lie (B-1, I-3). A schema
+ * mismatch is reported as `failed`, because a stale capture would hide the breakage the pin exists to
+ * surface.
+ *
+ * **In fixture mode** the environment has already been established as backendless by the directory
+ * read, so a 404 carries no information about the world and the capture is served instead — but only
+ * for a world we actually hold one for. An id with no capture still renders honest not-found.
+ */
+export async function loadWorldScoped<T>(
+  worldId: string,
   read: () => Promise<Fetched<T>>,
-  fixture: T,
-  label = "surface",
+  fromCapture: (c: WorldCapture) => T,
+  label: string,
 ): Promise<Loaded<T>> {
+  // Establish the environment before reading anything world-scoped. A cold load — a deep link, a
+  // refresh — starts with no memory of what the picker learned, and a 404 means something different
+  // in each environment. Cheap: the directory read is memoised, so this costs one request per page
+  // load and nothing on subsequent reads.
+  await ensureEnvironment(loadDirectory);
+
+  if (isFixtureMode()) {
+    const capture = captureFor(worldId);
+    // Not a world we captured. In a backendless preview that is all we can honestly say.
+    if (!capture) return { state: "missing" };
+    noteFixtureServe(label, worldId);
+    return { state: "ok", data: fromCapture(capture), source: "fixture" };
+  }
+
   try {
     const result = await read();
     if (result === NOT_FOUND) return { state: "missing" };
@@ -49,61 +121,54 @@ export async function loadOrFixture<T>(
   } catch (err) {
     if (err instanceof Error && err.name === "SchemaMismatchError") return { state: "failed" };
     noteDegrade(label, err instanceof Error ? err.message : "the read failed");
-    return { state: "ok", data: fixture, source: "fixture" };
+    // A live-mode transport failure is not an environment change: the directory decides that, and it
+    // already said there is a backend. Serve the capture for this read only if we hold one.
+    const capture = captureFor(worldId);
+    if (!capture) return { state: "failed" };
+    return { state: "ok", data: fromCapture(capture), source: "fixture" };
   }
 }
 
+export const loadScene = (worldId: string, read: () => Promise<Fetched<Scene>>) =>
+  loadWorldScoped(worldId, read, (c) => c.scene, "scene");
+
+export const loadCarrying = (worldId: string, read: () => Promise<Fetched<Carrying>>) =>
+  loadWorldScoped(worldId, read, (c) => c.carrying, "carrying");
+
 /**
- * Read the world directory. **This one always succeeds.**
+ * Submit a beat, or play one back.
  *
- * The directory is different in kind from every other read, and getting that wrong is what put
- * "No worlds to enter." on the founder's screen:
+ * In fixture mode there is nothing to submit to, so the bundled stream is replayed frame by frame —
+ * same shapes, same order, same handler. That is what makes the play surface drivable in the preview,
+ * which is the entire point: a design tool has to be able to SEE a surface to design it.
  *
- *  - `GET /worlds` **always exists on a real backend.** A directory with nothing in it answers `200`
- *    with `worlds: []`; it never answers 404.
- *  - So a **404 on `/worlds` does not mean "there are no worlds"** — it means this origin is not
- *    talking to a DreamChat backend at all. In the Lovable preview there is no dev proxy, so
- *    `/worlds` hits the app's own router and 404s. Treating that as an answer rendered the empty
- *    state over a perfectly good bundled capture.
- *
- * Therefore **every** way of failing to obtain a valid pinned directory degrades to the capture:
- * a network error, any non-2xx including 404, a non-JSON body (the preview's HTML catch-all), and a
- * schema-pin failure. Each one logs in dev, so a real drift is loud rather than silent — and
- * `verify:contract` in CI is the gate that actually catches drift.
- *
- * The return type has no failure case on purpose: the fixture is a bundled import, so there is no
- * runtime path where this yields nothing, and callers should not carry a dead branch pretending
- * otherwise. An empty picker is now reachable only from a genuine `worlds: []`.
+ * The small delay between frames is not decoration either. Streaming granularity is a real property
+ * of this surface — the pending state, the transcript growing a line at a time — and a replay that
+ * dumped every frame at once would hide the thing a designer most needs to look at.
  */
-export async function loadDirectory(): Promise<{ data: WorldDirectory; source: Source }> {
-  try {
-    const result = await fetchWorlds();
-    if (result === NOT_FOUND) {
-      noteDegrade("world directory", "the endpoint answered 404, so this origin has no backend");
-      return { data: fixtures.worlds as WorldDirectory, source: "fixture" };
+export async function submitBeat(
+  worldId: string,
+  press: Press,
+  text: string,
+  onFrame: (frame: BeatFrame) => void,
+): Promise<void> {
+  await ensureEnvironment(loadDirectory);
+  if (isFixtureMode()) {
+    const capture = captureFor(worldId);
+    if (!capture) throw new Error("no captured beat stream for this world");
+    noteFixtureServe("beat stream", worldId);
+    for (const frame of capture.beats) {
+      const { promise, resolve } = Promise.withResolvers<void>();
+      setTimeout(resolve, 120);
+      await promise;
+      onFrame(frame);
     }
-    return { data: result, source: "live" };
-  } catch (err) {
-    const why =
-      err instanceof Error && err.name === "SchemaMismatchError"
-        ? `${err.message} — the contract moved; check verify:contract`
-        : err instanceof Error
-          ? err.message
-          : "the read failed";
-    noteDegrade("world directory", why);
-    return { data: fixtures.worlds as WorldDirectory, source: "fixture" };
+    return;
   }
+  return streamBeat(worldId, press, text, onFrame);
 }
 
-/**
- * The bundled captures.
- *
- * Real payloads captured from a live backend, so they are correct by construction rather than by
- * assertion — but they are still JSON imports, so each cast is the one place a fixture crosses into
- * typed code. `src/laws/fixtures.test.ts` fails if a capture's `schema_version` stops matching its pin.
- */
+/** The bundled captures, for callers that need one directly. */
 export const fixtures = {
-  worlds: worldDirectoryFixture,
-  scene: sceneFixture,
-  carrying: carryingFixture,
+  worlds: fixtureDirectory,
 } as const;
