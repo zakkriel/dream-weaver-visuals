@@ -1,3 +1,14 @@
+/**
+ * UNROUTED. This shape backs `components/dc/Dashboard*`, which no route mounts.
+ *
+ * It corresponds to no contract in `contracts/`. Its data file has been moved to
+ * `docs/lovable-drafts/dashboard.mock.json` — it was hand-authored, and sitting in `src/fixtures/`
+ * beside twelve real captured payloads made it indistinguishable from one.
+ *
+ * The components are kept, not deleted: the visual work is good and Lovable owns it. What it needs
+ * before it can mount is a contract behind each value — see `AGENTS.md`, "The dashboard".
+ */
+
 export interface DashboardNavItem {
   label: string;
   icon: "home" | "worlds" | "characters" | "mods" | "discover" | "library" | "account" | "settings";

@@ -1,0 +1,35 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+
+      # Types first: it is hermetic and the fastest signal.
+      - run: bun run typecheck
+
+      # src/api/types/ must be exactly what the vendored schemas generate. Hand-editing a generated
+      # type is how a client quietly starts reading a payload the server does not send.
+      - run: bun run verify:types
+
+      - run: bun run build
+
+      # The law tests. These do not test appearance — they test the rules a restyle must not break.
+      # A red one here almost always means a rule was broken, not that the test is wrong.
+      - run: bun run test
+
+      # Last, so a failure is unambiguous. This compares contracts/ against the BACKEND'S main,
+      # falling back to raw.githubusercontent when no sibling checkout exists — which is always the
+      # case on a runner. It is the one step whose result depends on another repository at the moment
+      # it runs: a backend contract change can turn a green PR here red without anyone touching this
+      # repo. That is intended. Drift should be loud.
+      - run: bun run verify:contract
