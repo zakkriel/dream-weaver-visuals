@@ -5,7 +5,6 @@ import {
   fetchCarrying,
   fetchScene,
   imageUrl,
-  streamBeat,
   type BeatFrame,
   type BeatOutcome,
   type Carrying,
@@ -13,7 +12,7 @@ import {
   type NarrationMessage,
   type Scene,
 } from "@/api";
-import { loadOrFixture, fixtures, type Loaded } from "@/api/load";
+import { loadScene, loadCarrying, submitBeat, type Loaded } from "@/api/load";
 
 export const Route = createFileRoute("/w/$worldId/play")({
   head: () => ({
@@ -137,7 +136,7 @@ function Play() {
 
   useEffect(() => {
     let live = true;
-    void loadOrFixture(() => fetchScene(worldId), fixtures.scene as Scene).then((r) => {
+    void loadScene(worldId, () => fetchScene(worldId)).then((r) => {
       if (!live) return;
       setScene(r);
       if (r.state === "ok") remember(r.data);
@@ -151,7 +150,7 @@ function Play() {
   // no frame announces it, so the overlay would otherwise show what you had before you reached.
   useEffect(() => {
     let live = true;
-    void loadOrFixture(() => fetchCarrying(worldId), fixtures.carrying as Carrying).then((r) => {
+    void loadCarrying(worldId, () => fetchCarrying(worldId)).then((r) => {
       if (live) setCarrying(r.state === "ok" ? r.data : null);
     });
     return () => {
@@ -195,7 +194,7 @@ function Play() {
     setFailed(false);
     setPending(true);
     try {
-      await streamBeat(worldId, press, text, onFrame);
+      await submitBeat(worldId, press, text, onFrame);
     } catch {
       setFailed(true);
     } finally {
