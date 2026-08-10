@@ -361,8 +361,6 @@
   pointer-events: none;
   opacity: 0.85;
   border-color: color-mix(in srgb, var(--dc-world-accent, var(--dc-accent)) 70%, transparent);
-  border-style: solid;
-  border-width: 0;
 }
 
 .dc-frame > .dc-corner-tl {
