@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { WorldDirectoryEntry } from "@/types/world_directory";
 import { worldAccentVars, worldAtmosphereAttrs } from "@/lib/world-theme";
 import { moodPlate } from "@/lib/mood-plate";
+import { imageUrl } from "@/api";
 import type { CSSProperties } from "react";
 
 /**
@@ -10,15 +11,22 @@ import type { CSSProperties } from "react";
  *
  * Every visible string comes from the payload except the structural action
  * labels and the existing "Nobody to be here yet" chip. `id` builds the link
- * target and is never rendered. The plate is house atmosphere chosen by
- * `theme.mood`, never art claiming to be this world.
- * NEEDS BACKEND FIELD: world.cover.path
+ * target and is never rendered.
+ *
+ * The picture is the world's OWN cover when it has one — `world_directory/2`
+ * added `cover_image`, which is what the NEEDS BACKEND FIELD note here used to
+ * ask for. When it is null the house plate chosen by `theme.mood` stands in, as
+ * before: art arriving later is a payload change, never something this card
+ * waits or polls for, and a world without a cover must still look deliberate.
+ * The plate is house atmosphere and never claims to depict the world.
  */
 export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
   const style = worldAccentVars(world.theme) as CSSProperties;
   const atmosphere = worldAtmosphereAttrs(world.theme);
   const enterable = world.playable;
-  const plate = moodPlate(world.theme?.mood);
+  // `preview` (768px), not `final`: the card draws this a few hundred pixels wide.
+  const cover = world.cover_image ? imageUrl(world.cover_image, "preview") : null;
+  const plate = cover ?? moodPlate(world.theme?.mood);
 
   return (
     <article

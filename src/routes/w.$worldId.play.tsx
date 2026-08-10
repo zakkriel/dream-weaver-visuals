@@ -73,11 +73,25 @@ const HALT: Record<string, string> = {
  * Decorative by default: on a narration card the speaker's name is the adjacent text, so labelling
  * the face would make a screen reader say it twice.
  */
-function Portrait({ src, size }: { src?: string | undefined; size: "sm" | "lg" }) {
+function Portrait({
+  src,
+  size,
+  active = false,
+}: {
+  src?: string | undefined;
+  size: "sm" | "lg";
+  active?: boolean;
+}) {
   const [broken, setBroken] = useState(false);
   const box = size === "lg" ? "size-16 border-2" : "size-8 border";
+  // `inline-flex`, not the default inline: an inline box does not take a width or height, so the
+  // frame collapses and the image spills past its own circle.
   return (
-    <span className={`${box} shrink-0 overflow-hidden rounded-full border-dc-border bg-dc-surface-raised`}>
+    <span
+      className={`${box} inline-flex shrink-0 overflow-hidden rounded-full bg-dc-surface-raised ${
+        active ? "border-dc-accent" : "border-dc-border"
+      }`}
+    >
       {src && !broken ? (
         <img src={src} alt="" className="size-full object-cover" onError={() => setBroken(true)} />
       ) : (
@@ -226,18 +240,32 @@ function Play() {
 
   return (
     <Atmosphere>
-      {/* The place backdrop. `scene_current/3` added `place.image`; it is null until the art batch
-          lands, and the surface must read with or without it (D-8) — so this is a layer that simply
-          is not there when there is no picture, never a reserved hole. */}
+      {/* The place backdrop. `scene_current/3` added `place.image`; it is null until a world has art,
+          and the surface must read with or without it (D-8) — so this is a layer that simply is not
+          there when there is no picture, never a reserved hole.
+
+          z-0, NOT a negative z-index: a negatively-stacked child paints behind its ancestor's
+          background, and the house atmosphere is an opaque gradient, so the art was invisible. */}
       {s?.place.image && (
-        <div
-          aria-hidden
-          className="pointer-events-none fixed inset-0 -z-10 bg-cover bg-center opacity-40"
-          style={{ backgroundImage: `url(${imageUrl(s.place.image, "final")})` }}
-        />
+        <>
+          <div
+            aria-hidden
+            className="pointer-events-none fixed inset-0 z-0 bg-cover bg-center opacity-40"
+            style={{ backgroundImage: `url(${imageUrl(s.place.image, "final")})` }}
+          />
+          {/* The scrim, and it is not decoration. Measured against this world's own backdrop, the
+              brightest region (the window) put body text at 3.85:1 — under the 4.5:1 floor. Averaged
+              over the frame it was 11.9:1, which is exactly why an average is the wrong test: the
+              text lands wherever the layout puts it. This holds the worst tile above the floor while
+              leaving the art readable. */}
+          <div
+            aria-hidden
+            className="pointer-events-none fixed inset-0 z-0 [background-image:linear-gradient(180deg,rgba(9,13,21,0.72)_0%,rgba(9,13,21,0.55)_45%,rgba(9,13,21,0.78)_100%)]"
+          />
+        </>
       )}
 
-      <div className="mx-auto flex min-h-screen w-full max-w-[92rem] gap-6 px-5 py-6">
+      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-[92rem] gap-6 px-5 py-6">
         <main className="min-w-0 flex-1">
           {scene === null && <p className="font-ui text-dc-text-muted">Reading the scene…</p>}
           {scene?.state === "failed" && (
@@ -274,12 +302,11 @@ function Play() {
                 <ul className="mt-8 flex list-none flex-wrap gap-6 p-0">
                   {s.participants.map((p) => (
                     <li key={p.id} className="flex w-24 flex-col items-center gap-2">
-                      <span className={p.id === speakingId ? "rounded-full ring-2 ring-dc-accent" : ""}>
-                        <Portrait
-                          src={p.image ? imageUrl(p.image, "thumbnail") : undefined}
-                          size="lg"
-                        />
-                      </span>
+                      <Portrait
+                        src={p.image ? imageUrl(p.image, "thumbnail") : undefined}
+                        size="lg"
+                        active={p.id === speakingId}
+                      />
                       <span className="text-center font-ui text-sm text-dc-text-muted">{p.label}</span>
                     </li>
                   ))}
