@@ -6,17 +6,15 @@ import { DashboardHome } from "@/components/dc/DashboardHome";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Worlds — DreamChat" },
+      { title: "Dashboard — DreamChat" },
       {
         name: "description",
-        content:
-          "Choose a world to enter. DreamChat is a persistent AI world: every screen is one character's perception of it.",
+        content: "DreamChat chronicle dashboard for worlds, characters, mods, and updates.",
       },
-      { property: "og:title", content: "Worlds — DreamChat" },
+      { property: "og:title", content: "Dashboard — DreamChat" },
       {
         property: "og:description",
-        content:
-          "Choose a world to enter. DreamChat is a persistent AI world: every screen is one character's perception of it.",
+        content: "DreamChat chronicle dashboard for worlds, characters, mods, and updates.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
