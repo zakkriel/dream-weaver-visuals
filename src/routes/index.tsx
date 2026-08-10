@@ -5,6 +5,7 @@ import { Atmosphere } from "@/components/dc/Atmosphere";
 import { WorldCard } from "@/components/dc/WorldCard";
 import { OrnateFrame } from "@/components/dc/OrnateFrame";
 import { SideRail } from "@/components/dc/SideRail";
+import { housePlate } from "@/lib/mood-plate";
 
 const directory = worldDirectory as WorldDirectory;
 
@@ -23,6 +24,8 @@ export const Route = createFileRoute("/")({
         content:
           "Choose a world to enter. DreamChat is a persistent AI world: every screen is one character's perception of it.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: WorldPicker,
@@ -33,44 +36,51 @@ function WorldPicker() {
 
   return (
     <Atmosphere>
-      <div className="mx-auto flex w-full max-w-[100rem] gap-5 px-5 py-5">
+      <div className="mx-auto flex w-full max-w-[110rem] gap-5 px-5 py-5">
         <SideRail />
 
         <main className="min-w-0 flex-1 space-y-5">
-          <header className="px-1 pt-2">
-            <p className="dc-label text-dc-text-muted">DreamChat</p>
-            <h1 className="mt-1 font-display text-[clamp(2rem,4vw,3rem)] leading-tight tracking-[0.04em] text-dc-text [text-shadow:var(--dc-text-glow)]">
-              Worlds
-            </h1>
-          </header>
-
-          {/* threshold panel — no invented copy, no create affordance */}
+          {/* threshold: painted sky, the product mark, the one instruction */}
           <OrnateFrame className="overflow-hidden">
-            <div className="relative grid gap-8 p-8 md:grid-cols-[1.1fr_1fr] md:p-10">
-              <div className="flex flex-col justify-center">
-                <h2 className="font-display text-[clamp(1.75rem,3.4vw,2.5rem)] leading-tight text-dc-text">
+            <div className="relative min-h-[19rem]">
+              <img
+                src={housePlate}
+                alt=""
+                aria-hidden
+                width={1920}
+                height={720}
+                className="absolute inset-0 size-full object-cover object-[50%_35%] opacity-80"
+              />
+              <span
+                aria-hidden
+                className="absolute inset-0 [background-image:linear-gradient(90deg,rgba(9,13,21,0.96)_0%,rgba(9,13,21,0.82)_42%,rgba(9,13,21,0.28)_100%),linear-gradient(180deg,rgba(9,13,21,0.35),rgba(9,13,21,0.85))]"
+              />
+
+              <div className="relative flex min-h-[19rem] flex-col justify-center gap-4 p-8 md:p-12">
+                <p className="dc-label text-dc-accent">DreamChat</p>
+                <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.05] tracking-[0.03em] text-dc-text [text-shadow:var(--dc-text-glow)]">
                   Choose a world to enter.
-                </h2>
-                <p className="mt-4 max-w-md font-body text-lg leading-relaxed text-dc-text-muted">
+                </h1>
+                <p className="max-w-xl font-body text-lg leading-relaxed text-dc-text-muted">
                   Each world keeps its own weather, its own hour and its own
                   people. You arrive as someone already inside it.
                 </p>
-                <hr aria-hidden className="dc-divider mt-8 w-56" />
-              </div>
-
-              <div
-                aria-hidden
-                className="dc-threshold relative min-h-[12rem] overflow-hidden rounded-dc-md border border-dc-border"
-              >
-                <span className="dc-drift absolute inset-0" />
+                <span
+                  aria-hidden
+                  className="mt-2 h-px w-64 [background-image:linear-gradient(90deg,var(--dc-accent),transparent)]"
+                />
               </div>
             </div>
           </OrnateFrame>
 
-          <section aria-label="Worlds">
-            <h2 className="dc-label mb-4 px-1 text-dc-text-muted">
-              Worlds
-            </h2>
+          <section aria-label="Worlds" className="space-y-4">
+            <div className="flex items-baseline gap-4 px-1">
+              <h2 className="dc-label text-dc-accent">Worlds</h2>
+              <span
+                aria-hidden
+                className="h-px flex-1 [background-image:linear-gradient(90deg,var(--dc-border-accent),transparent)]"
+              />
+            </div>
 
             {worlds.length === 0 ? (
               <OrnateFrame className="p-12 text-center">
