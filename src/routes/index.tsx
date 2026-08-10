@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
 import { SideRail } from "@/components/dc/SideRail";
 import { WorldCard } from "@/components/dc/WorldCard";
-import { fetchWorlds, type WorldDirectory } from "@/api";
-import { loadOrFixture, fixtures, type Loaded } from "@/api/load";
+import { type WorldDirectory } from "@/api";
+import { loadDirectory, type Source } from "@/api/load";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,11 +32,11 @@ export const Route = createFileRoute("/")({
  * what data reaches them.
  */
 function Picker() {
-  const [loaded, setLoaded] = useState<Loaded<WorldDirectory> | null>(null);
+  const [loaded, setLoaded] = useState<{ data: WorldDirectory; source: Source } | null>(null);
 
   useEffect(() => {
     let live = true;
-    void loadOrFixture(fetchWorlds, fixtures.worlds as WorldDirectory).then((r) => {
+    void loadDirectory().then((r) => {
       if (live) setLoaded(r);
     });
     return () => {
@@ -54,7 +54,7 @@ function Picker() {
               Worlds
             </h1>
             <p className="mt-3 font-ui text-dc-text-muted">Choose a world to enter.</p>
-            {loaded?.state === "ok" && loaded.source === "fixture" && (
+            {loaded?.source === "fixture" && (
               <p className="dc-label mt-4 inline-flex w-fit rounded-dc-sm border border-dc-border bg-dc-overlay px-3 py-1.5 text-dc-text-muted">
                 Offline — showing a captured world list
               </p>
@@ -63,21 +63,14 @@ function Picker() {
 
           {loaded === null && <p className="font-ui text-dc-text-muted">Reading the directory…</p>}
 
-          {loaded?.state === "failed" && (
-            <p className="font-ui text-dc-text-muted">Could not read the directory. Try again.</p>
-          )}
-
-          {/* A directory that answers 404 is not an error worth dressing up: there is simply nothing
-              to choose between. Withheld and nonexistent arrive identically (B-1, I-3). */}
-          {loaded?.state === "missing" && (
+          {/* Reachable only from a genuine `worlds: []`. Every way of failing to READ the directory
+              degrades to the bundled capture instead — a 404 on /worlds means this origin has no
+              backend, not that the world list is empty. See loadDirectory. */}
+          {loaded !== null && loaded.data.worlds.length === 0 && (
             <p className="font-ui text-dc-text-muted">No worlds to enter.</p>
           )}
 
-          {loaded?.state === "ok" && loaded.data.worlds.length === 0 && (
-            <p className="font-ui text-dc-text-muted">No worlds to enter.</p>
-          )}
-
-          {loaded?.state === "ok" && loaded.data.worlds.length > 0 && (
+          {loaded !== null && loaded.data.worlds.length > 0 && (
             <ul className="grid list-none grid-cols-[repeat(auto-fill,minmax(20rem,1fr))] gap-6 p-0">
               {/* Rendered in the order the payload gave. `id` is the key and the link target; it is
                   never displayed. */}
