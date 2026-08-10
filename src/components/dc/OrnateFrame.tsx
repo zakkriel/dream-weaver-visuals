@@ -13,10 +13,10 @@ export function OrnateFrame({
 }) {
   return (
     <section className={`dc-glass dc-frame relative rounded-dc-lg ${className}`}>
-      <span aria-hidden className="dc-corner dc-corner-tl" />
-      <span aria-hidden className="dc-corner dc-corner-tr" />
-      <span aria-hidden className="dc-corner dc-corner-bl" />
-      <span aria-hidden className="dc-corner dc-corner-br" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 left-2 border-t border-l rounded-tl-[6px]" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 right-2 border-t border-r rounded-tr-[6px]" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 left-2 border-b border-l rounded-bl-[6px]" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 right-2 border-b border-r rounded-br-[6px]" />
       {children}
     </section>
   );

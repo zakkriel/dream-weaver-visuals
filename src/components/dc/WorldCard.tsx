@@ -22,10 +22,10 @@ export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
       style={style}
       className="dc-world-card dc-glass dc-frame group relative flex flex-col overflow-hidden rounded-dc-lg transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(.4,0,.2,1)] hover:-translate-y-1 hover:shadow-dc-3"
     >
-      <span aria-hidden className="dc-corner dc-corner-tl" />
-      <span aria-hidden className="dc-corner dc-corner-tr" />
-      <span aria-hidden className="dc-corner dc-corner-bl" />
-      <span aria-hidden className="dc-corner dc-corner-br" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 left-2 border-t border-l rounded-tl-[6px]" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 right-2 border-t border-r rounded-tr-[6px]" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 left-2 border-b border-l rounded-bl-[6px]" />
+      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 right-2 border-b border-r rounded-br-[6px]" />
 
       {/* cover plate: derived weather, never invented art */}
       <div className="relative h-40 overflow-hidden border-b border-dc-border">
