@@ -56,9 +56,9 @@ function WorldPicker() {
                 className="absolute inset-0 [background-image:linear-gradient(90deg,rgba(9,13,21,0.94)_0%,rgba(9,13,21,0.72)_38%,rgba(9,13,21,0.18)_78%,rgba(9,13,21,0.05)_100%),linear-gradient(180deg,rgba(9,13,21,0.20),rgba(9,13,21,0.62))]"
               />
 
-              <div className="relative flex min-h-[19rem] flex-col justify-center gap-4 p-8 md:p-12">
+              <div className="relative flex min-h-[22rem] flex-col justify-center gap-4 p-8 md:p-12">
                 <p className="dc-label text-dc-accent">DreamChat</p>
-                <h1 className="font-display text-[clamp(2.4rem,5vw,4rem)] leading-[1.05] tracking-[0.03em] text-dc-text [text-shadow:var(--dc-text-glow)]">
+                <h1 className="font-display text-[clamp(2.2rem,4.2vw,3.4rem)] leading-[1.05] tracking-[0.03em] text-dc-text [text-shadow:var(--dc-text-glow)]">
                   Choose a world to enter.
                 </h1>
                 <p className="max-w-xl font-body text-lg leading-relaxed text-dc-text-muted">
