@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
-import { fetchWorlds, type WorldDirectory, type WorldSummary } from "@/api";
-import { loadOrFixture, fixtures, type Loaded } from "@/api/load";
+import { type WorldDirectory, type WorldSummary } from "@/api";
+import { loadDirectory, type Source } from "@/api/load";
 
 export const Route = createFileRoute("/w/$worldId/")({
   head: () => ({
@@ -32,11 +32,11 @@ export const Route = createFileRoute("/w/$worldId/")({
  */
 function WorldHome() {
   const { worldId } = Route.useParams();
-  const [loaded, setLoaded] = useState<Loaded<WorldDirectory> | null>(null);
+  const [loaded, setLoaded] = useState<{ data: WorldDirectory; source: Source } | null>(null);
 
   useEffect(() => {
     let live = true;
-    void loadOrFixture(fetchWorlds, fixtures.worlds as WorldDirectory).then((r) => {
+    void loadDirectory().then((r) => {
       if (live) setLoaded(r);
     });
     return () => {
@@ -44,21 +44,17 @@ function WorldHome() {
     };
   }, []);
 
-  const world: WorldSummary | undefined =
-    loaded?.state === "ok" ? loaded.data.worlds.find((w) => w.id === worldId) : undefined;
+  const world: WorldSummary | undefined = loaded?.data.worlds.find((w) => w.id === worldId);
 
   // A world id that is not in the directory is not there. Withheld and nonexistent arrive
-  // identically and stay indistinguishable here (B-1, I-3).
-  const missing = loaded?.state === "missing" || (loaded?.state === "ok" && world === undefined);
+  // identically and stay indistinguishable here (B-1, I-3). Note this is a judgement about the
+  // WORLD, not about the read: failing to read the directory degrades to the capture instead.
+  const missing = loaded !== null && world === undefined;
 
   return (
     <Atmosphere>
       <main className="mx-auto flex min-h-screen w-full max-w-[64rem] flex-col gap-8 px-6 py-12">
         {loaded === null && <p className="font-ui text-dc-text-muted">Reading the world…</p>}
-
-        {loaded?.state === "failed" && (
-          <p className="font-ui text-dc-text-muted">Could not reach the world. Try again.</p>
-        )}
 
         {missing && (
           <>
@@ -74,7 +70,7 @@ function WorldHome() {
 
         {world && (
           <>
-            {loaded?.state === "ok" && loaded.source === "fixture" && (
+            {loaded?.source === "fixture" && (
               <p className="dc-label w-fit rounded-dc-sm border border-dc-border bg-dc-overlay px-3 py-1.5 text-dc-text-muted">
                 Offline — showing a captured world
               </p>
