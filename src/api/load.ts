@@ -1,6 +1,8 @@
 import {
   NOT_FOUND,
   fetchWorlds,
+  apiBase,
+  hasConfiguredBase,
   streamBeat,
   type BeatFrame,
   type Carrying,
@@ -24,6 +26,17 @@ import {
  * Lovable preview must not mistake it for the world.
  */
 export type Source = "live" | "fixture";
+
+/**
+ * What a directory read yields.
+ *
+ * `unreachable` exists only for the configured-base case and names the base, because the thing the
+ * operator most needs to know is which address failed — a pasted URL with a typo looks identical to
+ * a backend that is down until you can see the origin the app actually tried.
+ */
+export type DirectoryResult =
+  | { state: "ok"; data: WorldDirectory; source: Source }
+  | { state: "unreachable"; base: string; why: string };
 
 export type Loaded<T> =
   | { state: "ok"; data: T; source: Source }
@@ -59,25 +72,34 @@ function noteDegrade(what: string, why: string): void {
  * The return type has no failure case on purpose: the capture is a bundled import, so there is no
  * runtime path where this yields nothing, and callers should not carry a dead branch.
  */
-export async function loadDirectory(): Promise<{ data: WorldDirectory; source: Source }> {
-  const degrade = (why: string) => {
+export async function loadDirectory(): Promise<DirectoryResult> {
+  // A configured base is a statement that a backend exists at that address. If it cannot be reached,
+  // that is a fault the operator needs to see — serving stale captures would hide a broken deployment
+  // behind a screen that looks like it works. So fixture mode is off the table here, by precedence.
+  const configured = hasConfiguredBase();
+
+  const degradeOrFail = (why: string): DirectoryResult => {
+    if (configured) {
+      setFixtureMode(false);
+      return { state: "unreachable", base: apiBase(), why };
+    }
     noteDegrade("world directory", why);
     setFixtureMode(true);
-    return { data: fixtureDirectory, source: "fixture" as const };
+    return { state: "ok", data: fixtureDirectory, source: "fixture" };
   };
 
   try {
     const result = await fetchWorlds();
     if (result === NOT_FOUND) {
-      return degrade("the endpoint answered 404, so this origin has no backend");
+      return degradeOrFail("the endpoint answered 404, so this origin has no backend");
     }
     setFixtureMode(false);
-    return { data: result, source: "live" };
+    return { state: "ok", data: result, source: "live" };
   } catch (err) {
     if (err instanceof Error && err.name === "SchemaMismatchError") {
-      return degrade(`${err.message} — the contract moved; check verify:contract`);
+      return degradeOrFail(`${err.message} — the contract moved; check verify:contract`);
     }
-    return degrade(err instanceof Error ? err.message : "the read failed");
+    return degradeOrFail(err instanceof Error ? err.message : "the read failed");
   }
 }
 

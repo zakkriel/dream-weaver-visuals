@@ -61,15 +61,34 @@ export const NOT_FOUND = Symbol("not_found");
 export type Fetched<T> = T | typeof NOT_FOUND;
 
 /**
- * The one configurable backend origin.
+ * Where the backend is. Three environments, one precedence order:
  *
- * Empty by default, which makes every request a same-origin relative path handled by the dev proxy in
- * `vite.config.ts`. That is deliberate: a proxy means no CORS dependency, and it means the Lovable
- * preview — where no proxy and no backend exist — simply fails the fetch and falls back to fixtures
- * instead of failing a preflight in a way nobody can debug from inside the editor.
+ *  1. **`VITE_API_BASE` is set** → every request is absolute against that origin. This is the hosted
+ *     case: the Lovable preview pointed at Railway. Cross-origin, so the backend must allow the
+ *     preview's origin — including `POST` with `Content-Type: application/json`, which preflights.
+ *  2. **Not set, running `bun run dev`** → relative paths, handled by the proxy in `vite.config.ts`.
+ *     Same-origin, so no CORS is involved at all. Unchanged.
+ *  3. **Not set, no proxy** → the backendless preview. Requests 404 and the app enters fixture mode.
+ *     Unchanged.
+ *
+ * Trimmed and de-slashed because this value gets pasted by hand into a settings box: a trailing
+ * slash would produce `//worlds`, and a stray space would produce a URL that fails in a way nobody
+ * would guess from the symptom.
  */
 export function apiBase(): string {
-  return (import.meta.env["VITE_API_BASE"] ?? "").replace(/\/$/, "");
+  return (import.meta.env["VITE_API_BASE"] ?? "").trim().replace(/\/+$/, "");
+}
+
+/**
+ * Whether a real backend origin was configured.
+ *
+ * This is what separates environment 1 from environment 3, and it is the reason fixture mode cannot
+ * engage when a base is set: configuring a base is a statement that a backend exists at that address.
+ * If it then cannot be reached, that is a fault worth showing — quietly serving stale captures
+ * instead would hide a broken deployment behind a screen that looks like it works.
+ */
+export function hasConfiguredBase(): boolean {
+  return apiBase() !== "";
 }
 
 /**

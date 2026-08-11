@@ -1,7 +1,15 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { loadDirectory, loadScene, loadCarrying, submitBeat, fixtures } from "@/api/load";
 import { captureFor, isFixtureMode, resetFixtureMode } from "@/api/fixture-mode";
-import { fetchScene, NOT_FOUND, type BeatFrame, type Scene } from "@/api";
+import {
+  apiBase,
+  fetchScene,
+  hasConfiguredBase,
+  imageUrl,
+  NOT_FOUND,
+  type BeatFrame,
+  type Scene,
+} from "@/api";
 
 /**
  * The degradation matrix, and the environment that decides it.
@@ -64,6 +72,11 @@ describe("the directory decides the environment", () => {
     expect(isFixtureMode()).toBe(false);
   });
 
+  it("a live directory read reports itself as live", async () => {
+    respond({ json: fixtures.worlds });
+    expect(await loadDirectory()).toMatchObject({ state: "ok", source: "live" });
+  });
+
   it("a 404 directory means fixture mode", async () => {
     await enterBackendlessPreview();
     expect(isFixtureMode()).toBe(true);
@@ -91,7 +104,7 @@ describe("the directory decides the environment", () => {
       resetFixtureMode();
       respond(init);
       const r = await loadDirectory();
-      expect(r.source).toBe("fixture");
+      expect(r).toMatchObject({ state: "ok", source: "fixture" });
       expect(isFixtureMode()).toBe(true);
     }
   });
@@ -99,8 +112,8 @@ describe("the directory decides the environment", () => {
   it("passes a genuinely empty directory through as live and empty", async () => {
     respond({ json: { schema_version: "world_directory/2", worlds: [] } });
     const r = await loadDirectory();
-    expect(r.source).toBe("live");
-    expect(r.data.worlds).toEqual([]);
+    expect(r).toMatchObject({ state: "ok", source: "live" });
+    expect(r.state === "ok" && r.data.worlds).toEqual([]);
     expect(isFixtureMode()).toBe(false);
   });
 });
@@ -266,5 +279,127 @@ describe("a cold load establishes the environment for itself", () => {
     ]);
     const directoryReads = spy.mock.calls.filter(([u]) => String(u).endsWith("/worlds")).length;
     expect(directoryReads).toBe(1);
+  });
+});
+
+/**
+ * Where the backend is, and what each environment means.
+ *
+ * Three environments, one precedence order: an explicit `VITE_API_BASE` wins; otherwise relative
+ * paths go through the dev proxy; otherwise there is no backend and the captures serve.
+ *
+ * The rule that matters most is the last group: **configuring a base takes fixture mode off the
+ * table.** Setting it is a statement that a backend exists at that address, so a failure there is a
+ * fault to show, not a cue to quietly serve stale captures behind a screen that looks fine.
+ */
+describe("api base precedence", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("is empty by default, so requests are relative and the dev proxy handles them", () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    expect(apiBase()).toBe("");
+    expect(hasConfiguredBase()).toBe(false);
+  });
+
+  it("uses the configured origin when one is set", () => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app");
+    expect(apiBase()).toBe("https://dreamchat.up.railway.app");
+    expect(hasConfiguredBase()).toBe(true);
+  });
+
+  // This value gets pasted by hand into a settings box.
+  it("tolerates a pasted trailing slash and stray whitespace", () => {
+    vi.stubEnv("VITE_API_BASE", "  https://dreamchat.up.railway.app///  ");
+    expect(apiBase()).toBe("https://dreamchat.up.railway.app");
+  });
+
+  it("builds absolute request URLs against the configured origin", async () => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app");
+    const seen: string[] = [];
+    globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
+      seen.push(String(input));
+      return new Response(JSON.stringify(fixtures.worlds), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }) as unknown as typeof fetch;
+    await loadDirectory();
+    expect(seen[0]).toBe("https://dreamchat.up.railway.app/worlds");
+  });
+
+  // The image path is the one that would silently break: it is concatenated, not templated.
+  it("builds absolute IMAGE urls against the configured origin, with no double slash", () => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app/");
+    const ref = {
+      schema_version: "image_ref/1" as const,
+      asset_id: "asset_x",
+      path: "/worlds/w1/images/asset_x",
+    };
+    expect(imageUrl(ref)).toBe("https://dreamchat.up.railway.app/worlds/w1/images/asset_x");
+    expect(imageUrl(ref, "thumbnail")).toBe(
+      "https://dreamchat.up.railway.app/worlds/w1/images/asset_x?tier=thumbnail",
+    );
+    expect(imageUrl(ref)).not.toContain("//worlds");
+  });
+
+  it("keeps image urls relative when no base is configured", () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    const ref = {
+      schema_version: "image_ref/1" as const,
+      asset_id: "asset_x",
+      path: "/worlds/w1/images/asset_x",
+    };
+    expect(imageUrl(ref, "preview")).toBe("/worlds/w1/images/asset_x?tier=preview");
+  });
+});
+
+describe("a configured base takes fixture mode off the table", () => {
+  afterEach(() => vi.unstubAllEnvs());
+
+  it.each([
+    ["a 404", { status: 404, body: "<!doctype html>" }],
+    ["a 500", { status: 500, body: "boom" }],
+    ["an HTML body", { status: 200, body: "<!doctype html>" }],
+  ])("reports unreachable rather than degrading on %s", async (_label, init) => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app");
+    respond(init);
+    const r = await loadDirectory();
+    expect(r.state).toBe("unreachable");
+    expect(r.state === "unreachable" && r.base).toBe("https://dreamchat.up.railway.app");
+    expect(isFixtureMode()).toBe(false);
+  });
+
+  it("reports unreachable on a network error and names the base", async () => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app");
+    globalThis.fetch = vi.fn(async () => {
+      throw new TypeError("Failed to fetch");
+    }) as unknown as typeof fetch;
+    const r = await loadDirectory();
+    expect(r).toMatchObject({ state: "unreachable", base: "https://dreamchat.up.railway.app" });
+    expect(isFixtureMode()).toBe(false);
+  });
+
+  // The whole point: with Railway configured, the preview must never silently show captures.
+  it("a world-scoped read cannot reach fixture mode either", async () => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app");
+    respond({ status: 404, body: "<!doctype html>" });
+    const r = await loadScene(LANTERN, () => fetchScene(LANTERN));
+    expect(isFixtureMode()).toBe(false);
+    expect(r.state).toBe("missing");
+  });
+
+  it("serves live from the configured base when it answers", async () => {
+    vi.stubEnv("VITE_API_BASE", "https://dreamchat.up.railway.app");
+    respond({ json: fixtures.worlds });
+    expect(await loadDirectory()).toMatchObject({ state: "ok", source: "live" });
+    expect(isFixtureMode()).toBe(false);
+  });
+
+  // And with no base configured, the backendless preview still degrades exactly as before.
+  it("with no base configured the same 404 still degrades to captures", async () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    respond({ status: 404, body: "<!doctype html>" });
+    expect(await loadDirectory()).toMatchObject({ state: "ok", source: "fixture" });
+    expect(isFixtureMode()).toBe(true);
   });
 });
