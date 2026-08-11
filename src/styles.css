@@ -459,3 +459,202 @@
   .dashboard-aside { grid-column: 2; }
   .dashboard-main { grid-column: 2; }
 }
+
+/* ---- surface 3: the play stage ------------------------------------- */
+
+.dc-stage-root {
+  min-height: 100vh;
+  background-color: var(--dc-bg);
+}
+
+.dc-stage-art {
+  background-size: cover;
+  background-position: center;
+}
+
+/* No backdrop is an ordinary state, not a hole: the ground becomes house atmosphere. */
+.dc-stage-fallback {
+  background-image:
+    radial-gradient(70% 42% at 50% 78%, rgba(201, 162, 39, 0.26), transparent 70%),
+    radial-gradient(55% 40% at 14% 6%, rgba(122, 156, 199, 0.22), transparent 72%),
+    radial-gradient(45% 34% at 88% 18%, rgba(90, 118, 160, 0.18), transparent 72%),
+    linear-gradient(180deg, #0a1120 0%, #16203a 46%, #0a1020 74%, #06090f 100%);
+}
+
+.dc-stage-haze {
+  background-image: var(--dc-stage-haze-image);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.32;
+  filter: blur(26px) saturate(0.7);
+  transform: scale(1.08);
+}
+
+.dc-stage-scrim {
+  background-image:
+    linear-gradient(180deg, rgba(7, 10, 17, 0.62) 0%, rgba(7, 10, 17, 0.22) 40%, rgba(7, 10, 17, 0.82) 100%),
+    radial-gradient(120% 90% at 50% 40%, transparent 45%, rgba(3, 5, 10, 0.6) 100%);
+}
+
+.dc-island {
+  position: relative;
+  border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-lg);
+  background-color: rgba(10, 15, 25, 0.62);
+  background-image: var(--dc-panel-sheen);
+  backdrop-filter: blur(var(--dc-glass-blur)) saturate(1.05);
+  box-shadow: var(--dc-shadow-2), var(--dc-inset-highlight);
+}
+
+.dc-island::before,
+.dc-island::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  opacity: 0.75;
+}
+
+.dc-island::before {
+  left: 7px;
+  top: 7px;
+  border-left: 1px solid var(--dc-accent);
+  border-top: 1px solid var(--dc-accent);
+  border-radius: 6px 0 0 0;
+}
+
+.dc-island::after {
+  right: 7px;
+  bottom: 7px;
+  border-right: 1px solid var(--dc-accent);
+  border-bottom: 1px solid var(--dc-accent);
+  border-radius: 0 0 6px 0;
+}
+
+.dc-stage-title {
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  color: var(--dc-accent-strong);
+  text-shadow: 0 2px 22px rgba(0, 0, 0, 0.9);
+}
+
+.dc-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-pill);
+  background: rgba(8, 12, 20, 0.6);
+  padding: 0.3rem 0.75rem;
+  font-family: var(--dc-font-ui);
+  font-size: var(--dc-text-xs);
+  letter-spacing: 0.08em;
+  color: var(--dc-text);
+}
+
+.dc-chip-accent {
+  border-color: color-mix(in srgb, var(--dc-accent) 60%, transparent);
+  color: var(--dc-accent-strong);
+}
+
+.dc-hair {
+  height: 1px;
+  background-image: var(--dc-divider);
+}
+
+.dc-rail-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--dc-radius-md);
+  border: 1px solid transparent;
+  color: var(--dc-accent-strong);
+  transition: all var(--dc-dur) var(--dc-ease);
+}
+
+.dc-rail-btn:hover {
+  border-color: var(--dc-border);
+  background: rgba(201, 162, 39, 0.12);
+  box-shadow: var(--dc-glow);
+}
+
+.dc-rail-hair {
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--dc-border);
+}
+
+/* the cast: a breathing aura marks whoever just spoke */
+.dc-portrait {
+  border: 1px solid var(--dc-border);
+  background: rgba(18, 25, 40, 0.85);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+}
+
+.dc-portrait-active {
+  border-color: var(--dc-accent);
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--dc-accent) 55%, transparent),
+    0 0 34px rgba(201, 162, 39, 0.55),
+    0 10px 26px rgba(0, 0, 0, 0.55);
+  animation: dc-breathe var(--dc-dur-breath) var(--dc-ease) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dc-portrait-active {
+    animation: none;
+  }
+}
+
+.dc-dialogue {
+  background-color: rgba(9, 13, 22, 0.78);
+}
+
+.dc-transcript {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent;
+}
+
+.dc-input {
+  border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-md);
+  background: rgba(6, 10, 18, 0.7);
+  padding: 0.75rem 0.9rem;
+  min-height: 3.4rem;
+}
+
+.dc-btn-ghost,
+.dc-btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--dc-radius-pill);
+  padding: 0.7rem 1.4rem;
+  font-family: var(--dc-font-ui);
+  font-size: var(--dc-text-sm);
+  transition: all var(--dc-dur) var(--dc-ease);
+}
+
+.dc-btn-ghost {
+  border: 1px solid var(--dc-border);
+  color: var(--dc-text-muted);
+}
+
+.dc-btn-ghost:hover {
+  border-color: var(--dc-accent);
+  color: var(--dc-text);
+}
+
+.dc-btn-gold {
+  background-image: linear-gradient(180deg, var(--dc-accent-strong), var(--dc-accent));
+  color: var(--dc-on-accent);
+  font-weight: 600;
+  box-shadow: 0 0 26px rgba(201, 162, 39, 0.35);
+}
+
+.dc-btn-gold:hover {
+  filter: brightness(1.08);
+}
