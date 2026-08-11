@@ -656,43 +656,18 @@
   scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent;
 }
 
-.dc-input {
-  border: 1px solid var(--dc-border);
-  border-radius: var(--dc-radius-md);
-  background: rgba(6, 10, 18, 0.7);
-  padding: 0.75rem 0.9rem;
-  min-height: 3.4rem;
-}
-
 .dc-btn-ghost,
 .dc-btn-gold {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  border-radius: var(--dc-radius-pill);
-  padding: 0.7rem 1.4rem;
-  font-family: var(--dc-font-ui);
-  font-size: var(--dc-text-sm);
+  justify-content: center;
+  gap: 0.5rem;
   transition: all var(--dc-dur) var(--dc-ease);
 }
 
-.dc-btn-ghost {
-  border: 1px solid var(--dc-border);
-  color: var(--dc-text-muted);
+.dc-btn-ghost svg,
+.dc-btn-gold svg {
+  width: 15px;
+  height: 15px;
 }
 
-.dc-btn-ghost:hover {
-  border-color: var(--dc-accent);
-  color: var(--dc-text);
-}
-
-.dc-btn-gold {
-  background-image: linear-gradient(180deg, var(--dc-accent-strong), var(--dc-accent));
-  color: var(--dc-on-accent);
-  font-weight: 600;
-  box-shadow: 0 0 26px rgba(201, 162, 39, 0.35);
-}
-
-.dc-btn-gold:hover {
-  filter: brightness(1.08);
-}
