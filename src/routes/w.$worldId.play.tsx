@@ -284,7 +284,7 @@ function Play() {
             )}
           </StageIsland>
 
-          </StageIsland>
+
 
           {carrying && (
             <StageIsland label="Carrying now" className="px-5 py-5">
