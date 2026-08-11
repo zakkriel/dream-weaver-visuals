@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as WorldsRouteImport } from './routes/worlds'
 import { Route as WWorldIdIndexRouteImport } from './routes/w.$worldId.index'
 import { Route as WWorldIdPlayRouteImport } from './routes/w.$worldId.play'
 
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WorldsRoute = WorldsRouteImport.update({
   id: '/worlds',
   path: '/worlds',
@@ -30,30 +36,34 @@ const WWorldIdPlayRoute = WWorldIdPlayRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
   '/worlds': typeof WorldsRoute
   '/w/$worldId/play': typeof WWorldIdPlayRoute
   '/w/$worldId/': typeof WWorldIdIndexRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
   '/worlds': typeof WorldsRoute
   '/w/$worldId/play': typeof WWorldIdPlayRoute
   '/w/$worldId': typeof WWorldIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
   '/worlds': typeof WorldsRoute
   '/w/$worldId/play': typeof WWorldIdPlayRoute
   '/w/$worldId/': typeof WWorldIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/worlds' | '/w/$worldId/play' | '/w/$worldId/'
+  fullPaths: '/' | '/worlds' | '/w/$worldId/play' | '/w/$worldId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/worlds' | '/w/$worldId/play' | '/w/$worldId'
-  id: '__root__' | '/worlds' | '/w/$worldId/play' | '/w/$worldId/'
+  to: '/' | '/worlds' | '/w/$worldId/play' | '/w/$worldId'
+  id: '__root__' | '/' | '/worlds' | '/w/$worldId/play' | '/w/$worldId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
   WorldsRoute: typeof WorldsRoute
   WWorldIdPlayRoute: typeof WWorldIdPlayRoute
   WWorldIdIndexRoute: typeof WWorldIdIndexRoute
@@ -61,6 +71,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/worlds': {
       id: '/worlds'
       path: '/worlds'
@@ -86,6 +103,7 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
   WorldsRoute: WorldsRoute,
   WWorldIdPlayRoute: WWorldIdPlayRoute,
   WWorldIdIndexRoute: WWorldIdIndexRoute,
@@ -93,13 +111,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
