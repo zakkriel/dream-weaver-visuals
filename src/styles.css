@@ -627,19 +627,35 @@
 
 /* the cast: a breathing aura marks whoever just spoke */
 .dc-portrait {
-  border: 1px solid var(--dc-border);
-  background: rgba(18, 25, 40, 0.85);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55);
+  border: 2px solid rgba(203, 158, 88, 0.55);
+  background: rgba(9, 20, 24, 0.85);
+  box-shadow: 0 0 14px rgba(203, 158, 88, 0.18), 0 18px 38px -16px rgba(0, 0, 0, 0.85);
 }
 
 .dc-portrait-active {
-  border-color: var(--dc-accent);
+  border-color: rgba(255, 207, 124, 0.95);
   box-shadow:
-    0 0 0 2px color-mix(in srgb, var(--dc-accent) 55%, transparent),
-    0 0 34px rgba(201, 162, 39, 0.55),
-    0 10px 26px rgba(0, 0, 0, 0.55);
-  animation: dc-breathe var(--dc-dur-breath) var(--dc-ease) infinite;
+    0 0 28px rgba(255, 190, 88, 0.42),
+    0 0 56px -6px rgba(255, 190, 88, 0.32),
+    0 18px 38px -14px rgba(0, 0, 0, 0.85);
+  animation: dc-breathe-glow 4.5s ease-in-out infinite;
 }
+
+@keyframes dc-breathe-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 28px rgba(255, 190, 88, 0.42),
+      0 0 56px -6px rgba(255, 190, 88, 0.32),
+      0 18px 38px -14px rgba(0, 0, 0, 0.85);
+  }
+  50% {
+    box-shadow:
+      0 0 38px rgba(255, 190, 88, 0.58),
+      0 0 72px -4px rgba(255, 190, 88, 0.42),
+      0 18px 38px -14px rgba(0, 0, 0, 0.85);
+  }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   .dc-portrait-active {
