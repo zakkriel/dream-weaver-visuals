@@ -122,37 +122,75 @@ screen, so the graph is walked from `src/routes/` and only mounted files are che
 non-compliant and CI goes red immediately — that is the mechanism that lets a design tool push to
 `main` without a human reading every diff.
 
-**Known limitation, deliberately not papered over:** the law tests are static. They catch structural
-violations in code — a dead link, a banned word in JSX, a tick interpolation. They cannot see a
-violation that arrives as *data*. That gap is closed by the contract instead: every displayed value
-now comes from a version-pinned payload, so there is no channel for invented content to arrive
-through. If a component ever renders a hand-authored JSON blob again, the static tests will not save
-us — that is why the mock below was moved out.
+**The data-shaped hole, and how it is closed.** The law tests are static: they catch a violation
+written in code — a dead link, a banned word in JSX, a tick interpolation — and they cannot read the
+meaning of a value that arrives as *data*. That gap was not theoretical. The invented dashboard came
+back with the same fabricated content moved from `src/fixtures/` to `src/mocks/` and the `href="#"`
+placeholders removed, and every rule passed.
+
+So there is now a rule about **provenance** rather than wording: any JSON a route can reach must
+either declare a `schema_version` — making it a captured payload traceable to a contract — or be an
+asset descriptor under `src/assets/`. Anything else is somebody's imagination typed into a file, and
+once it is mounted a reader cannot tell it from the world.
+
+Known offenders pending a decision sit in one explicit `PENDING_RULING` list with a reason. A second
+test fails if an entry outlives the import it excuses, so an exemption cannot quietly become
+permanent.
 
 ---
+
+## The transcript
+
+**Behaviour is ours; sizing and styling are Lovable's.**
+
+The engine streams narration a line at a time, so the transcript follows the newest line as a beat
+arrives — but only when the reader is already at the bottom. Someone who has scrolled up is reading
+back, and yanking them to the newest line mid-sentence is worse than not following at all. The scroll
+respects `prefers-reduced-motion`.
+
+**`.dc-transcript`'s height, and every other visual property of the dialogue card, belong to Lovable.**
+The panel is currently a bounded scroll region; whether it stays that height, grows, or becomes
+something else is a design decision and we do not touch it. If a behaviour we own stops working at
+some size, we say so rather than resizing it.
+
+Every line the engine sends is rendered, in arrival order, and consecutive lines from the same
+speaker share one portrait and one name. Grouping is on `speaker_id` and never on the label: two
+actors can carry the identical perceived label on purpose, and grouping by label would fuse two
+people into one on screen (B-1).
 
 ## The dashboard
 
-`components/dc/DashboardHome`, `DashboardRail` and `DashboardPanel` are **kept and unrouted**.
+**It is Lovable's screen, on the backend's data.** The founder ruled that it stays; the law decides
+what may appear on it. Those two are compatible, and the split is: **Lovable owns how it looks, the
+payload owns what it says.**
 
-They are good work and Lovable owns them, so they were not deleted. They are not mounted because the
-surface they render is not one we can honestly ship: its data came from a hand-authored
-`dashboard.mock.json` that matched no contract, and the rendered result broke the law list in nine
-places — a wall-clock renewal date, "Online" presence dots, nav labels on the forbidden list with
-eight dead destinations, a relationship-tools promise, three create-world affordances, and images
-keyed by an index into a sprite sheet rather than by a payload path.
+Every string, picture and link on `/` now comes from `world_directory/2` or is chrome we wrote. If a
+panel wants a field the directory does not carry, the panel does not ship — it waits for the field.
+The panels removed when it was wired, each with the reason:
 
-The mock now lives at **`docs/lovable-drafts/dashboard.mock.json`**. It was moved out of
-`src/fixtures/` because sitting beside twelve real captured payloads made it indistinguishable from
-one, and a future reader would reasonably assume it was real.
+| Removed | Why |
+|---|---|
+| "Welcome back, Aria", the profile chip, the presence dot | There is no session model. The product does not know who you are, and a green dot claims a liveness nothing measures (rules 12–13) |
+| Account panel: plan, "Renews on May 26, 2025", Billing/Subscription links | A wall-clock date on screen (B-5), plus billing for an account that does not exist |
+| Characters panel (names, roles, online dots) | No actor payload is wired, and *Characters* is not the word — the Glossary says **Actors** (F-1). Its dots also claimed presence (rule 12) |
+| Mods panel | No module manifest is wired; module UI renders from manifests into named slots, never hardcoded (D-2) |
+| Updates panel, incl. "Character relationship tools" | Invented release notes, and relationship UI of any kind is banned outright (B-3) |
+| Discover panel | An invented catalogue of worlds nobody has |
+| "Create New World" / "Import Seed" / the "+ New World" tile | Creation is not on this surface |
+| "Last Played" hero, "Act I · Chapter 4", "Day 3 — Morning" | A recency claim and a progress claim with no payload behind them |
+| Rail: Characters, Mods, Discover, Library, Account, Settings | Six links to nowhere, one of them forbidden vocabulary (F-1) |
 
-**To bring the dashboard back:** decide which panels have a contract behind them. "Your Worlds" maps
-cleanly onto `world_directory/2` — which now carries `tagline`, `cover_image` and `last_place_label`,
-three fields that did not exist when the dashboard was designed and which cover much of what it was
-faking. Panels with no contract (Mods, Discover, Account/billing, presence) need a backend field
-before they can render, and that is a conversation, not a client-side fix.
+Substituted rather than deleted, where a legal analog existed: the hero eyebrow is now the world's own
+`last_place_label`; the hero body is its `tagline`; sprite crops became real `cover_image` covers with
+the mood plate as the fallback; the section's dead "View all" button became a real link to the picker.
 
----
+The picker keeps its own route at `/worlds`, reachable from the rail and from the worlds panel.
+
+### `/worlds` is two things
+
+It is the directory endpoint *and* the picker's route. The dev proxy tells them apart by `Accept`:
+a browser navigating sends `text/html` and is bypassed to the app; a `fetch` is forwarded to the
+backend. Without that the proxy shadows the page and the picker serves raw JSON — it did.
 
 ## Where things are
 

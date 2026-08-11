@@ -20,10 +20,21 @@ export default defineConfig({
   // preview, where there is no proxy and no backend, the fetch simply fails and the app falls back to
   // its bundled fixtures. A failed fetch is debuggable from inside the editor; a failed CORS
   // preflight is not. Override the target with BACKEND_URL.
+  //
+  // `/worlds` is BOTH the directory endpoint and the picker's route, so the proxy has to tell a
+  // navigation from a fetch. It does that the way the web already distinguishes them: a browser
+  // navigating sends `Accept: text/html`; a `fetch` for JSON does not. Without this the proxy
+  // shadows the page and the picker serves raw JSON in dev — which it did.
   vite: {
     server: {
       proxy: {
-        "/worlds": process.env["BACKEND_URL"] ?? "http://localhost:8080",
+        "/worlds": {
+          target: process.env["BACKEND_URL"] ?? "http://localhost:8080",
+          // Required once the target is spelled out: a hosted backend routes on the Host header.
+          changeOrigin: true,
+          bypass: (req: { headers: NodeJS.Dict<string | string[]> }) =>
+            String(req.headers["accept"] ?? "").includes("text/html") ? "/index.html" : undefined,
+        },
       },
     },
   },

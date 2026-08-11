@@ -52,8 +52,22 @@ const MOUNTED = [...reachableFrom(ROUTES)].filter(
   (f) => !f.startsWith(join("src", "components", "ui")) && !f.startsWith(join("src", "api", "types")),
 );
 
+/**
+ * Source with comments removed.
+ *
+ * These rules scan text, and a doc comment explaining WHY something is banned would otherwise trip
+ * the ban that documents it — the note recording that a rail used to ship `href="#"` placeholders
+ * failed the dead-link rule. A comment cannot render, so it cannot violate anything on screen; only
+ * code counts.
+ *
+ * Line comments are only stripped when they start a line, so a `https://` inside a string survives.
+ */
+function stripComments(src: string): string {
+  return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^[ \t]*\/\/.*$/gm, "");
+}
+
 function read(files: string[]): { file: string; src: string }[] {
-  return files.map((file) => ({ file, src: readFileSync(file, "utf8") }));
+  return files.map((file) => ({ file, src: stripComments(readFileSync(file, "utf8")) }));
 }
 
 describe("law: the mounted app is the only thing that can break a rule", () => {
@@ -199,5 +213,79 @@ describe("law: images are built from the payload path (rule 11)", () => {
       .filter(({ src }) => RE.test(src))
       .map(({ file }) => file);
     expect(offenders).toEqual([]);
+  });
+});
+
+/**
+ * Rule 2 [D-7], enforced structurally: no mounted component may render a hand-authored JSON blob.
+ *
+ * This closes the hole the other law tests could not see. They are static, so they catch a violation
+ * written in code — a banned word in JSX, a dead link, a tick interpolated into markup. They cannot
+ * see a violation that arrives as DATA, and that is exactly how the invented dashboard came back:
+ * the same fabricated content, moved from `src/fixtures/` to `src/mocks/`, with the `href="#"`
+ * placeholders removed. Every other rule passed.
+ *
+ * The test is therefore about provenance, not wording. Two kinds of JSON may reach the screen:
+ *
+ *  - a **captured payload**, which declares a `schema_version` and can be traced to a contract; and
+ *  - an **asset descriptor** under `src/assets/`, which is a pointer to a picture, not world content.
+ *
+ * Anything else is somebody's imagination typed into a file, and once it is mounted a reader cannot
+ * tell it from the world.
+ */
+describe("law: no mounted component renders a contract-less JSON blob (rule 2)", () => {
+  /**
+   * Known offenders, kept passing ONLY while a decision is pending. Each entry is a violation we can
+   * see and have chosen not to fix yet — never a category we accept.
+   *
+   * Empty, and it should stay that way. The one entry it ever held was the invented dashboard mock;
+   * the founder ruled that the dashboard stays and is fed real data instead, so the mock is gone.
+   */
+  const PENDING_RULING = new Set<string>();
+
+  /** Every JSON module imported by something a route can reach. */
+  function importedJson(): { file: string; importer: string }[] {
+    const out: { file: string; importer: string }[] = [];
+    for (const { file, src } of read(MOUNTED)) {
+      for (const m of src.matchAll(/from\s+"(@\/[^"]+\.json)"/g)) {
+        out.push({ file: m[1]!.replace("@/", "src/"), importer: file });
+      }
+    }
+    return out;
+  }
+
+  function declaresSchemaVersion(path: string): boolean {
+    const parsed: unknown = JSON.parse(readFileSync(path, "utf8"));
+    const items = Array.isArray(parsed) ? parsed : [parsed];
+    return (
+      items.length > 0 &&
+      items.every((x) => typeof (x as { schema_version?: unknown }).schema_version === "string")
+    );
+  }
+
+  it("every JSON a route can reach is a captured payload or an asset descriptor", () => {
+    const offenders = importedJson()
+      .filter(({ file }) => !file.startsWith("src/assets/"))
+      .filter(({ file }) => !declaresSchemaVersion(file))
+      .filter(({ file }) => !PENDING_RULING.has(file))
+      .map(({ file, importer }) => `${file} (imported by ${importer})`);
+
+    expect(
+      offenders,
+      "A mounted component imports JSON that declares no schema_version, so it is not a captured " +
+        "payload and cannot be traced to a contract. If it is real data, capture it from the backend " +
+        "into src/fixtures/. If it is a design placeholder, keep it out of the mounted tree.",
+    ).toEqual([]);
+  });
+
+  // An exemption that is no longer needed must be deleted, not left lying around looking load-bearing.
+  it("no pending-ruling exemption outlives the import it excuses", () => {
+    const imported = new Set(importedJson().map(({ file }) => file));
+    const stale = [...PENDING_RULING].filter((f) => !imported.has(f));
+    expect(
+      stale,
+      "This file is no longer imported by anything mounted, so its exemption is dead. Remove it from " +
+        "PENDING_RULING.",
+    ).toEqual([]);
   });
 });
