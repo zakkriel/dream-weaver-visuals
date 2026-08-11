@@ -264,25 +264,27 @@ function Play() {
       onContinue={() => void submit("continue", "")}
       aux={
         <>
-          <StageIsland label="Current" className="px-5 py-5">
-            <h2 className="font-display text-xl tracking-wide text-dc-accent-strong">Current</h2>
-            <p className="dc-label mt-1 text-dc-text-muted">What matters now</p>
+          <StageIsland label="What matters now" className="px-5 py-5">
+            <h2 className="font-display text-xl tracking-wide text-dc-accent-strong">What matters now</h2>
             {s.current.length === 0 ? (
               <p className="mt-3 font-body italic text-dc-text-muted">Nothing presses in on you.</p>
             ) : (
-              <ul className="dc-transcript mt-3 flex max-h-[42vh] list-none flex-col gap-3 overflow-y-auto p-0 pr-2">
+              <ul className="dc-transcript mt-3 flex max-h-[40vh] list-none flex-col gap-3 overflow-y-auto p-0 pr-2">
                 {/* Verbatim, in payload order. Never de-duplicated, filtered or shortened (D-7). */}
                 {s.current.map((l, i) => (
                   <li
                     key={i}
-                    className="border-l border-dc-border-accent pl-3 font-body text-sm leading-relaxed text-dc-text [overflow-wrap:anywhere]"
+                    className="flex gap-2.5 font-body text-sm leading-relaxed text-dc-text [overflow-wrap:anywhere]"
                   >
-                    {l}
+                    <span aria-hidden className="mt-2 size-1 shrink-0 rounded-full bg-dc-accent" />
+                    <span className="min-w-0">{l}</span>
                   </li>
                 ))}
               </ul>
             )}
           </StageIsland>
+
+
 
           {carrying && (
             <StageIsland label="Carrying now" className="px-5 py-5">
