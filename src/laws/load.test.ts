@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import { loadDirectory, loadScene, loadCarrying, submitBeat, fixtures } from "@/api/load";
 import { captureFor, isFixtureMode, resetFixtureMode } from "@/api/fixture-mode";
+import { HOSTED_API_BASE } from "@/api/hosted";
 import {
   apiBase,
+  baseSource,
   fetchScene,
   hasConfiguredBase,
   imageUrl,
@@ -398,6 +400,103 @@ describe("a configured base takes fixture mode off the table", () => {
   // And with no base configured, the backendless preview still degrades exactly as before.
   it("with no base configured the same 404 still degrades to captures", async () => {
     vi.stubEnv("VITE_API_BASE", "");
+    respond({ status: 404, body: "<!doctype html>" });
+    expect(await loadDirectory()).toMatchObject({ state: "ok", source: "fixture" });
+    expect(isFixtureMode()).toBe(true);
+  });
+});
+
+/**
+ * The hosted rung.
+ *
+ * The Lovable preview builds this repo **without injecting custom `VITE_*` variables**, so the env
+ * approach could never work there — an env var the platform never sets is an env var that does not
+ * exist, and the preview sat in fixture mode because of it. The base for a hosted hostname is
+ * therefore committed, not configured.
+ */
+describe("hosted default", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  const onHost = (hostname: string) =>
+    vi.stubGlobal("window", { location: { hostname } } as unknown as Window & typeof globalThis);
+
+  it.each([
+    "preview--dream-weaver.lovable.app",
+    "dream-weaver.lovableproject.com",
+    "192.168.1.37",
+    "dreamchat.example.com",
+  ])("uses the committed Railway base on the hosted hostname %s", (host) => {
+    vi.stubEnv("VITE_API_BASE", "");
+    onHost(host);
+    expect(baseSource()).toBe("hosted");
+    expect(apiBase()).toBe(HOSTED_API_BASE);
+    expect(hasConfiguredBase()).toBe(true);
+  });
+
+  it.each(["localhost", "127.0.0.1", "0.0.0.0", "::1", "my-box.local"])(
+    "stays on the dev proxy for the local hostname %s",
+    (host) => {
+      vi.stubEnv("VITE_API_BASE", "");
+      onHost(host);
+      expect(baseSource()).toBe("proxy");
+      expect(apiBase()).toBe("");
+      expect(hasConfiguredBase()).toBe(false);
+    },
+  );
+
+  it("an explicit env base outranks the hosted default", () => {
+    vi.stubEnv("VITE_API_BASE", "https://staging.example.com/");
+    onHost("preview--dream-weaver.lovable.app");
+    expect(baseSource()).toBe("env");
+    expect(apiBase()).toBe("https://staging.example.com");
+  });
+
+  // SSR has no hostname to judge, and nothing fetches during a server render — every read happens in
+  // an effect — so the relative answer keeps server and client markup identical.
+  it("falls back to relative during SSR, where there is no window", () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    vi.stubGlobal("window", undefined);
+    expect(baseSource()).toBe("proxy");
+    expect(apiBase()).toBe("");
+  });
+
+  it("builds absolute image urls against the hosted base", () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    onHost("preview--dream-weaver.lovable.app");
+    const ref = {
+      schema_version: "image_ref/1" as const,
+      asset_id: "a",
+      path: "/worlds/w1/images/a",
+    };
+    expect(imageUrl(ref, "preview")).toBe(`${HOSTED_API_BASE}/worlds/w1/images/a?tier=preview`);
+    expect(imageUrl(ref)).not.toContain("//worlds");
+  });
+
+  // The whole point: a hosted preview must never silently show captures.
+  it("a hosted hostname cannot enter fixture mode — it reports the base it could not reach", async () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    onHost("preview--dream-weaver.lovable.app");
+    respond({ status: 404, body: "<!doctype html>" });
+    const r = await loadDirectory();
+    expect(r).toMatchObject({ state: "unreachable", base: HOSTED_API_BASE });
+    expect(isFixtureMode()).toBe(false);
+  });
+
+  it("a hosted hostname reads live when the base answers", async () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    onHost("preview--dream-weaver.lovable.app");
+    respond({ json: fixtures.worlds });
+    expect(await loadDirectory()).toMatchObject({ state: "ok", source: "live" });
+    expect(isFixtureMode()).toBe(false);
+  });
+
+  // Fixture mode survives for the one case it was always for: a developer with nothing running.
+  it("localhost with nothing answering still degrades to captures", async () => {
+    vi.stubEnv("VITE_API_BASE", "");
+    onHost("localhost");
     respond({ status: 404, body: "<!doctype html>" });
     expect(await loadDirectory()).toMatchObject({ state: "ok", source: "fixture" });
     expect(isFixtureMode()).toBe(true);
