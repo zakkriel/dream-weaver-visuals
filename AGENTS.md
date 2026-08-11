@@ -65,17 +65,33 @@ Every payload comes through `src/api/`. Nothing else fetches.
   unreachable, and the surface says so. It deliberately does **not** fall back on 404 (a missing world
   must read as missing) or on a schema mismatch (that is the breakage the pin exists to surface).
 
-### Running against the real backend
+### Where the backend is — three environments, one precedence order
+
+| # | Condition | Behaviour |
+|---|---|---|
+| 1 | **`VITE_API_BASE` is set** | Absolute requests against that origin. The hosted case: the Lovable preview pointed at Railway. **Fixture mode cannot engage** — see below. |
+| 2 | Not set, running `bun run dev` | Relative paths through the proxy in `vite.config.ts`. Same-origin, **no CORS involved**. |
+| 3 | Not set, no proxy | The backendless preview. Requests 404, the app enters fixture mode and serves bundled captures. |
 
 ```bash
-bun run dev --port 5273 --strictPort      # the app
-# the backend is expected on :8080
-BACKEND_URL=http://localhost:9000 bun run dev --port 5273   # or point it elsewhere
+bun run dev --port 5273 --strictPort                        # backend expected on :8080
+BACKEND_URL=http://localhost:9000 bun run dev --port 5273   # point the PROXY elsewhere (local)
+VITE_API_BASE=https://your-backend.up.railway.app           # point the APP at a deployed origin
 ```
 
-The dev proxy in `vite.config.ts` forwards `/worlds/*` to the backend, so every request is a
-same-origin relative path and **the app needs no CORS grant**. In the Lovable preview there is no
-proxy and no backend, so fetches fail and the fixtures render — which is why the fallback exists.
+`BACKEND_URL` and `VITE_API_BASE` are different tools: the first retargets the dev proxy, the second
+bypasses the proxy entirely. See `.env.example`.
+
+**A configured base takes fixture mode off the table.** Setting it is a statement that a backend
+exists at that address, so if it cannot be reached the app says `Could not reach the world service at
+<base>` and names the address — a pasted URL with a typo looks exactly like a backend that is down
+until you can see which origin was actually tried. Quietly serving stale captures instead would hide
+a broken deployment behind a screen that looks like it works.
+
+**Cross-origin caveat for case 1:** the backend must allow the preview's origin, including `POST`
+with `Content-Type: application/json`, which triggers a preflight. Image fetches go to the same
+origin (`{base}{path}`) and follow a 302 to the asset host, so that host must be reachable from the
+browser too.
 
 Port **5273** is this repo's. `dreamchat-frontend` (the donor repo) still owns `:5173`.
 

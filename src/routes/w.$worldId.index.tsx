@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
-import { type WorldDirectory, type WorldSummary } from "@/api";
-import { loadDirectory, type Source } from "@/api/load";
+import { type WorldSummary } from "@/api";
+import { loadDirectory, type DirectoryResult } from "@/api/load";
 
 export const Route = createFileRoute("/w/$worldId/")({
   head: () => ({
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/w/$worldId/")({
  */
 function WorldHome() {
   const { worldId } = Route.useParams();
-  const [loaded, setLoaded] = useState<{ data: WorldDirectory; source: Source } | null>(null);
+  const [loaded, setLoaded] = useState<DirectoryResult | null>(null);
 
   useEffect(() => {
     let live = true;
@@ -44,17 +44,24 @@ function WorldHome() {
     };
   }, []);
 
-  const world: WorldSummary | undefined = loaded?.data.worlds.find((w) => w.id === worldId);
+  const world: WorldSummary | undefined =
+    loaded?.state === "ok" ? loaded.data.worlds.find((w) => w.id === worldId) : undefined;
 
   // A world id that is not in the directory is not there. Withheld and nonexistent arrive
   // identically and stay indistinguishable here (B-1, I-3). Note this is a judgement about the
   // WORLD, not about the read: failing to read the directory degrades to the capture instead.
-  const missing = loaded !== null && world === undefined;
+  const missing = loaded?.state === "ok" && world === undefined;
 
   return (
     <Atmosphere>
       <main className="mx-auto flex min-h-screen w-full max-w-[64rem] flex-col gap-8 px-6 py-12">
         {loaded === null && <p className="font-ui text-dc-text-muted">Reading the world…</p>}
+
+        {loaded?.state === "unreachable" && (
+          <p className="font-ui text-dc-text-muted">
+            Could not reach the world service at {loaded.base}.
+          </p>
+        )}
 
         {missing && (
           <>
@@ -70,7 +77,7 @@ function WorldHome() {
 
         {world && (
           <>
-            {loaded?.source === "fixture" && (
+            {loaded?.state === "ok" && loaded.source === "fixture" && (
               <p className="dc-label w-fit rounded-dc-sm border border-dc-border bg-dc-overlay px-3 py-1.5 text-dc-text-muted">
                 Offline — showing a captured world
               </p>
