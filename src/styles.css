@@ -475,26 +475,227 @@
 /* No backdrop is an ordinary state, not a hole: the ground becomes house atmosphere. */
 .dc-stage-fallback {
   background-image:
-    radial-gradient(70% 42% at 50% 78%, rgba(201, 162, 39, 0.26), transparent 70%),
-    radial-gradient(55% 40% at 14% 6%, rgba(122, 156, 199, 0.22), transparent 72%),
-    radial-gradient(45% 34% at 88% 18%, rgba(90, 118, 160, 0.18), transparent 72%),
-    linear-gradient(180deg, #0a1120 0%, #16203a 46%, #0a1020 74%, #06090f 100%);
+    radial-gradient(62% 46% at 50% 34%, rgba(122, 156, 199, 0.3), transparent 72%),
+    radial-gradient(78% 52% at 50% 96%, rgba(201, 162, 39, 0.3), transparent 72%),
+    radial-gradient(46% 36% at 12% 8%, rgba(122, 156, 199, 0.22), transparent 72%),
+    radial-gradient(42% 32% at 90% 14%, rgba(90, 118, 160, 0.2), transparent 72%),
+    linear-gradient(180deg, #0a1120 0%, #18243f 44%, #0b1222 76%, #06090f 100%);
 }
 
 .dc-stage-haze {
   background-image: var(--dc-stage-haze-image);
   background-size: cover;
   background-position: center;
-  opacity: 0.32;
-  filter: blur(26px) saturate(0.7);
+  opacity: 0.5;
+  filter: blur(22px) saturate(0.8);
   transform: scale(1.08);
 }
 
 .dc-stage-scrim {
   background-image:
-    linear-gradient(180deg, rgba(7, 10, 17, 0.62) 0%, rgba(7, 10, 17, 0.22) 40%, rgba(7, 10, 17, 0.82) 100%),
-    radial-gradient(120% 90% at 50% 40%, transparent 45%, rgba(3, 5, 10, 0.6) 100%);
+    linear-gradient(180deg, rgba(7, 10, 17, 0.66) 0%, rgba(7, 10, 17, 0.16) 38%, rgba(5, 8, 14, 0.88) 100%),
+    radial-gradient(120% 90% at 50% 40%, transparent 42%, rgba(3, 5, 10, 0.72) 100%);
 }
+
+/* the docked composition: rail | stage | aux, on one gutter, nothing scrolls but the regions
+   that are meant to */
+.dc-stage-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--dc-gutter);
+  padding: var(--dc-gutter);
+  height: 100vh;
+}
+
+@media (min-width: 1024px) {
+  .dc-stage-grid {
+    grid-template-columns: 100px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .dc-stage-grid {
+    grid-template-columns: 100px minmax(0, 1fr) 340px;
+  }
+}
+
+.dc-stage-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: var(--dc-gutter);
+}
+
+.dc-stage-floor {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.5rem;
+}
+
+.dc-aux {
+  flex-direction: column;
+  gap: var(--dc-gutter);
+  min-width: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent;
+}
+
+.dc-aux-eyebrow {
+  margin-top: 1rem;
+  margin-bottom: 0.35rem;
+  font-family: var(--dc-font-ui);
+  font-size: var(--dc-text-sm);
+  color: color-mix(in srgb, var(--dc-accent-strong) 82%, var(--dc-text-muted));
+}
+
+.dc-rail {
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.4rem 0.5rem;
+}
+
+.dc-rail-mark {
+  color: var(--dc-accent-strong);
+  filter: drop-shadow(0 0 10px rgb(201 162 39 / 0.5));
+}
+
+.dc-rail-item {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: var(--dc-radius-md);
+  padding: 0.55rem 0.25rem;
+  color: color-mix(in srgb, var(--dc-accent-strong) 70%, var(--dc-text));
+  transition: all var(--dc-dur) var(--dc-ease);
+}
+
+.dc-rail-item:hover {
+  background: rgba(201, 162, 39, 0.12);
+  color: var(--dc-accent-strong);
+}
+
+.dc-rail-label {
+  font-family: var(--dc-font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.dc-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+.dc-now-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 1px solid color-mix(in srgb, var(--dc-accent) 55%, transparent);
+  border-radius: var(--dc-radius-pill);
+  background: rgba(8, 12, 20, 0.6);
+  padding: 0.5rem 1.1rem;
+}
+
+.dc-dot {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.dc-cast {
+  display: flex;
+  list-style: none;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.75rem;
+  margin: 0;
+  padding: 0;
+}
+
+.dc-cast-member {
+  display: flex;
+  width: 8.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dc-cast-face {
+  width: clamp(84px, 8vw, 124px);
+  height: clamp(84px, 8vw, 124px);
+}
+
+.dc-cast-name {
+  font-family: var(--dc-font-ui);
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.95);
+}
+
+.dc-speak-badge {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--dc-accent) 65%, transparent);
+  background: rgba(8, 12, 20, 0.92);
+  color: var(--dc-accent-strong);
+}
+
+.dc-dialogue-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.5rem 1.6rem 1.35rem;
+}
+
+.dc-dialogue-card .dc-transcript {
+  max-height: min(30vh, 320px);
+}
+
+.dc-speech-body {
+  font-family: var(--dc-font-body);
+  font-size: 1.2rem;
+  line-height: 1.6;
+  color: var(--dc-text);
+  overflow-wrap: anywhere;
+}
+
+.dc-dock {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .dc-dock {
+    flex-wrap: wrap;
+  }
+}
+
 
 .dc-island {
   position: relative;
