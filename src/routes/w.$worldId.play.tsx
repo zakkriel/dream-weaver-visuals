@@ -27,7 +27,7 @@ export const Route = createFileRoute("/w/$worldId/play")({
 });
 
 /** One thing that appeared in the narration panel, in the order it appeared. */
-type Line =
+export type Line =
   | { who: "you"; text: string }
   | { who: "world"; message: NarrationMessage }
   | { who: "note"; text: string };
@@ -98,6 +98,62 @@ function Portrait({
       )}
     </span>
   );
+}
+
+/**
+ * One rendered block of transcript. A run of consecutive lines from the SAME speaker is one block.
+ *
+ * The engine streams narration a line at a time as each one finishes validating, so a single speech
+ * from one actor arrives as several frames. Rendered naively that is one portrait and one name per
+ * frame — the same face and the same name stacked three deep for what the player experiences as one
+ * person talking.
+ */
+export type Block =
+  | { kind: "you"; text: string }
+  | { kind: "note"; text: string }
+  | { kind: "prose"; messages: NarrationMessage[] }
+  | { kind: "attributed"; speakerId: string; label: string; messages: NarrationMessage[] };
+
+/**
+ * Fold the arrival-ordered transcript into render blocks.
+ *
+ * Grouping is on `speaker_id` and only for CONSECUTIVE lines. Never on the label: two actors can
+ * carry the identical perceived label on purpose, and merging them would fuse two people into one
+ * on screen (B-1). A line with a null `speaker_id` is nobody's voice and never joins a run — it also
+ * breaks one, because narration between two speeches is a beat of silence, not a continuation.
+ *
+ * Order is never changed. This only decides where the portrait and the name are drawn.
+ */
+export function groupTranscript(lines: Line[]): Block[] {
+  const blocks: Block[] = [];
+  for (const line of lines) {
+    if (line.who === "you") {
+      blocks.push({ kind: "you", text: line.text });
+      continue;
+    }
+    if (line.who === "note") {
+      blocks.push({ kind: "note", text: line.text });
+      continue;
+    }
+    const m = line.message;
+    const attributed = m.kind !== "narration" && m.speaker_id !== null;
+    const last = blocks[blocks.length - 1];
+
+    if (attributed && last?.kind === "attributed" && last.speakerId === m.speaker_id) {
+      last.messages.push(m);
+      continue;
+    }
+    if (!attributed && last?.kind === "prose") {
+      last.messages.push(m);
+      continue;
+    }
+    blocks.push(
+      attributed
+        ? { kind: "attributed", speakerId: m.speaker_id as string, label: m.speaker_label, messages: [m] }
+        : { kind: "prose", messages: [m] },
+    );
+  }
+  return blocks;
 }
 
 function Play() {
@@ -312,43 +368,52 @@ function Play() {
                 </ul>
               )}
 
-              {/* The transcript. Grows within a session; rendered in arrival order, never sorted. */}
+              {/* The transcript. Arrival order, never sorted. Consecutive lines from one speaker are
+                  one block: the engine streams a line at a time as each finishes validating, so one
+                  person talking arrives as several frames and would otherwise stack their face and
+                  name once per frame. */}
               <div className="mt-8 flex flex-col gap-4">
                 {lines.length === 0 && (
                   <p className="font-body text-dc-text-muted">Say what you do.</p>
                 )}
-                {lines.map((line, i) => (
+                {groupTranscript(lines).map((block, i) => (
                   <div key={i}>
-                    {line.who === "you" && (
+                    {block.kind === "you" && (
                       <>
                         <p className="font-ui text-sm text-dc-text-muted">You</p>
-                        <p className="font-body text-dc-text">{line.text}</p>
+                        <p className="font-body text-dc-text">{block.text}</p>
                       </>
                     )}
-                    {line.who === "note" && (
-                      <p className="font-body text-dc-text-muted">{line.text}</p>
+                    {block.kind === "note" && (
+                      <p className="font-body text-dc-text-muted">{block.text}</p>
                     )}
-                    {line.who === "world" &&
-                      (line.message.kind === "narration" ? (
-                        // World prose, nobody's voice: no portrait, no name, no card.
-                        <p className="font-body text-dc-text">{line.message.text}</p>
-                      ) : (
-                        <div className="flex items-start gap-3">
-                          {/* Decorative: the speaker's name is the adjacent text, so labelling the
-                              face would announce it twice. */}
-                          <Portrait src={faceOf(line.message.speaker_id)} size="sm" />
-                          <div>
-                            <p className="font-ui text-sm text-dc-text-muted">
-                              {line.message.speaker_label}
+                    {/* World prose, nobody's voice: no portrait, no name, no card. */}
+                    {block.kind === "prose" && (
+                      <div className="flex flex-col gap-2">
+                        {block.messages.map((m, j) => (
+                          <p key={j} className="font-body text-dc-text">
+                            {m.text}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+                    {block.kind === "attributed" && (
+                      <div className="flex items-start gap-3">
+                        {/* Decorative: the speaker's name is the adjacent text, so labelling the
+                            face would announce it twice. Drawn once for the whole run. */}
+                        <Portrait src={faceOf(block.speakerId)} size="sm" />
+                        <div className="flex flex-col gap-1">
+                          <p className="font-ui text-sm text-dc-text-muted">{block.label}</p>
+                          {/* Each line keeps its own treatment: someone can speak, then act, without
+                              becoming a second person. */}
+                          {block.messages.map((m, j) => (
+                            <p key={j} className="font-body text-dc-text">
+                              {m.kind === "speech" ? `\u201c${m.text}\u201d` : m.text}
                             </p>
-                            <p className="font-body text-dc-text">
-                              {line.message.kind === "speech"
-                                ? `\u201c${line.message.text}\u201d`
-                                : line.message.text}
-                            </p>
-                          </div>
+                          ))}
                         </div>
-                      ))}
+                      </div>
+                    )}
                   </div>
                 ))}
 
