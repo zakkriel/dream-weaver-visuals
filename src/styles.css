@@ -14,31 +14,32 @@
 
 :root {
   /* ---- surface ---------------------------------------------------- */
-  --dc-bg: #0d1320;
+  --dc-bg: #071014;
   --dc-surface: rgba(20, 27, 44, 0.6);
   --dc-surface-raised: rgba(30, 40, 66, 0.7);
   --dc-overlay: rgba(8, 11, 20, 0.62);
 
   /* ---- line ------------------------------------------------------- */
-  --dc-border: rgba(150, 124, 66, 0.32);
-  --dc-border-accent: #6b5a2e;
+  --dc-border: rgba(201, 143, 68, 0.5);
+  --dc-border-accent: rgba(214, 162, 82, 0.65);
   /* NEW: hairline that fades at both ends, replacing solid dividers */
   --dc-divider: linear-gradient(
     90deg,
     transparent,
-    rgba(150, 124, 66, 0.42) 18%,
-    rgba(150, 124, 66, 0.42) 82%,
+    rgba(196, 139, 67, 0.42) 18%,
+    rgba(196, 139, 67, 0.42) 82%,
     transparent
   );
 
   /* ---- text ------------------------------------------------------- */
-  --dc-text: #e9e3d3;
-  --dc-text-muted: #a8adbd;
+  --dc-text: #f1e4ca;
+  --dc-text-muted: #b9aa8c;
 
   /* ---- accent ----------------------------------------------------- */
-  --dc-accent: #c9a227;
-  --dc-accent-strong: #e0b65c;
-  --dc-on-accent: #1a1206;
+  --dc-accent: #c9974f;
+  --dc-accent-strong: #f0c46f;
+  --dc-on-accent: #2a1a06;
+
 
   /* ---- type ------------------------------------------------------- */
   --dc-font-display: "Cinzel", Georgia, serif;
