@@ -1,4 +1,4 @@
-import type { FormEvent, ReactNode } from "react";
+import { useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Portrait } from "@/components/dc/Portrait";
 import { Button } from "@/components/ui/button";
@@ -47,6 +47,17 @@ function WorldGlyph() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.35">
       <circle cx="12" cy="12" r="8" /><path d="M4 12h16M12 4c2.8 3.1 2.8 12.9 0 16M12 4c-2.8 3.1-2.8 12.9 0 16" />
+    </svg>
+  );
+}
+
+function PanelGlyph({ expanded }: { expanded: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5">
+      <path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5" />
+      {expanded
+        ? <path d="m4 9 5-5m6 0 5 5M4 15l5 5m6 0 5-5" />
+        : <path d="m9 9-5-5m11 5 5-5M9 15l-5 5m11-5 5 5" />}
     </svg>
   );
 }
@@ -104,9 +115,10 @@ export function PlayStage({
 }) {
   const chips = toneChips(placeTone);
   const latestLine = lines.at(-1);
+  const [contextExpanded, setContextExpanded] = useState(false);
 
   return (
-    <div className="dc-stage-root">
+    <div className="dc-stage-root" data-context-expanded={contextExpanded ? "true" : "false"}>
       <div
         aria-hidden
         className="dc-stage-art"
@@ -134,28 +146,41 @@ export function PlayStage({
           <span aria-hidden className="dc-rail-hair dc-rail-hair-bottom" />
         </nav>
 
-        <main className="dc-stage-main">
-          <header className="dc-stage-header">
-            <div className="dc-stage-heading">
-              <Link to="/w/$worldId" params={{ worldId }} className="dc-focus dc-stage-title">
-                {placeLabel}
-              </Link>
-              <div className="dc-stage-meta">
-                {placeTone !== null && <span>{placeTone}</span>}
-                {offline === true && <span>Offline — showing a captured scene</span>}
-              </div>
+        <header className="dc-stage-header">
+          <div className="dc-stage-heading">
+            <Link to="/w/$worldId" params={{ worldId }} className="dc-focus dc-stage-title">
+              {placeLabel}
+            </Link>
+            <div className="dc-stage-meta">
+              {placeTone !== null && <span>{placeTone}</span>}
+              {offline === true && <span>Offline — showing a captured scene</span>}
             </div>
+          </div>
+          <div className="dc-stage-actions">
             {nowLabel !== null && (
               <div className="dc-now-chip">
                 <SunGlyph />
                 <span>{nowLabel}</span>
               </div>
             )}
-          </header>
+            <Button asChild variant="ghost" size="icon" className="dc-top-icon" title="World">
+              <Link to="/w/$worldId" params={{ worldId }} aria-label="World"><WorldGlyph /></Link>
+            </Button>
+            <Button asChild variant="ghost" size="icon" className="dc-top-icon" title="Worlds">
+              <Link to="/worlds" aria-label="Worlds"><CompassGlyph /></Link>
+            </Button>
+            <Button type="button" variant="ghost" size="icon" className="dc-top-icon" aria-label={contextExpanded ? "Dock context panel" : "Expand context panel"} aria-pressed={contextExpanded} title={contextExpanded ? "Dock context panel" : "Expand context panel"} onClick={() => setContextExpanded((value) => !value)}>
+              <PanelGlyph expanded={contextExpanded} />
+            </Button>
+          </div>
+        </header>
 
-          <div className="dc-stage-spacer" />
+        <main className="dc-stage-main">
+          <div className="dc-stage-main-inner">
 
-          {participants.length > 0 && (
+            <div className="dc-stage-spacer" />
+
+            {participants.length > 0 && (
             <ul className="dc-cast">
               {participants.map((participant) => {
                 const speaking = participant.id === speakingId;
@@ -176,9 +201,9 @@ export function PlayStage({
                 );
               })}
             </ul>
-          )}
+            )}
 
-          <StageIsland label="The moment" className="dc-dialogue-card">
+            <StageIsland label="The moment" className="dc-dialogue-card">
             <div className="dc-transcript">
               {lines.length === 0 && <p className="dc-empty-line">{emptyTranscript}</p>}
               {latestLine?.who === "you" && (
@@ -218,21 +243,30 @@ export function PlayStage({
                 <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 6 6 6-6 6" /></svg>
               </Button>
             </form>
-          </StageIsland>
+            </StageIsland>
+          </div>
         </main>
 
-        <aside aria-label="Context" className="dc-aux">
-          <StageIsland label="Current" className="dc-current-card">
-            <h2><SunGlyph /><span>{placeLabel}</span></h2>
-            {placeDescription !== null && <p className="dc-place-description">{placeDescription}</p>}
-            {chips.length > 0 && (
-              <><p className="dc-aux-eyebrow">Atmosphere</p><ul className="dc-tone-list">{chips.map((chip, index) => <li key={index}>{chip}</li>)}</ul></>
-            )}
-            {nowLabel !== null && (
-              <><p className="dc-aux-eyebrow">Time</p><p className="dc-context-time"><SunGlyph className="size-4" />{nowLabel}</p></>
-            )}
-          </StageIsland>
-          {aux}
+        <aside aria-label="Context" className="dc-island dc-aux">
+          <div className="dc-aux-tabs">
+            <span className="dc-aux-tab-active">Current</span>
+            <Button type="button" variant="ghost" size="icon" className="dc-aux-expand" aria-label={contextExpanded ? "Dock context panel" : "Expand context panel"} onClick={() => setContextExpanded((value) => !value)}>
+              <PanelGlyph expanded={contextExpanded} />
+            </Button>
+          </div>
+          <div className="dc-aux-scroll">
+            <StageIsland label="Current place" className="dc-current-card">
+              <h2><SunGlyph /><span>{placeLabel}</span></h2>
+              {placeDescription !== null && <p className="dc-place-description">{placeDescription}</p>}
+              {chips.length > 0 && (
+                <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Atmosphere</p><ul className="dc-tone-list">{chips.map((chip, index) => <li key={index}>{chip}</li>)}</ul></>
+              )}
+              {nowLabel !== null && (
+                <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Time</p><p className="dc-context-time"><SunGlyph className="size-4" />{nowLabel}</p></>
+              )}
+            </StageIsland>
+            {aux}
+          </div>
         </aside>
       </div>
     </div>
