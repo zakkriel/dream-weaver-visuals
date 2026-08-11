@@ -1,3 +1,4 @@
+import { HOSTED_API_BASE, isLocalHostname } from "./hosted";
 import type { WorldDirectory2GETWorldsTheWorldsACallerMayChooseBetweenSPEC028ADIRECTORYNeverCanonAnIdANameALineOfFictionALookACoverWhereYouLeftOffAndWhetherAnyoneCanPlayItNoWorldSTATEOnThisSurface as WorldDirectoryT } from "./types/world_directory";
 import type { SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent as SceneCurrentT } from "./types/scene_current";
 import type { BeatFrame3OneSSEFrameOfPOSTWorldsWBeatsDesign48Rung3Task3 as BeatFrameT } from "./types/beat_frame";
@@ -60,32 +61,55 @@ export class SchemaMismatchError extends Error {
 export const NOT_FOUND = Symbol("not_found");
 export type Fetched<T> = T | typeof NOT_FOUND;
 
+/** Which rung of the precedence chain supplied the base. Diagnostics and tests. */
+export type BaseSource = "env" | "hosted" | "proxy";
+
 /**
- * Where the backend is. Three environments, one precedence order:
+ * Where the backend is. Four rungs, in order:
  *
- *  1. **`VITE_API_BASE` is set** → every request is absolute against that origin. This is the hosted
- *     case: the Lovable preview pointed at Railway. Cross-origin, so the backend must allow the
- *     preview's origin — including `POST` with `Content-Type: application/json`, which preflights.
- *  2. **Not set, running `bun run dev`** → relative paths, handled by the proxy in `vite.config.ts`.
- *     Same-origin, so no CORS is involved at all. Unchanged.
- *  3. **Not set, no proxy** → the backendless preview. Requests 404 and the app enters fixture mode.
- *     Unchanged.
+ *  1. **`VITE_API_BASE` is set** → absolute requests against that origin. An explicit override always
+ *     wins, so a deployment can point somewhere else without touching code.
+ *  2. **A hosted hostname** (anything that is not a developer's own machine) → `HOSTED_API_BASE`,
+ *     committed in `hosted.ts`. This is the rung that makes the Lovable preview work: Lovable builds
+ *     this repo **without injecting custom `VITE_*` variables**, so an env var there is an env var
+ *     that does not exist — which is exactly why the preview sat in fixture mode.
+ *  3. **localhost** → empty, so requests stay relative and the vite dev proxy handles them.
+ *     Same-origin, no CORS. Unchanged.
+ *  4. No base resolved and nothing answers → fixture mode, for the genuinely backendless case.
  *
- * Trimmed and de-slashed because this value gets pasted by hand into a settings box: a trailing
- * slash would produce `//worlds`, and a stray space would produce a URL that fails in a way nobody
- * would guess from the symptom.
+ * Rungs 1 and 2 are cross-origin, so the backend must allow that origin — including `POST` with
+ * `Content-Type: application/json`, which preflights.
+ *
+ * The env value is trimmed and de-slashed because it gets pasted by hand: a trailing slash would
+ * produce `//worlds`, and a stray space a URL that fails in a way nobody would guess.
  */
+export function baseSource(): BaseSource {
+  if ((import.meta.env["VITE_API_BASE"] ?? "").trim() !== "") return "env";
+  // No window means SSR. There is no hostname to judge and nothing fetches during a server render —
+  // every read happens in an effect — so the safe answer is the relative one, and it keeps the
+  // server and client markup identical.
+  if (typeof window === "undefined") return "proxy";
+  return isLocalHostname(window.location.hostname) ? "proxy" : "hosted";
+}
+
 export function apiBase(): string {
-  return (import.meta.env["VITE_API_BASE"] ?? "").trim().replace(/\/+$/, "");
+  switch (baseSource()) {
+    case "env":
+      return (import.meta.env["VITE_API_BASE"] ?? "").trim().replace(/\/+$/, "");
+    case "hosted":
+      return HOSTED_API_BASE.trim().replace(/\/+$/, "");
+    case "proxy":
+      return "";
+  }
 }
 
 /**
- * Whether a real backend origin was configured.
+ * Whether a real backend origin was resolved — from the env or from the hosted default.
  *
- * This is what separates environment 1 from environment 3, and it is the reason fixture mode cannot
- * engage when a base is set: configuring a base is a statement that a backend exists at that address.
- * If it then cannot be reached, that is a fault worth showing — quietly serving stale captures
- * instead would hide a broken deployment behind a screen that looks like it works.
+ * This is what keeps fixture mode out of the hosted preview: a resolved base is a statement that a
+ * backend exists at that address. If it cannot be reached, that is a fault worth showing, named.
+ * Quietly serving stale captures instead would hide a broken deployment behind a screen that looks
+ * like it works — which is the failure the founder has been staring at.
  */
 export function hasConfiguredBase(): boolean {
   return apiBase() !== "";
