@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Portrait } from "@/components/dc/Portrait";
 import { Button } from "@/components/ui/button";
@@ -124,6 +124,28 @@ export function PlayStage({
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
 
+  /**
+   * Follow the newest line as the beat streams in.
+   *
+   * The engine now sends narration a line at a time, and this panel is a bounded scroll region, so
+   * without this the newest line arrives below the fold and the reader watches a stationary view
+   * while the story happens underneath it.
+   *
+   * It only follows when the reader is already AT the bottom. Someone who has scrolled up is reading
+   * back, and yanking them to the newest line mid-sentence is worse than not following at all.
+   * `behavior` respects the reduced-motion preference, because a scroll is motion like any other.
+   */
+  const transcriptRef = useRef<HTMLDivElement>(null);
+  const atBottomRef = useRef(true);
+  useEffect(() => {
+    const el = transcriptRef.current;
+    if (el === null || !atBottomRef.current) return;
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+    el.scrollTo({ top: el.scrollHeight, behavior: reduced ? "auto" : "smooth" });
+  }, [lines]);
+
   return (
     <div className="dc-stage-root" data-context-expanded={contextExpanded ? "true" : "false"}>
       <div
@@ -214,7 +236,15 @@ export function PlayStage({
             {/* Every line, in arrival order. Rendering only the last one dropped world text: with
                 line-level narration a beat arrives as several frames, so five of six lines flashed
                 past and vanished. The world said them; the player has to be able to read them. */}
-            <div className="dc-transcript">
+            <div
+              className="dc-transcript"
+              ref={transcriptRef}
+              onScroll={(e) => {
+                const el = e.currentTarget;
+                // 4px of slack: a smooth scroll can land a hair short of the true bottom.
+                atBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight <= 4;
+              }}
+            >
               {lines.length === 0 && <p className="dc-empty-line">{emptyTranscript}</p>}
               {lines.map((line, i) => (
                 <div key={i}>
