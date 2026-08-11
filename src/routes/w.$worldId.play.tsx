@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
+import { PlayStage, StageIsland, type StageLine } from "@/components/dc/PlayStage";
 import {
   fetchCarrying,
   fetchScene,
