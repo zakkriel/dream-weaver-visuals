@@ -40,7 +40,7 @@ function SectionTitle({ icon: Icon, title, action }: { icon: typeof Compass; tit
       {action && (
         <button type="button" className="dc-focus ml-auto flex items-center gap-1 text-xs text-dashboard-gold hover:text-dashboard-gold-soft">
           {action}<ChevronRight aria-hidden className="size-3" />
-        </a>
+        </button>
       )}
     </header>
   );
@@ -110,7 +110,7 @@ export function DashboardHome({ data }: { data: DashboardMock }) {
               <button type="button" className="dc-focus flex min-h-28 flex-col items-center justify-center rounded-md border border-dashed border-dashboard-line text-dashboard-copy hover:text-dashboard-gold-soft">
                 <Plus aria-hidden className="mb-2 size-8 rounded-full border border-dashboard-gold p-1 text-dashboard-gold" />
                 <span>{data.worldsSection.createLabel}</span>
-              </a>
+              </button>
             </div>
           </DashboardPanel>
 
@@ -141,7 +141,7 @@ export function DashboardHome({ data }: { data: DashboardMock }) {
                   </li>
                 ))}
               </ul>
-              <button type="button" className="dc-focus mx-2 flex items-center justify-center gap-2 rounded-md border border-dashboard-line py-2 text-xs text-dashboard-gold"><Settings aria-hidden className="size-3" />{data.modsSection.action}<ChevronRight aria-hidden className="size-3" /></a>
+              <button type="button" className="dc-focus mx-2 flex items-center justify-center gap-2 rounded-md border border-dashboard-line py-2 text-xs text-dashboard-gold"><Settings aria-hidden className="size-3" />{data.modsSection.action}<ChevronRight aria-hidden className="size-3" /></button>
             </DashboardPanel>
 
             <DashboardPanel className="min-h-[230px] overflow-hidden max-xl:col-span-2">
@@ -154,7 +154,7 @@ export function DashboardHome({ data }: { data: DashboardMock }) {
                 <ul className="mt-2 space-y-1 text-[11px]">
                   {data.updatesSection.entries.map((entry) => <li key={entry} className="flex gap-2"><Sparkles aria-hidden className="mt-0.5 size-3 shrink-0 text-dashboard-gold" />{entry}</li>)}
                 </ul>
-                <button type="button" className="dc-focus mt-4 flex w-52 items-center justify-center gap-3 rounded-md border border-dashboard-gold bg-dashboard-panel-soft py-2 text-dashboard-gold-soft">{data.updatesSection.action}<ArrowRight aria-hidden className="size-4" /></a>
+                <button type="button" className="dc-focus mt-4 flex w-52 items-center justify-center gap-3 rounded-md border border-dashboard-gold bg-dashboard-panel-soft py-2 text-dashboard-gold-soft">{data.updatesSection.action}<ArrowRight aria-hidden className="size-4" /></button>
               </div>
             </DashboardPanel>
           </div>
@@ -176,7 +176,7 @@ export function DashboardHome({ data }: { data: DashboardMock }) {
               <div className="flex"><div><span className="block text-dashboard-gold-soft">{data.accountSection.planLabel}</span><small>{data.accountSection.renewal}</small></div><span className="ml-auto flex items-center gap-1 text-dashboard-gold-soft"><Crown aria-hidden className="size-4" />{data.accountSection.planName}</span></div>
             </div>
             <ul className="px-3 pb-3">
-              {data.accountSection.links.map((link, index) => <li key={link}><button type="button" className="dc-focus flex items-center border-b border-dashboard-line/60 py-2 text-xs hover:text-dashboard-gold-soft">{index === 0 ? <UserRound aria-hidden className="mr-2 size-3 text-dashboard-gold" /> : index === 1 ? <BookOpen aria-hidden className="mr-2 size-3 text-dashboard-gold" /> : <Settings aria-hidden className="mr-2 size-3 text-dashboard-gold" />}{link}<ChevronRight aria-hidden className="ml-auto size-3 text-dashboard-gold" /></a></li>)}
+              {data.accountSection.links.map((link, index) => <li key={link}><button type="button" className="dc-focus flex items-center border-b border-dashboard-line/60 py-2 text-xs hover:text-dashboard-gold-soft">{index === 0 ? <UserRound aria-hidden className="mr-2 size-3 text-dashboard-gold" /> : index === 1 ? <BookOpen aria-hidden className="mr-2 size-3 text-dashboard-gold" /> : <Settings aria-hidden className="mr-2 size-3 text-dashboard-gold" />}{link}<ChevronRight aria-hidden className="ml-auto size-3 text-dashboard-gold" /></button></li>)}
             </ul>
           </DashboardPanel>
 
@@ -188,7 +188,7 @@ export function DashboardHome({ data }: { data: DashboardMock }) {
                   <span data-image-index={entry.imageIndex} className="dashboard-world-crop h-full w-16 shrink-0" />
                   <span className="min-w-0 px-3"><strong className="block font-normal text-dashboard-gold-soft">{entry.title}</strong><small className="block truncate">{entry.description}</small></span>
                   <ChevronRight aria-hidden className="ml-auto mr-2 size-4 text-dashboard-gold" />
-                </a>
+                </button>
               ))}
             </div>
           </DashboardPanel>

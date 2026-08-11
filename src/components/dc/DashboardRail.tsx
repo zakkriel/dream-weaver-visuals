@@ -32,7 +32,8 @@ export function DashboardRail({ navigation }: { navigation: DashboardNavItem[] }
           const Icon = icons[item.icon];
           const separated = index === 6;
           return (
-            <a
+            <button
+              type="button"
               key={item.label}
                             aria-current={item.active ? "page" : undefined}
               className={`${separated ? "mt-auto border-t border-dashboard-line pt-4" : ""} dc-focus flex w-full flex-col items-center gap-1 rounded-md border px-1 py-2 text-[10px] leading-none transition-colors ${
@@ -43,7 +44,7 @@ export function DashboardRail({ navigation }: { navigation: DashboardNavItem[] }
             >
               <Icon aria-hidden className="size-5" strokeWidth={1.4} />
               <span>{item.label}</span>
-            </a>
+            </button>
           );
         })}
       </nav>
