@@ -481,6 +481,15 @@
     linear-gradient(180deg, #0a1120 0%, #16203a 46%, #0a1020 74%, #06090f 100%);
 }
 
+.dc-stage-haze {
+  background-image: var(--dc-stage-haze-image);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.32;
+  filter: blur(26px) saturate(0.7);
+  transform: scale(1.08);
+}
+
 .dc-stage-scrim {
   background-image:
     linear-gradient(180deg, rgba(7, 10, 17, 0.62) 0%, rgba(7, 10, 17, 0.22) 40%, rgba(7, 10, 17, 0.82) 100%),

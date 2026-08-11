@@ -1,6 +1,7 @@
 import type { FormEvent, ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Portrait } from "@/components/dc/Portrait";
+import houseHaze from "@/assets/sky-hero.jpg";
 
 /**
  * Surface 3 — the play stage, as pixels.
@@ -111,7 +112,15 @@ export function PlayStage({
           style={{ backgroundImage: `url(${backdrop})` }}
         />
       ) : (
-        <div aria-hidden className="dc-stage-fallback pointer-events-none fixed inset-0 z-0" />
+        <>
+          <div aria-hidden className="dc-stage-fallback pointer-events-none fixed inset-0 z-0" />
+          {/* House atmosphere, blurred past depiction: it never claims to show this place. */}
+          <div
+            aria-hidden
+            className="dc-stage-haze pointer-events-none fixed inset-0 z-0"
+            style={{ ["--dc-stage-haze-image" as string]: `url(${houseHaze})` }}
+          />
+        </>
       )}
       {/* The scrim is not decoration: measured against a real backdrop the brightest tile put body
           text under the 4.5:1 floor. This holds the worst tile above it and still shows the art. */}
