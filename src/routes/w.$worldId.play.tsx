@@ -61,45 +61,8 @@ const HALT: Record<string, string> = {
  * decision here is placeholder Tailwind against the house tokens, waiting for Lovable's play
  * components — see AGENTS.md. Nothing in `components/dc/` was restyled to build it.
  */
-/**
- * A face, or the silhouette that stands in for one (D-8).
- *
- * `src` absent is the ordinary state — a picture arriving later is a payload change, never
- * something this client polls for. The `onError` fallback matters just as much: the backend 302s
- * an image path to a short-lived signed URL on a host that can be unreachable, and the rule is
- * that a missing picture reads as *no picture yet*, never as a broken-image glyph or a hole that
- * shifts the layout when art arrives. Either way the frame keeps its size.
- *
- * Decorative by default: on a narration card the speaker's name is the adjacent text, so labelling
- * the face would make a screen reader say it twice.
- */
-function Portrait({
-  src,
-  size,
-  active = false,
-}: {
-  src?: string | undefined;
-  size: "sm" | "lg";
-  active?: boolean;
-}) {
-  const [broken, setBroken] = useState(false);
-  const box = size === "lg" ? "size-16 border-2" : "size-8 border";
-  // `inline-flex`, not the default inline: an inline box does not take a width or height, so the
-  // frame collapses and the image spills past its own circle.
-  return (
-    <span
-      className={`${box} inline-flex shrink-0 overflow-hidden rounded-full bg-dc-surface-raised ${
-        active ? "border-dc-accent" : "border-dc-border"
-      }`}
-    >
-      {src && !broken ? (
-        <img src={src} alt="" className="size-full object-cover" onError={() => setBroken(true)} />
-      ) : (
-        <span aria-hidden className="block size-full" />
-      )}
-    </span>
-  );
-}
+
+
 
 function Play() {
   const { worldId } = Route.useParams();
