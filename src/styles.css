@@ -626,7 +626,7 @@
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: center;
-  gap: 1.75rem;
+  gap: 2.25rem;
   margin: 0;
   padding: 0;
 }
@@ -640,8 +640,8 @@
 }
 
 .dc-cast-face {
-  width: clamp(84px, 8vw, 124px);
-  height: clamp(84px, 8vw, 124px);
+  width: clamp(92px, 9vw, 136px);
+  height: clamp(92px, 9vw, 136px);
 }
 
 .dc-cast-name {

@@ -135,6 +135,7 @@ export function PlayStage({
       {/* The scrim is not decoration: measured against a real backdrop the brightest tile put body
           text under the 4.5:1 floor. This holds the worst tile above it and still shows the art. */}
       <div aria-hidden className="dc-stage-scrim pointer-events-none fixed inset-0 z-0" />
+      <div aria-hidden className="dc-grain pointer-events-none fixed inset-0 z-0" />
 
       <div className="dc-stage-grid relative z-10">
         {/* The rail. Only destinations that exist: a dead nav item is a promise the product
