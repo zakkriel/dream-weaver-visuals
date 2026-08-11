@@ -5,7 +5,7 @@ import { SideRail } from "@/components/dc/SideRail";
 import { WorldCard } from "@/components/dc/WorldCard";
 import { loadDirectory, type DirectoryResult } from "@/api/load";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/worlds")({
   head: () => ({
     meta: [
       { title: "Worlds — DreamChat" },
