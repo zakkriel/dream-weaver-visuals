@@ -28,7 +28,7 @@ export const Route = createFileRoute("/w/$worldId/play")({
 });
 
 /** One thing that appeared in the narration panel, in the order it appeared. */
-type Line =
+export type Line =
   | { who: "you"; text: string }
   | { who: "world"; message: NarrationMessage }
   | { who: "note"; text: string };
@@ -63,6 +63,49 @@ const HALT: Record<string, string> = {
  */
 
 
+
+/**
+ * Fold the arrival-ordered transcript into stage lines.
+ *
+ * Presentation shapes only: ids become faces, nothing is reordered, nothing is dropped. Consecutive
+ * lines from the SAME speaker fold into one, so a person talking across several narration frames
+ * gets one portrait and one name instead of their face stacked once per frame.
+ *
+ * Grouping is on `speaker_id` and never on the label: two actors can carry the identical perceived
+ * label on purpose, and grouping by label would fuse two people into one on screen (B-1). A line with
+ * a null speaker_id is nobody's voice — it never joins a run and it breaks one, because narration
+ * between two speeches is a beat of silence, not a continuation.
+ */
+export function groupStageLines(
+  lines: readonly Line[],
+  faceOf: (speakerId: string | null) => string | undefined,
+): StageLine[] {
+  const out: StageLine[] = [];
+  let runSpeaker: string | null = null;
+  for (const line of lines) {
+    if (line.who !== "world") {
+      runSpeaker = null;
+      out.push(line);
+      continue;
+    }
+    const m = line.message;
+    const groupable = m.kind !== "narration" && m.speaker_id !== null;
+    const prev = out[out.length - 1];
+    if (groupable && runSpeaker === m.speaker_id && prev?.who === "world") {
+      out[out.length - 1] = { ...prev, more: [...(prev.more ?? []), { kind: m.kind, text: m.text }] };
+      continue;
+    }
+    runSpeaker = groupable ? m.speaker_id : null;
+    out.push({
+      who: "world",
+      kind: m.kind,
+      speakerLabel: m.speaker_label,
+      text: m.text,
+      face: faceOf(m.speaker_id),
+    });
+  }
+  return out;
+}
 
 function Play() {
   const { worldId } = Route.useParams();
@@ -226,18 +269,7 @@ function Play() {
       ? "Could not reach the world. Try again."
       : undefined;
 
-  // Presentation shapes only: ids become faces, nothing else is touched, nothing is reordered.
-  const stageLines: StageLine[] = lines.map((line) =>
-    line.who === "world"
-      ? {
-          who: "world",
-          kind: line.message.kind,
-          speakerLabel: line.message.speaker_label,
-          text: line.message.text,
-          face: faceOf(line.message.speaker_id),
-        }
-      : line,
-  );
+  const stageLines = groupStageLines(lines, faceOf);
 
   return (
     <PlayStage

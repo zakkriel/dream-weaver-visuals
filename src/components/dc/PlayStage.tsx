@@ -19,6 +19,14 @@ export type StageLine =
       readonly speakerLabel: string;
       readonly text: string;
       readonly face?: string | undefined;
+      /**
+       * Further lines from the SAME speaker, in arrival order.
+       *
+       * The engine streams narration a line at a time as each finishes validating, so one person
+       * talking arrives as several frames. The caller groups them; this renders them under one
+       * portrait and one name, because three frames from Mara are one person speaking.
+       */
+      readonly more?: readonly { readonly kind: string; readonly text: string }[];
     };
 
 function toneChips(tone: string | null): string[] {
@@ -114,7 +122,6 @@ export function PlayStage({
   aux: ReactNode;
 }) {
   const chips = toneChips(placeTone);
-  const latestLine = lines.at(-1);
   const [contextExpanded, setContextExpanded] = useState(false);
 
   return (
@@ -204,23 +211,38 @@ export function PlayStage({
             )}
 
             <StageIsland label="The moment" className="dc-dialogue-card">
+            {/* Every line, in arrival order. Rendering only the last one dropped world text: with
+                line-level narration a beat arrives as several frames, so five of six lines flashed
+                past and vanished. The world said them; the player has to be able to read them. */}
             <div className="dc-transcript">
               {lines.length === 0 && <p className="dc-empty-line">{emptyTranscript}</p>}
-              {latestLine?.who === "you" && (
-                <div><p className="dc-line-label">You</p><p className="dc-speech-body">{latestLine.text}</p></div>
-              )}
-              {latestLine?.who === "note" && <p className="dc-note-line">{latestLine.text}</p>}
-              {latestLine?.who === "world" && (
-                latestLine.kind === "speech" || latestLine.kind === "action" ? (
-                  <div className="dc-speaking-line">
-                    <Portrait src={latestLine.face} className="dc-dialogue-face" />
-                    <div>
-                      <p className="dc-line-label">{latestLine.speakerLabel}</p>
-                      <p className="dc-speech-body">{latestLine.kind === "speech" ? `“${latestLine.text}”` : latestLine.text}</p>
-                    </div>
-                  </div>
-                ) : <p className="dc-note-line">{latestLine.text}</p>
-              )}
+              {lines.map((line, i) => (
+                <div key={i}>
+                  {line.who === "you" && (
+                    <div><p className="dc-line-label">You</p><p className="dc-speech-body">{line.text}</p></div>
+                  )}
+                  {line.who === "note" && <p className="dc-note-line">{line.text}</p>}
+                  {line.who === "world" && (
+                    line.kind === "speech" || line.kind === "action" ? (
+                      <div className="dc-speaking-line">
+                        <Portrait src={line.face} className="dc-dialogue-face" />
+                        <div>
+                          <p className="dc-line-label">{line.speakerLabel}</p>
+                          <p className="dc-speech-body">{line.kind === "speech" ? `“${line.text}”` : line.text}</p>
+                          {line.more?.map((m, j) => (
+                            <p key={j} className="dc-speech-body">{m.kind === "speech" ? `“${m.text}”` : m.text}</p>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="dc-note-line">{line.text}</p>
+                        {line.more?.map((m, j) => <p key={j} className="dc-note-line">{m.text}</p>)}
+                      </>
+                    )
+                  )}
+                </div>
+              ))}
               {statusNote !== undefined && <p className="dc-status-note">{statusNote}</p>}
             </div>
 
