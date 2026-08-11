@@ -34,8 +34,7 @@ export function DashboardRail({ navigation }: { navigation: DashboardNavItem[] }
           return (
             <a
               key={item.label}
-              href="#"
-              aria-current={item.active ? "page" : undefined}
+                            aria-current={item.active ? "page" : undefined}
               className={`${separated ? "mt-auto border-t border-dashboard-line pt-4" : ""} dc-focus flex w-full flex-col items-center gap-1 rounded-md border px-1 py-2 text-[10px] leading-none transition-colors ${
                 item.active
                   ? "border-dashboard-line bg-dashboard-panel-soft text-dashboard-gold-soft shadow-[inset_0_0_16px_rgba(200,131,47,.12)]"
