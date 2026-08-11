@@ -472,24 +472,27 @@
   background-position: center;
 }
 
-/* No backdrop is an ordinary state, not a hole: the ground becomes house atmosphere. */
+/* No backdrop is an ordinary state, not a hole: the ground becomes house atmosphere — a lit
+   horizon, a warm pool where the cast stands, and depth at the edges. */
 .dc-stage-fallback {
   background-image:
-    radial-gradient(62% 46% at 50% 34%, rgba(122, 156, 199, 0.3), transparent 72%),
-    radial-gradient(78% 52% at 50% 96%, rgba(201, 162, 39, 0.3), transparent 72%),
-    radial-gradient(46% 36% at 12% 8%, rgba(122, 156, 199, 0.22), transparent 72%),
-    radial-gradient(42% 32% at 90% 14%, rgba(90, 118, 160, 0.2), transparent 72%),
-    linear-gradient(180deg, #0a1120 0%, #18243f 44%, #0b1222 76%, #06090f 100%);
+    radial-gradient(58% 30% at 50% 62%, rgba(201, 162, 39, 0.22), transparent 74%),
+    radial-gradient(90% 34% at 50% 100%, rgba(201, 162, 39, 0.26), transparent 76%),
+    radial-gradient(52% 40% at 50% 26%, rgba(140, 176, 219, 0.26), transparent 74%),
+    radial-gradient(40% 34% at 8% 10%, rgba(122, 156, 199, 0.2), transparent 72%),
+    radial-gradient(38% 30% at 92% 12%, rgba(90, 118, 160, 0.18), transparent 72%),
+    linear-gradient(180deg, #08101f 0%, #1a2745 40%, #101a30 66%, #070b14 100%);
 }
 
 .dc-stage-haze {
   background-image: var(--dc-stage-haze-image);
   background-size: cover;
-  background-position: center;
-  opacity: 0.5;
-  filter: blur(22px) saturate(0.8);
-  transform: scale(1.08);
+  background-position: center 35%;
+  opacity: 0.42;
+  filter: blur(38px) saturate(0.75) brightness(0.9);
+  transform: scale(1.14);
 }
+
 
 .dc-stage-scrim {
   background-image:
