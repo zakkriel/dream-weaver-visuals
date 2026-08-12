@@ -176,13 +176,26 @@ export function PlayStage({
   const atBottomRef = useRef(true);
   const [atBottom, setAtBottom] = useState(true);
 
+  /**
+   * While our own smooth scroll is animating, the events it fires are not the reader moving.
+   *
+   * A smooth scroll reports every intermediate position, and each one reads as "not at the bottom" —
+   * so the next narration frame to arrive mid-animation declines to follow, and the story settles a
+   * screen-length short of where it should. Measured at 98px adrift before this existed.
+   */
+  const selfScrollingUntil = useRef(0);
+  const lastTopRef = useRef(0);
+
   function scrollToNow(smooth = true) {
     const el = transcriptRef.current;
     if (el === null) return;
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
-    el.scrollTo({ top: el.scrollHeight, behavior: smooth && !reduced ? "smooth" : "auto" });
+    const animated = smooth && !reduced;
+    selfScrollingUntil.current = animated ? Date.now() + 1000 : 0;
+    lastTopRef.current = el.scrollTop;
+    el.scrollTo({ top: el.scrollHeight, behavior: animated ? "smooth" : "auto" });
     atBottomRef.current = true;
     setAtBottom(true);
   }
@@ -223,6 +236,31 @@ export function PlayStage({
   }, [lines]);
 
   /**
+   * Open on the newest line.
+   *
+   * The record loads before the scene does, so this card can MOUNT with the story already in it —
+   * and a card that mounts full never sees its line count grow, so the follow below never fires. Left
+   * alone the player lands in the middle of last week's conversation every time they enter a world.
+   */
+  useEffect(() => {
+    scrollToNow(false);
+    // Mount only: every later arrival is handled by the effect above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Sending is an act of being present.
+   *
+   * A reader deep in the record who types and sends has just declared where they are, so this is the
+   * one moment a jump to now is what they asked for — otherwise their own words land somewhere they
+   * cannot see, and the world answers off screen.
+   */
+  useEffect(() => {
+    if (pending) scrollToNow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending]);
+
+  /**
    * Ask for the page before this one when the reader reaches the top.
    *
    * Only in the expanded view: the docked card is a few lines tall, so its top is always in reach and
@@ -230,6 +268,20 @@ export function PlayStage({
    */
   function onTranscriptScroll(el: HTMLDivElement) {
     const bottom = el.scrollHeight - el.scrollTop - el.clientHeight <= 4;
+    if (Date.now() < selfScrollingUntil.current) {
+      // Our own animation, which only ever travels DOWN toward the newest line. A position above the
+      // last one is the reader pushing back against it — during a stream the window is refreshed by
+      // every frame, so without this check someone scrolling up to re-read would be ignored for as
+      // long as the world kept talking. Anything else is the animation and is not the reader leaving.
+      if (el.scrollTop >= lastTopRef.current - 2) {
+        lastTopRef.current = el.scrollTop;
+        if (bottom) selfScrollingUntil.current = 0;
+        // It must not trip the load-older check on the way past the top either.
+        return;
+      }
+      selfScrollingUntil.current = 0;
+    }
+    lastTopRef.current = el.scrollTop;
     atBottomRef.current = bottom;
     setAtBottom(bottom);
     if (expanded && canLoadOlder && el.scrollTop <= 48) {
