@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState, type FormEvent } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
 import { PlayStage, StageIsland, type StageLine } from "@/components/dc/PlayStage";
 import {
@@ -14,6 +14,14 @@ import {
   type Scene,
 } from "@/api";
 import { loadScene, loadCarrying, submitBeat, type Loaded } from "@/api/load";
+import {
+  HISTORY_START,
+  NO_HISTORY,
+  atBeginning,
+  canLoadOlder,
+  fetchHistory,
+  historyReducer,
+} from "@/api/history";
 
 export const Route = createFileRoute("/w/$worldId/play")({
   head: () => ({
@@ -27,11 +35,17 @@ export const Route = createFileRoute("/w/$worldId/play")({
   component: Play,
 });
 
-/** One thing that appeared in the narration panel, in the order it appeared. */
+/**
+ * One thing that appeared in the narration panel, in the order it appeared.
+ *
+ * `remembered` marks a line read back out of the stored record rather than streamed this session.
+ * It carries its own `face`, because a stored line is what the viewer was told at the time and must
+ * never be re-resolved against the cast as it stands now (D-7) — see `api/history.ts`.
+ */
 export type Line =
-  | { who: "you"; text: string }
-  | { who: "world"; message: NarrationMessage }
-  | { who: "note"; text: string };
+  | { who: "you"; text: string; remembered?: true }
+  | { who: "world"; message: NarrationMessage; face?: string | undefined; remembered?: true }
+  | { who: "note"; text: string; remembered?: true };
 
 /**
  * Player-language wording for the engine's halt reasons.
@@ -82,26 +96,35 @@ export function groupStageLines(
 ): StageLine[] {
   const out: StageLine[] = [];
   let runSpeaker: string | null = null;
+  let runRemembered = false;
   for (const line of lines) {
     if (line.who !== "world") {
       runSpeaker = null;
-      out.push(line);
+      out.push({ who: line.who, text: line.text });
       continue;
     }
     const m = line.message;
+    const remembered = line.remembered === true;
     const groupable = m.kind !== "narration" && m.speaker_id !== null;
     const prev = out[out.length - 1];
-    if (groupable && runSpeaker === m.speaker_id && prev?.who === "world") {
+    // A run never crosses the seam between what was read back and what is arriving now. The two can
+    // carry different labels and different faces for the same speaker, and folding them into one
+    // card would put today's name over words said before the viewer knew it (B-1).
+    const continues = groupable && runSpeaker === m.speaker_id && runRemembered === remembered;
+    if (continues && prev?.who === "world") {
       out[out.length - 1] = { ...prev, more: [...(prev.more ?? []), { kind: m.kind, text: m.text }] };
       continue;
     }
     runSpeaker = groupable ? m.speaker_id : null;
+    runRemembered = remembered;
     out.push({
       who: "world",
       kind: m.kind,
       speakerLabel: m.speaker_label,
       text: m.text,
-      face: faceOf(m.speaker_id),
+      // A remembered line wears the picture its record carries. Only a live line is resolved against
+      // the cast standing in the room.
+      face: remembered ? line.face : faceOf(m.speaker_id),
     });
   }
   return out;
@@ -118,6 +141,50 @@ function Play() {
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
   const [beatsSettled, setBeatsSettled] = useState(0);
+
+  /**
+   * The played history: everything said and generated here before this session, read back.
+   *
+   * The first page loads with the scene, so the card opens already carrying the story rather than
+   * blank until someone speaks. Older pages arrive only when the reader asks — by scrolling up in the
+   * expanded view — because a world with a thousand beats should not send them all to draw one card.
+   */
+  const [history, dispatchHistory] = useReducer(historyReducer, HISTORY_START);
+  const [expanded, setExpanded] = useState(false);
+  const historyRef = useRef(history);
+  historyRef.current = history;
+
+  // A dispatch does not take effect until the next render, but a scroll gesture fires many events
+  // before then — so the state alone cannot say "already asking". This says it synchronously.
+  const inFlightRef = useRef(false);
+
+  const read = useCallback(
+    (from: string | null) => {
+      if (inFlightRef.current) return;
+      inFlightRef.current = true;
+      dispatchHistory({ type: "loading", from });
+      void fetchHistory(worldId, from ?? undefined)
+        .then((page) => {
+          dispatchHistory(page === NO_HISTORY ? { type: "absent" } : { type: "page", page, from });
+        })
+        .catch(() => dispatchHistory({ type: "failed" }))
+        .finally(() => {
+          inFlightRef.current = false;
+        });
+    },
+    [worldId],
+  );
+
+  const loadOlder = useCallback(() => {
+    const state = historyRef.current;
+    if (!canLoadOlder(state)) return;
+    read(state.next);
+  }, [read]);
+
+  useEffect(() => {
+    inFlightRef.current = false;
+    read(null);
+  }, [read]);
 
   /**
    * Every face the world has shown this session, keyed by actor id, latest payload winning.
@@ -269,7 +336,10 @@ function Play() {
       ? "Could not reach the world. Try again."
       : undefined;
 
-  const stageLines = groupStageLines(lines, faceOf);
+  // History sits above the live transcript in one continuous read: the same card, the same rules,
+  // nothing between them to mark where this session started. `groupStageLines` still refuses to fold
+  // a remembered line into a live one, so continuity never becomes conflation.
+  const stageLines = groupStageLines([...history.lines, ...lines], faceOf);
 
   return (
     <PlayStage
@@ -288,6 +358,16 @@ function Play() {
       speakingId={speakingId}
       lines={stageLines}
       emptyTranscript="Say what you do."
+      expanded={expanded}
+      onExpandedChange={setExpanded}
+      // No affordance for a record that cannot be read: a backend without the transcript endpoint
+      // leaves the card exactly as it was before any of this existed.
+      historyAvailable={history.available}
+      historyLoading={history.loading}
+      historyFailed={history.failed}
+      historyAtBeginning={atBeginning(history)}
+      canLoadOlder={canLoadOlder(history)}
+      onLoadOlder={loadOlder}
       statusNote={statusNote}
       input={input}
       pending={pending}

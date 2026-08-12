@@ -158,6 +158,59 @@ speaker share one portrait and one name. Grouping is on `speaker_id` and never o
 actors can carry the identical perceived label on purpose, and grouping by label would fuse two
 people into one on screen (B-1).
 
+### The record
+
+The transcript is not just this session. On load the surface reads the world's stored history —
+everything said and generated here before — and renders it **above** the live lines in the same card,
+with nothing between them. To the player there is no seam: it is one story, and only one end of it
+happens to be arriving now.
+
+**Behaviour is ours.** Reading the record, paging it, keeping the reader's place, following the
+newest line. **The look is Lovable's**, including two classes we added as behavioural minimums
+because the mode cannot exist without them:
+
+| Class | What it is for | What we ask for |
+|---|---|---|
+| `.dc-transcript-expanded` | The card grown into the full-history view. Currently `max-height: min(62vh, 620px)` | A real expanded treatment — full-height or overlay, your call. The behaviour does not care how tall it is |
+| `.dc-action-body` | Staging: italic prose beside the name, never quoted | The italic voice for actions, distinct from `.dc-speech-body` but clearly the same character |
+| `.dc-transcript-bar` / `-toggle` / `-now` / `-status` | The expand control, jump-to-now, and the record's status | A designed control row. It is a bordered pill today because that is the house shape |
+
+Three things the behaviour depends on, which a restyle must not break:
+
+1. **The scroller is one element** (`.dc-transcript`). History and live share it; splitting them into
+   two scroll regions breaks continuity and every scroll rule below.
+2. **The record's status lives OUTSIDE the scroller**, on the bar. Inside, it prepends and removes a
+   line at the exact moment an older page lands and shifts the text the reader is looking at by its
+   own height. That was measured, not guessed.
+3. **Older pages are prepended**, so the reader's position is restored by distance from the BOTTOM.
+   Anything that changes the scroller's padding or inserts content above the lines must keep that
+   distance meaningful.
+
+### The asterisk convention
+
+The player writes staging with asterisks — `*steps back into the smoke*` — and the transcript reads
+it as an action. **Display only.** `src/lib/rp-text.ts` splits a line for rendering; what is sent to
+the world and what is stored keep every character as typed, asterisks included. The engine
+interprets the raw text, so a client that stripped punctuation on the way out would be editing the
+player's intent. There is a test that the parts sum back to the original.
+
+### A `beat_frame` re-pin is expected
+
+The backend is splitting narration segments structurally — action vs speech, with speech carrying the
+speaker label and the verbatim quote as its own field. That is likely `beat_frame/4`.
+
+The client is already forward-shaped for it: `Voiced` in `PlayStage` is the **single** place either
+kind is drawn, and it is used by remembered lines and live lines alike, so the two cannot drift. When
+the schema lands: re-vendor, `npm run gen:types`, move the pin in `src/api/index.ts`, and adjust the
+frame → `Line` mapping in the play route. Nothing else should need to move.
+
+### The history read is not pinned yet
+
+`src/api/history.ts` is the only file that knows the wire shape, and it says so at the top. The pin
+is `transcript_history/1` and it is real — a payload without it fails the read loudly. Until the
+backend serves the endpoint the read 404s, and a 404 is not an error: the card is exactly what it was
+before any of this existed, with no expand affordance offered for a record that cannot be read.
+
 ## The dashboard
 
 **It is Lovable's screen, on the backend's data.** The founder ruled that it stays; the law decides

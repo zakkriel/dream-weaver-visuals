@@ -532,6 +532,23 @@
 .dc-dialogue-face { width: 56px; height: 56px; }
 .dc-line-label { margin-bottom: 4px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; }
 .dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.5rem; font-weight: 500; line-height: 1.4; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+/* Staging, not speech. Roleplay has always drawn an action as italic prose beside the name and
+   never in quotation marks — quotes around a movement claim the character said it. Same weight and
+   family as speech so the two read as one voice; only the slant and the quiet tell them apart.
+   BEHAVIOURAL MINIMUM — the treatment is Lovable's, see AGENTS.md. */
+.dc-action-body { color: rgba(224, 214, 196, .88); font-family: var(--dc-font-body); font-size: 1.28rem; font-style: italic; font-weight: 400; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+
+/* The record. Growing the card is the only way an expand affordance can mean anything, so this is
+   the smallest height that makes the mode exist — a viewport-relative cap, capped again in pixels so
+   it never outgrows the dock on a tall screen. BEHAVIOURAL MINIMUM — sizing is Lovable's. */
+.dc-transcript-expanded { max-height: min(62vh, 620px); }
+
+.dc-transcript-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.dc-transcript-toggle, .dc-transcript-now { border: 1px solid var(--dc-border); border-radius: 999px; padding: 3px 12px; color: rgba(185,170,140,.92); font-family: var(--dc-font-body); font-size: .78rem; letter-spacing: .04em; transition: color .2s, border-color .2s; }
+.dc-transcript-toggle:hover, .dc-transcript-now:hover { border-color: var(--dc-accent); color: var(--dc-accent-strong); }
+.dc-transcript-status { color: rgba(185,170,140,.8); font-family: var(--dc-font-body); font-size: .78rem; font-style: italic; }
+.dc-transcript-now { margin-left: auto; }
+
 .dc-status-note { width: fit-content; margin-top: 10px; border: 1px solid var(--dc-border); border-radius: 999px; padding: 4px 12px; color: rgba(185,170,140,.92); font-size: .78rem; }
 .dc-dock { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 8px; margin-top: 22px; border: 1px solid rgba(190, 137, 70, .4); border-radius: 18px; background: rgba(2, 10, 14, .55); padding: 6px; box-shadow: inset 0 2px 6px rgba(0,0,0,.45), inset 0 -1px 0 rgba(255,220,160,.04); }
 .dc-input { min-width: 0; min-height: 44px; max-height: 96px; resize: none; border: 0; background: transparent; padding: 10px 14px; color: var(--dc-text); font-family: var(--dc-font-body); font-size: .95rem; line-height: 1.35; }
