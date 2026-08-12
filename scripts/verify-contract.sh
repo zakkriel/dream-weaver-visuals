@@ -17,7 +17,9 @@ RAW="https://raw.githubusercontent.com/zakkriel/dreamchat-world-backend/main/cor
 declare -a FILES=(
   world_directory.v2.schema.json
   scene_current.v3.schema.json
-  beat_frame.v3.schema.json
+  beat_frame.v4.schema.json
+  transcript.v1.schema.json
+  narration.v2.schema.json
   carrying.v1.schema.json
 )
 

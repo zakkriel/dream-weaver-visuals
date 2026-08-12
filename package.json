@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "gen:types": "json2ts -i contracts/world_directory.v2.schema.json -o src/api/types/world_directory.ts && json2ts -i contracts/scene_current.v3.schema.json -o src/api/types/scene_current.ts && json2ts -i contracts/beat_frame.v3.schema.json -o src/api/types/beat_frame.ts && json2ts -i contracts/carrying.v1.schema.json -o src/api/types/carrying.ts",
+    "gen:types": "json2ts -i contracts/world_directory.v2.schema.json -o src/api/types/world_directory.ts && json2ts -i contracts/scene_current.v3.schema.json -o src/api/types/scene_current.ts && json2ts -i contracts/beat_frame.v4.schema.json -o src/api/types/beat_frame.ts && json2ts -i contracts/transcript.v1.schema.json -o src/api/types/transcript.ts && json2ts -i contracts/narration.v2.schema.json -o src/api/types/narration.ts && json2ts -i contracts/carrying.v1.schema.json -o src/api/types/carrying.ts",
     "verify:types": "bash scripts/verify-types.sh",
     "verify:contract": "bash scripts/verify-contract.sh"
   },

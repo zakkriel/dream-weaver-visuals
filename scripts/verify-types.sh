@@ -8,7 +8,9 @@ set -euo pipefail
 declare -a PAIRS=(
   "contracts/world_directory.v2.schema.json:src/api/types/world_directory.ts"
   "contracts/scene_current.v3.schema.json:src/api/types/scene_current.ts"
-  "contracts/beat_frame.v3.schema.json:src/api/types/beat_frame.ts"
+  "contracts/beat_frame.v4.schema.json:src/api/types/beat_frame.ts"
+  "contracts/transcript.v1.schema.json:src/api/types/transcript.ts"
+  "contracts/narration.v2.schema.json:src/api/types/narration.ts"
   "contracts/carrying.v1.schema.json:src/api/types/carrying.ts"
 )
 

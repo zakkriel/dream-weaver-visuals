@@ -12,12 +12,18 @@ const PINS: Record<string, string> = {
   "world_directory.json": "world_directory/2",
   "scene_current.json": "scene_current/3",
   "carrying.json": "carrying/1",
+  "carrying.mara.json": "carrying/1",
+  "scene_current.mara.json": "scene_current/3",
+  "transcript.json": "transcript/1",
+  "transcript.mara.json": "transcript/1",
 };
 
 const SCHEMA_OF: Record<string, string> = {
   "world_directory/2": "contracts/world_directory.v2.schema.json",
   "scene_current/3": "contracts/scene_current.v3.schema.json",
-  "beat_frame/3": "contracts/beat_frame.v3.schema.json",
+  "beat_frame/4": "contracts/beat_frame.v4.schema.json",
+  "transcript/1": "contracts/transcript.v1.schema.json",
+  "narration/2": "contracts/narration.v2.schema.json",
   "carrying/1": "contracts/carrying.v1.schema.json",
 };
 
@@ -30,12 +36,29 @@ describe("fixtures carry the version the client pins", () => {
     expect(fixture(name).schema_version).toBe(pin);
   });
 
-  it("every beat frame in the stream capture is the pinned version", () => {
-    const frames = JSON.parse(readFileSync("src/fixtures/beat_stream.json", "utf8")) as {
-      schema_version?: string;
-    }[];
-    expect(frames.length).toBeGreaterThan(0);
-    for (const f of frames) expect(f.schema_version).toBe("beat_frame/3");
+  it.each(["beat_stream.json", "beat_stream.mara.json"])(
+    "every beat frame in %s is the pinned version",
+    (name) => {
+      const frames = JSON.parse(readFileSync(join("src/fixtures", name), "utf8")) as {
+        schema_version?: string;
+      }[];
+      expect(frames.length).toBeGreaterThan(0);
+      for (const f of frames) expect(f.schema_version).toBe("beat_frame/4");
+    },
+  );
+
+  it("a transcript capture is a real capture, not a hand-written story", () => {
+    // The one fixture that is a RECORD. If it were ever authored by hand it would be fiction
+    // presented to a reader as their own memory, which is the worst thing this repo can render.
+    const record = JSON.parse(readFileSync("src/fixtures/transcript.json", "utf8")) as {
+      world_id?: string;
+      entries?: { entry_no?: number; segments?: { speaker_label?: string }[] }[];
+    };
+    expect(record.world_id).toBe("22222222-2222-2222-2222-222222222222");
+    expect(record.entries?.length).toBeGreaterThan(0);
+    // Monotonic entry_no, newest first — the ordering the cursor depends on.
+    const nos = (record.entries ?? []).map((e) => e.entry_no ?? 0);
+    expect(nos).toEqual([...nos].sort((a, b) => b - a));
   });
 });
 

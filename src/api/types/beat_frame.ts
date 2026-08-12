@@ -5,7 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type BeatFrame3OneSSEFrameOfPOSTWorldsWBeatsDesign48Rung3Task3 =
+export type BeatFrame4OneSSEFrameOfPOSTWorldsWBeatsDesign48SupersedesBeatFrame3ANarrationMessageNowCarriesQuoteTheVerbatimSpokenWordsAsAFieldSeparateFromTheStagingProseInText =
   InterpretationFrame | NarrationFrame | SceneFrame | JourneyFrame | ResultFrame | ErrorFrame | TraceFrame;
 export type Attempt =
   | {
@@ -170,22 +170,29 @@ export type Attempt =
     };
 
 export interface InterpretationFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "interpretation";
   chain: Attempt[];
 }
 export interface NarrationFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "narration";
   message: {
     speaker_id: string | null;
     speaker_label: string;
     kind: "narration" | "speech" | "action";
+    /**
+     * Prose. The whole segment for narration and action; for speech it is the STAGING around the line and may be empty when the line is delivered bare.
+     */
     text: string;
+    /**
+     * The verbatim spoken words, without quotation marks or attribution. Non-empty exactly when kind is speech; null otherwise. Render it as speech; render `text` as prose.
+     */
+    quote: string | null;
   };
 }
 export interface SceneFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "scene";
   scene: SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent;
 }
@@ -240,12 +247,12 @@ export interface JourneyBlock {
   status: "active" | "arrived" | "ended";
 }
 export interface JourneyFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "journey";
   journey: null | JourneyBlock;
 }
 export interface ResultFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "result";
   result: {
     committed: string[];
@@ -259,12 +266,12 @@ export interface ResultFrame {
   };
 }
 export interface ErrorFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "error";
   message: string;
 }
 export interface TraceFrame {
-  schema_version: "beat_frame/3";
+  schema_version: "beat_frame/4";
   kind: "trace";
   reasoning_log: BeatTrace;
 }

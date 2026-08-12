@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Portrait } from "@/components/dc/Portrait";
+import { rpSegments } from "@/lib/rp-text";
 import { Button } from "@/components/ui/button";
 import fallbackBackdrop from "@/assets/drowned-lantern-backdrop.jpg.asset.json";
 
@@ -10,6 +11,16 @@ export type StageParticipant = {
   readonly face?: string | undefined;
 };
 
+/**
+ * One voiced segment as the wire shapes it: prose in `text`, spoken words in `quote`.
+ *
+ * They are separate fields because they are separate things. For an action, `text` is the whole act
+ * and `quote` is null. For speech, `quote` is the verbatim words and `text` is only the STAGING
+ * around them — "she leans in, her voice dropping" — which is legitimately EMPTY when the line is
+ * delivered bare. Rendering `text` unconditionally puts a blank paragraph above half the dialogue.
+ */
+export type StageVoice = { readonly kind: string; readonly text: string; readonly quote: string | null };
+
 export type StageLine =
   | { readonly who: "you"; readonly text: string }
   | { readonly who: "note"; readonly text: string }
@@ -18,6 +29,7 @@ export type StageLine =
       readonly kind: string;
       readonly speakerLabel: string;
       readonly text: string;
+      readonly quote: string | null;
       readonly face?: string | undefined;
       /**
        * Further lines from the SAME speaker, in arrival order.
@@ -26,8 +38,33 @@ export type StageLine =
        * talking arrives as several frames. The caller groups them; this renders them under one
        * portrait and one name, because three frames from Mara are one person speaking.
        */
-      readonly more?: readonly { readonly kind: string; readonly text: string }[];
+      readonly more?: readonly StageVoice[];
     };
+
+/**
+ * One attributed line, drawn the way roleplay has always drawn it.
+ *
+ * **Speech** is the character's own words: attributed, and inside quotation marks so the reader can
+ * see where the words start and stop. **Action** is staging — something they DO — and reads as
+ * italic prose beside their name, never quoted, because putting quotes around a movement claims they
+ * said it.
+ *
+ * The backend is splitting these structurally (see AGENTS.md — a `beat_frame` re-pin is expected).
+ * That changes where `kind` comes from, not what it means here; this is the single place either kind
+ * is drawn, so a remembered line and a live line cannot drift apart.
+ */
+function Voiced({ text, quote }: StageVoice) {
+  return (
+    <>
+      {/* Staging: an act, or the movement around a spoken line. Italic prose, never quoted —
+          quotation marks around a movement claim the character said it. Empty for a bare line. */}
+      {text !== "" && <p className="dc-action-body">{text}</p>}
+      {/* The words themselves, verbatim. The wire sends them without quotation marks; the marks are
+          ours, and they are how a reader sees where the speech starts and stops. */}
+      {quote !== null && quote !== "" && <p className="dc-speech-body">{`\u201c${quote}\u201d`}</p>}
+    </>
+  );
+}
 
 function toneChips(tone: string | null): string[] {
   if (tone === null) return [];
@@ -101,6 +138,14 @@ export function PlayStage({
   onSubmit,
   onContinue,
   aux,
+  expanded = false,
+  onExpandedChange,
+  historyAvailable = false,
+  historyLoading = false,
+  historyFailed = false,
+  historyAtBeginning = false,
+  canLoadOlder = false,
+  onLoadOlder,
 }: {
   worldId: string;
   placeLabel: string;
@@ -120,6 +165,17 @@ export function PlayStage({
   onSubmit: (event: FormEvent) => void;
   onContinue: () => void;
   aux: ReactNode;
+  /** The dialogue card grown into the full-history view, with its own scroller. */
+  expanded?: boolean;
+  onExpandedChange?: (next: boolean) => void;
+  /** False when the backend serves no transcript read. No affordance is offered for it. */
+  historyAvailable?: boolean;
+  historyLoading?: boolean;
+  historyFailed?: boolean;
+  /** True once every older page has been read — the reader is at the start of the record. */
+  historyAtBeginning?: boolean;
+  canLoadOlder?: boolean;
+  onLoadOlder?: () => void;
 }) {
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
@@ -137,14 +193,121 @@ export function PlayStage({
    */
   const transcriptRef = useRef<HTMLDivElement>(null);
   const atBottomRef = useRef(true);
-  useEffect(() => {
+  const [atBottom, setAtBottom] = useState(true);
+
+  /**
+   * While our own smooth scroll is animating, the events it fires are not the reader moving.
+   *
+   * A smooth scroll reports every intermediate position, and each one reads as "not at the bottom" —
+   * so the next narration frame to arrive mid-animation declines to follow, and the story settles a
+   * screen-length short of where it should. Measured at 98px adrift before this existed.
+   */
+  const selfScrollingUntil = useRef(0);
+  const lastTopRef = useRef(0);
+
+  function scrollToNow(smooth = true) {
     const el = transcriptRef.current;
-    if (el === null || !atBottomRef.current) return;
+    if (el === null) return;
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
-    el.scrollTo({ top: el.scrollHeight, behavior: reduced ? "auto" : "smooth" });
+    const animated = smooth && !reduced;
+    selfScrollingUntil.current = animated ? Date.now() + 1000 : 0;
+    lastTopRef.current = el.scrollTop;
+    el.scrollTo({ top: el.scrollHeight, behavior: animated ? "smooth" : "auto" });
+    atBottomRef.current = true;
+    setAtBottom(true);
+  }
+
+  /**
+   * Keep the reader's place when an older page arrives.
+   *
+   * Older history is PREPENDED, so the content above the viewport grows and every pixel the reader
+   * was looking at slides down by exactly that much. Left alone the view jumps backwards mid-sentence
+   * on every page — the classic infinite-scroll lurch, and worse here because the thing that moved is
+   * the story. Measuring distance from the BOTTOM instead of the top makes it invariant to whatever
+   * was inserted above: restore that distance and the reader has not moved at all.
+   */
+  const fromBottomRef = useRef<number | null>(null);
+  const lineCountRef = useRef(lines.length);
+  useEffect(() => {
+    const el = transcriptRef.current;
+    if (el === null) return;
+
+    // `lines` is rebuilt every render, so this effect runs constantly. Only an actual arrival is
+    // interesting — and the distinction matters more than tidiness: consuming the saved position on
+    // the render that merely flips "loading" would spend it before the page it was saved for lands,
+    // leaving the reader pinned at the top and pulling the entire record in one page at a time.
+    const grew = lines.length > lineCountRef.current;
+    lineCountRef.current = lines.length;
+    if (!grew) return;
+
+    const pending = fromBottomRef.current;
+    if (pending !== null) {
+      fromBottomRef.current = null;
+      el.scrollTop = el.scrollHeight - pending;
+      return;
+    }
+
+    // Nothing was prepended, so this is the story arriving. Follow it — but only for a reader who is
+    // already at the bottom. Someone reading back is yanked by nothing.
+    if (atBottomRef.current) scrollToNow();
   }, [lines]);
+
+  /**
+   * Open on the newest line.
+   *
+   * The record loads before the scene does, so this card can MOUNT with the story already in it —
+   * and a card that mounts full never sees its line count grow, so the follow below never fires. Left
+   * alone the player lands in the middle of last week's conversation every time they enter a world.
+   */
+  useEffect(() => {
+    scrollToNow(false);
+    // Mount only: every later arrival is handled by the effect above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Sending is an act of being present.
+   *
+   * A reader deep in the record who types and sends has just declared where they are, so this is the
+   * one moment a jump to now is what they asked for — otherwise their own words land somewhere they
+   * cannot see, and the world answers off screen.
+   */
+  useEffect(() => {
+    if (pending) scrollToNow();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pending]);
+
+  /**
+   * Ask for the page before this one when the reader reaches the top.
+   *
+   * Only in the expanded view: the docked card is a few lines tall, so its top is always in reach and
+   * paging from it would drag the whole record in without anyone asking for it.
+   */
+  function onTranscriptScroll(el: HTMLDivElement) {
+    const bottom = el.scrollHeight - el.scrollTop - el.clientHeight <= 4;
+    if (Date.now() < selfScrollingUntil.current) {
+      // Our own animation, which only ever travels DOWN toward the newest line. A position above the
+      // last one is the reader pushing back against it — during a stream the window is refreshed by
+      // every frame, so without this check someone scrolling up to re-read would be ignored for as
+      // long as the world kept talking. Anything else is the animation and is not the reader leaving.
+      if (el.scrollTop >= lastTopRef.current - 2) {
+        lastTopRef.current = el.scrollTop;
+        if (bottom) selfScrollingUntil.current = 0;
+        // It must not trip the load-older check on the way past the top either.
+        return;
+      }
+      selfScrollingUntil.current = 0;
+    }
+    lastTopRef.current = el.scrollTop;
+    atBottomRef.current = bottom;
+    setAtBottom(bottom);
+    if (expanded && canLoadOlder && el.scrollTop <= 48) {
+      fromBottomRef.current = el.scrollHeight - el.scrollTop;
+      onLoadOlder?.();
+    }
+  }
 
   return (
     <div className="dc-stage-root" data-context-expanded={contextExpanded ? "true" : "false"}>
@@ -233,23 +396,65 @@ export function PlayStage({
             )}
 
             <StageIsland label="The moment" className="dc-dialogue-card">
+            {/* The record and the moment are ONE reading. History sits above the live lines in the
+                same card with nothing between them, because to the player there is no seam: it is
+                all the same story, and only one end of it happens to be arriving now. */}
+            {historyAvailable && (
+              <div className="dc-transcript-bar">
+                <button
+                  type="button"
+                  className="dc-focus dc-transcript-toggle"
+                  aria-expanded={expanded}
+                  onClick={() => {
+                    const next = !expanded;
+                    onExpandedChange?.(next);
+                    // Opening lands on the newest line: the reader was looking at now, and the card
+                    // growing upward must not leave them staring at the middle of last week.
+                    if (next) requestAnimationFrame(() => scrollToNow(false));
+                  }}
+                >
+                  {expanded ? "Close the record" : "Read the whole story"}
+                </button>
+                {/* The record's own status lives on the bar, OUTSIDE the scroller. Put inside, it
+                    prepends and removes a line at the exact moment an older page lands, shifting the
+                    text the reader is looking at by its own height. */}
+                {expanded && historyLoading && <span className="dc-transcript-status">Reading back…</span>}
+                {expanded && historyFailed && (
+                  <span className="dc-transcript-status">Could not read the rest of the record.</span>
+                )}
+                {expanded && !historyLoading && historyAtBeginning && lines.length > 0 && (
+                  <span className="dc-transcript-status">The beginning.</span>
+                )}
+                {expanded && !atBottom && (
+                  <button type="button" className="dc-focus dc-transcript-now" onClick={() => scrollToNow()}>
+                    Jump to now
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Every line, in arrival order. Rendering only the last one dropped world text: with
                 line-level narration a beat arrives as several frames, so five of six lines flashed
                 past and vanished. The world said them; the player has to be able to read them. */}
             <div
-              className="dc-transcript"
+              className={`dc-transcript${expanded ? " dc-transcript-expanded" : ""}`}
               ref={transcriptRef}
-              onScroll={(e) => {
-                const el = e.currentTarget;
-                // 4px of slack: a smooth scroll can land a hair short of the true bottom.
-                atBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight <= 4;
-              }}
+              onScroll={(e) => onTranscriptScroll(e.currentTarget)}
             >
               {lines.length === 0 && <p className="dc-empty-line">{emptyTranscript}</p>}
               {lines.map((line, i) => (
                 <div key={i}>
                   {line.who === "you" && (
-                    <div><p className="dc-line-label">You</p><p className="dc-speech-body">{line.text}</p></div>
+                    <div>
+                      <p className="dc-line-label">You</p>
+                      {/* The player's own asterisks read as staging. Display only — what was sent and
+                          what is stored keep every character they were typed with. */}
+                      {rpSegments(line.text).map((seg, j) => (
+                        <p key={j} className={seg.kind === "action" ? "dc-action-body" : "dc-speech-body"}>
+                          {seg.text}
+                        </p>
+                      ))}
+                    </div>
                   )}
                   {line.who === "note" && <p className="dc-note-line">{line.text}</p>}
                   {line.who === "world" && (
@@ -258,16 +463,22 @@ export function PlayStage({
                         <Portrait src={line.face} className="dc-dialogue-face" />
                         <div>
                           <p className="dc-line-label">{line.speakerLabel}</p>
-                          <p className="dc-speech-body">{line.kind === "speech" ? `“${line.text}”` : line.text}</p>
+                          <Voiced kind={line.kind} text={line.text} quote={line.quote} />
                           {line.more?.map((m, j) => (
-                            <p key={j} className="dc-speech-body">{m.kind === "speech" ? `“${m.text}”` : m.text}</p>
+                            <Voiced key={j} kind={m.kind} text={m.text} quote={m.quote} />
                           ))}
                         </div>
                       </div>
                     ) : (
                       <>
-                        <p className="dc-note-line">{line.text}</p>
-                        {line.more?.map((m, j) => <p key={j} className="dc-note-line">{m.text}</p>)}
+                        {line.text !== "" && <p className="dc-note-line">{line.text}</p>}
+                        {line.more?.map((m, j) =>
+                          m.text === "" ? null : (
+                            <p key={j} className="dc-note-line">
+                              {m.text}
+                            </p>
+                          ),
+                        )}
                       </>
                     )
                   )}

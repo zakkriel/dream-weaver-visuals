@@ -12,6 +12,13 @@ import {
   type WorldDirectory,
 } from "./index";
 import {
+  NO_HISTORY,
+  fetchHistory,
+  toPage,
+  type Cursor,
+  type FetchedPage,
+} from "./history";
+import {
   captureFor,
   fixtureDirectory,
   type WorldCapture,
@@ -149,6 +156,35 @@ export async function loadWorldScoped<T>(
     if (!capture) return { state: "failed" };
     return { state: "ok", data: fromCapture(capture), source: "fixture" };
   }
+}
+
+/**
+ * Read a page of the world's story, respecting the environment the directory established.
+ *
+ * Two departures from every other world-scoped read, both because this one is a RECORD:
+ *
+ * - **Offline it serves the whole capture as a single page.** There is nothing to paginate against,
+ *   and the capture is what was there when it was taken. The Mara world's capture is empty, which is
+ *   exactly what a world looks like before anything has been played in it.
+ * - **A live failure NEVER falls back to the capture.** For a scene, a stale capture is a slightly
+ *   old view of a place that still exists. For a story it is a different story — words this viewer
+ *   may never have been told, presented as their own memory. Better to say the read failed.
+ */
+export async function loadHistory(
+  worldId: string,
+  halt: (reason: string) => string,
+  before?: Cursor,
+): Promise<FetchedPage> {
+  await ensureEnvironment(loadDirectory);
+
+  if (isFixtureMode()) {
+    const capture = captureFor(worldId);
+    if (!capture) return NO_HISTORY;
+    noteFixtureServe("transcript", worldId);
+    return toPage(capture.transcript, halt);
+  }
+
+  return fetchHistory(worldId, halt, before);
 }
 
 export const loadScene = (worldId: string, read: () => Promise<Fetched<Scene>>) =>
