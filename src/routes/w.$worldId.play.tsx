@@ -377,7 +377,7 @@ function Play() {
       aux={
         <>
           <StageIsland label="What matters now" className="px-5 py-5">
-            <h2 className="font-display text-xl tracking-wide text-dc-accent-strong">What matters now</h2>
+            <h2>What matters now</h2>
             {s.current.length === 0 ? (
               <p className="mt-3 font-body italic text-dc-text-muted">Nothing presses in on you.</p>
             ) : (
@@ -400,7 +400,7 @@ function Play() {
 
           {carrying && (
             <StageIsland label="Carrying now" className="px-5 py-5">
-              <h2 className="font-display text-xl tracking-wide text-dc-accent-strong">Carrying now</h2>
+              <h2>Carrying now</h2>
               {carrying.carried.length === 0 ? (
                 <p className="mt-3 font-body italic text-dc-text-muted">You have nothing on you.</p>
               ) : (

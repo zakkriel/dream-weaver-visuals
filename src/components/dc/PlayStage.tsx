@@ -418,13 +418,12 @@ export function PlayStage({
                 placeholder="Write an action, speak, or type / for options..."
                 className="dc-focus dc-input"
               />
-              <Button type="submit" variant="ghost" disabled={pending || input.trim() === ""} className="dc-btn-ghost">
+              <Button type="submit" disabled={pending || input.trim() === ""} className="dc-btn-gold">
                 <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 3 10.5 13.5M21 3l-6.6 18-3.9-7.5L3 9.6z" /></svg>
                 {pending ? "Sending…" : "Send"}
               </Button>
-              <Button type="button" disabled={pending} onClick={onContinue} className="dc-btn-gold">
-                Continue
-                <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 6 6 6-6 6" /></svg>
+              <Button type="button" variant="ghost" disabled={pending} onClick={onContinue} className="dc-btn-ghost dc-btn-icon" aria-label="Play forward the world" title="Play forward the world">
+                <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="m5 5 8 7-8 7zM17 5v14" /></svg>
               </Button>
             </form>
             </StageIsland>
