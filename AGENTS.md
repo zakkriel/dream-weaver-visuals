@@ -53,9 +53,11 @@ If a component needs different data, the route changes. If it needs to look diff
 
 Every payload comes through `src/api/`. Nothing else fetches.
 
-- **Pins are exact.** `src/api/index.ts` pins `world_directory/2`, `scene_current/3`, `beat_frame/3`,
-  `carrying/1` by string equality. A mismatch fails the load rather than reading a v3 payload through
-  v2 field access.
+- **Pins are exact.** `src/api/index.ts` pins `world_directory/2`, `scene_current/3`, `beat_frame/4`,
+  `carrying/1` and `transcript/1` by string equality. A mismatch fails the load rather than reading a
+  v4 payload through v3 field access. When the backend supersedes a version it DELETES the old
+  schema, so a re-pin is a re-vendor: copy, `bun run gen:types`, move the pin, re-capture the
+  fixtures that carried the old version — a stale capture fails `src/laws/fixtures.test.ts` on purpose.
 - **Types are generated.** `src/api/types/` is codegen from `contracts/`. **Never hand-edit it** —
   `bun run verify:types` diffs it byte-for-byte. Regenerate with `bun run gen:types`.
 - **Schemas are vendored.** `contracts/` holds copies of the backend's schemas; `bun run
@@ -194,22 +196,46 @@ the world and what is stored keep every character as typed, asterisks included. 
 interprets the raw text, so a client that stripped punctuation on the way out would be editing the
 player's intent. There is a test that the parts sum back to the original.
 
-### A `beat_frame` re-pin is expected
+### Prose and speech are separate fields
 
-The backend is splitting narration segments structurally — action vs speech, with speech carrying the
-speaker label and the verbatim quote as its own field. That is likely `beat_frame/4`.
+`beat_frame/4` and `transcript/1` carry a narration segment as
+`{speaker_id, speaker_label, kind, text, quote}` — byte-identical in both, on purpose, so history and
+live render through one path. `Voiced` in `PlayStage` is that path.
 
-The client is already forward-shaped for it: `Voiced` in `PlayStage` is the **single** place either
-kind is drawn, and it is used by remembered lines and live lines alike, so the two cannot drift. When
-the schema lands: re-vendor, `npm run gen:types`, move the pin in `src/api/index.ts`, and adjust the
-frame → `Line` mapping in the play route. Nothing else should need to move.
+- **`quote`** is the verbatim spoken words, **without** quotation marks. The marks are ours.
+- **`text`** is prose: the whole segment for `narration` and `action`; for `speech` it is only the
+  STAGING around the line — *"she leans in, her voice dropping"* — and is **legitimately empty** when
+  a line is delivered bare.
 
-### The history read is not pinned yet
+**Never render `text` unconditionally.** Roughly half of live speech arrives bare, and an
+unconditional paragraph puts an empty line above every one of them. There is a test for it and a
+browser check that counts blank paragraphs on screen.
 
-`src/api/history.ts` is the only file that knows the wire shape, and it says so at the top. The pin
-is `transcript_history/1` and it is real — a payload without it fails the read loudly. Until the
-backend serves the endpoint the read 404s, and a 404 is not an error: the card is exactly what it was
-before any of this existed, with no expand affordance offered for a record that cannot be read.
+### The record
+
+`transcript/1` at `GET /worlds/{w}/transcript`, viewer-scoped, newest first, `?before=<entry_no>`
+paginated until `next_before` is null. Read it through `loadHistory` in `src/api/load.ts`, never
+`fetchHistory` directly, so fixture mode is respected.
+
+One entry is a **beat**, not a line: `stated` (the player's raw input, null for a Continue press —
+a different fact from an empty string), then `segments` in delivered order, then the halt if there
+was one. `entry_no` is the ordering handle and the cursor; a `tick` cannot order, because several
+entries share one.
+
+Two rules that are not ours to relax:
+
+1. **Stored labels are frozen at delivery and the backend pins that with its own tests.** An entry
+   written before the viewer learned a name still says *"the muscle by the bar"* after he learns
+   *"Jonas"*, because a memory of an experience is itself a perception (D-7). This client renders the
+   record and never re-resolves a remembered line against the present cast. It is not a bug. Do not
+   "fix" it.
+2. **A remembered line wears no portrait.** `transcript/1` stores no picture per entry, so the
+   silhouette is the honest likeness of a memory (D-8). Borrowing today's portrait would leak an
+   identity backwards through the viewer's own record (B-1).
+
+A live history read that fails **never** falls back to the bundled capture. For a scene a stale
+capture is an old view of a place that still exists; for a story it is a different story, shown to a
+reader as their own memory.
 
 ## The dashboard
 

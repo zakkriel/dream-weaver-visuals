@@ -16,7 +16,10 @@ const say = (
   speaker_label: string,
   kind: NarrationMessage["kind"],
   text: string,
-): Line => ({ who: "world", message: { speaker_id, speaker_label, kind, text } });
+): Line => ({
+  who: "world",
+  message: { speaker_id, speaker_label, kind, text, quote: kind === "speech" ? text : null },
+});
 
 const MARA = "2ac70000-0000-0000-0000-0000000000a2";
 const HOOD = "2ac70000-0000-0000-0000-0000000000a4";

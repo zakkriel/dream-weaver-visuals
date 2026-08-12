@@ -13,15 +13,8 @@ import {
   type NarrationMessage,
   type Scene,
 } from "@/api";
-import { loadScene, loadCarrying, submitBeat, type Loaded } from "@/api/load";
-import {
-  HISTORY_START,
-  NO_HISTORY,
-  atBeginning,
-  canLoadOlder,
-  fetchHistory,
-  historyReducer,
-} from "@/api/history";
+import { loadScene, loadCarrying, loadHistory, submitBeat, type Loaded } from "@/api/load";
+import { HISTORY_START, NO_HISTORY, atBeginning, canLoadOlder, historyReducer } from "@/api/history";
 
 export const Route = createFileRoute("/w/$worldId/play")({
   head: () => ({
@@ -39,12 +32,13 @@ export const Route = createFileRoute("/w/$worldId/play")({
  * One thing that appeared in the narration panel, in the order it appeared.
  *
  * `remembered` marks a line read back out of the stored record rather than streamed this session.
- * It carries its own `face`, because a stored line is what the viewer was told at the time and must
- * never be re-resolved against the cast as it stands now (D-7) — see `api/history.ts`.
+ * A remembered line keeps the label it was delivered with and is never re-resolved against the cast
+ * as it stands now (D-7); it also wears no portrait, because `transcript/1` stores no picture per
+ * entry and the silhouette is the honest likeness of a memory (D-8) — see `api/history.ts`.
  */
 export type Line =
   | { who: "you"; text: string; remembered?: true }
-  | { who: "world"; message: NarrationMessage; face?: string | undefined; remembered?: true }
+  | { who: "world"; message: NarrationMessage; remembered?: true }
   | { who: "note"; text: string; remembered?: true };
 
 /**
@@ -53,6 +47,11 @@ export type Line =
  * The raw vocabulary is engine-facing ("telegraph", "bounce") and must never reach the screen (F-2).
  * `completed` never arrives here.
  */
+/** One place the engine's vocabulary becomes the player's, used live and when reading history back. */
+export function haltCopy(reason: string): string {
+  return HALT[reason] ?? "Something snagged — try again.";
+}
+
 const HALT: Record<string, string> = {
   telegraph: "The world moves — answer it.",
   bounce: "That didn't land as possible — say it differently.",
@@ -112,7 +111,10 @@ export function groupStageLines(
     // card would put today's name over words said before the viewer knew it (B-1).
     const continues = groupable && runSpeaker === m.speaker_id && runRemembered === remembered;
     if (continues && prev?.who === "world") {
-      out[out.length - 1] = { ...prev, more: [...(prev.more ?? []), { kind: m.kind, text: m.text }] };
+      out[out.length - 1] = {
+        ...prev,
+        more: [...(prev.more ?? []), { kind: m.kind, text: m.text, quote: m.quote }],
+      };
       continue;
     }
     runSpeaker = groupable ? m.speaker_id : null;
@@ -122,9 +124,10 @@ export function groupStageLines(
       kind: m.kind,
       speakerLabel: m.speaker_label,
       text: m.text,
-      // A remembered line wears the picture its record carries. Only a live line is resolved against
-      // the cast standing in the room.
-      face: remembered ? line.face : faceOf(m.speaker_id),
+      quote: m.quote,
+      // Only a live line is resolved against the cast standing in the room. A memory keeps the
+      // silhouette rather than borrowing a face the viewer did not have at the time.
+      face: remembered ? undefined : faceOf(m.speaker_id),
     });
   }
   return out;
@@ -159,11 +162,11 @@ function Play() {
   const inFlightRef = useRef(false);
 
   const read = useCallback(
-    (from: string | null) => {
+    (from: number | null) => {
       if (inFlightRef.current) return;
       inFlightRef.current = true;
       dispatchHistory({ type: "loading", from });
-      void fetchHistory(worldId, from ?? undefined)
+      void loadHistory(worldId, haltCopy, from ?? undefined)
         .then((page) => {
           dispatchHistory(page === NO_HISTORY ? { type: "absent" } : { type: "page", page, from });
         })
@@ -181,10 +184,16 @@ function Play() {
     read(state.next);
   }, [read]);
 
+  // The first page, once per world. Keyed on the id rather than a bare mount flag: React mounts this
+  // twice in development, and a plain "have I run" guard reset on mount fired the same read three
+  // times per page load. It is idempotent in the reducer, but three requests is still three requests.
+  const openedWorld = useRef<string | null>(null);
   useEffect(() => {
+    if (openedWorld.current === worldId) return;
+    openedWorld.current = worldId;
     inFlightRef.current = false;
     read(null);
-  }, [read]);
+  }, [read, worldId]);
 
   /**
    * Every face the world has shown this session, keyed by actor id, latest payload winning.
@@ -331,7 +340,7 @@ function Play() {
 
   /* The engine's own halt vocabulary never reaches the screen; a stream failure says so plainly. */
   const statusNote = halted && outcome
-    ? (HALT[outcome.halt_reason] ?? "Something snagged — try again.")
+    ? haltCopy(outcome.halt_reason)
     : failed
       ? "Could not reach the world. Try again."
       : undefined;

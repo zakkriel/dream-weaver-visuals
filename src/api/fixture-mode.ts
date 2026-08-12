@@ -1,10 +1,12 @@
-import type { BeatFrame, Carrying, Scene, WorldDirectory } from "./index";
+import type { BeatFrame, Carrying, Scene, Transcript, WorldDirectory } from "./index";
 import worldDirectory from "@/fixtures/world_directory.json";
 import sceneLantern from "@/fixtures/scene_current.json";
 import carryingLantern from "@/fixtures/carrying.json";
 import beatsLantern from "@/fixtures/beat_stream.json";
+import transcriptLantern from "@/fixtures/transcript.json";
 import sceneMara from "@/fixtures/scene_current.mara.json";
 import carryingMara from "@/fixtures/carrying.mara.json";
+import transcriptMara from "@/fixtures/transcript.mara.json";
 import beatsMara from "@/fixtures/beat_stream.mara.json";
 
 /**
@@ -96,6 +98,14 @@ export interface WorldCapture {
   scene: Scene;
   carrying: Carrying;
   beats: BeatFrame[];
+  /**
+   * The world's stored story as it stood when the capture was taken.
+   *
+   * A record, so unlike the other three it cannot be recomputed — which is exactly why it is worth
+   * holding offline. The Mara world's capture is genuinely EMPTY, and that is the more useful of the
+   * two fixtures: it is what a world looks like before anything has been played in it.
+   */
+  transcript: Transcript;
 }
 
 /**
@@ -110,11 +120,13 @@ const CAPTURES: Record<string, WorldCapture> = {
     scene: sceneLantern as unknown as Scene,
     carrying: carryingLantern as unknown as Carrying,
     beats: beatsLantern as unknown as BeatFrame[],
+    transcript: transcriptLantern as unknown as Transcript,
   },
   "11111111-1111-1111-1111-111111111111": {
     scene: sceneMara as unknown as Scene,
     carrying: carryingMara as unknown as Carrying,
     beats: beatsMara as unknown as BeatFrame[],
+    transcript: transcriptMara as unknown as Transcript,
   },
 };
 

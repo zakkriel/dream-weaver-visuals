@@ -1,7 +1,8 @@
 import { HOSTED_API_BASE, isLocalHostname } from "./hosted";
 import type { WorldDirectory2GETWorldsTheWorldsACallerMayChooseBetweenSPEC028ADIRECTORYNeverCanonAnIdANameALineOfFictionALookACoverWhereYouLeftOffAndWhetherAnyoneCanPlayItNoWorldSTATEOnThisSurface as WorldDirectoryT } from "./types/world_directory";
 import type { SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent as SceneCurrentT } from "./types/scene_current";
-import type { BeatFrame3OneSSEFrameOfPOSTWorldsWBeatsDesign48Rung3Task3 as BeatFrameT } from "./types/beat_frame";
+import type { BeatFrame4OneSSEFrameOfPOSTWorldsWBeatsDesign48SupersedesBeatFrame3ANarrationMessageNowCarriesQuoteTheVerbatimSpokenWordsAsAFieldSeparateFromTheStagingProseInText as BeatFrameT } from "./types/beat_frame";
+import type { Transcript1TheViewerSLivedStoryDeliveredNarrationNewestFirstCursorPaginated as TranscriptT } from "./types/transcript";
 import type { Carrying as CarryingT } from "./types/carrying";
 
 /**
@@ -20,6 +21,15 @@ export type BeatFrame = BeatFrameT;
 export type NarrationMessage = Extract<BeatFrame, { kind: "narration" }>["message"];
 export type BeatOutcome = Extract<BeatFrame, { kind: "result" }>["result"];
 export type Carrying = CarryingT;
+export type Transcript = TranscriptT;
+export type TranscriptEntry = Transcript["entries"][number];
+/**
+ * One delivered narration segment.
+ *
+ * Byte-identical between a live `beat_frame/4` narration frame and a stored transcript entry, on
+ * purpose: the backend shaped them the same so history and live prose render through one path.
+ */
+export type NarrationSegment = TranscriptEntry["segments"][number];
 export type CarriedItem = Carrying["carried"][number];
 
 /**
@@ -42,7 +52,8 @@ export type ImageTier = "thumbnail" | "preview" | "final";
 const PIN = {
   worlds: "world_directory/2",
   scene: "scene_current/3",
-  beat: "beat_frame/3",
+  beat: "beat_frame/4",
+  transcript: "transcript/1",
   carrying: "carrying/1",
 } as const;
 

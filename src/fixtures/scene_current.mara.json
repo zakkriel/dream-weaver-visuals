@@ -1,45 +1,25 @@
 {
-    "schema_version": "scene_current/3",
-    "place": {
-        "id": "f2000000-0000-0000-0000-000000000001",
-        "label": "ten-A",
-        "description": null,
-        "tone": "tense",
-        "image": null
-    },
-    "participants": [
-        {
-            "id": "f2000000-0000-0000-0000-0000000000e1",
-            "label": "jb-encumbered",
-            "kind": "actor",
-            "image": null
-        }
-    ],
-    "now": {
-        "tick": 96063,
-        "display_label": "Day 2"
-    },
-    "journey": null,
-    "current": [
-        "On arriving, I noticed someone already here.",
-        "On arriving, I noticed someone already here.",
-        "On arriving, I noticed someone already here.",
-        "The target seems unmoved.",
-        "The target seems unmoved.",
-        "On arriving, I noticed someone already here.",
-        "I move to locB to get away",
-        "On arriving, I noticed someone already here.",
-        "Mara greets the player",
-        "I greet Mara back",
-        "I shift my weight but stay put",
-        "I lean in and speak",
-        "On arriving, I noticed someone already here.",
-        "a plain dagger takes shape under his hammer",
-        "he takes a slow breath and starts",
-        "The target seems unmoved.",
-        "I cross to B",
-        "I cross to C",
-        "I make the long crossing to A",
-        "On arriving, I noticed someone already here."
-    ]
+ "schema_version": "scene_current/3",
+ "place": {
+  "id": "000000a0-0000-0000-0000-0000000000a1",
+  "label": "Square",
+  "description": null,
+  "tone": null,
+  "image": null
+ },
+ "participants": [],
+ "now": {
+  "tick": 201,
+  "display_label": "Day 2"
+ },
+ "journey": null,
+ "current": [
+  "I moved to square",
+  "I moved to dock",
+  "I moved to market",
+  "I moved to tavern",
+  "I moved to road",
+  "I moved to square",
+  "It is now common knowledge that the mayor keeps a hidden ledger"
+ ]
 }

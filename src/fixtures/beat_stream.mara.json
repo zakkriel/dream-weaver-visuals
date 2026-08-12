@@ -1,116 +1,104 @@
 [
-  {
-    "chain": [],
-    "kind": "interpretation",
-    "schema_version": "beat_frame/3"
+ {
+  "chain": [
+   {
+    "type": "QUERY",
+    "stated": "I take in the room",
+    "query_target_ids": [
+     "000000a0-0000-0000-0000-0000000000a1"
+    ],
+    "duration_class": "short"
+   },
+   {
+    "type": "AttributeChanged",
+    "stated": "wait for whoever speaks first",
+    "target_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "duration_class": "medium",
+    "sustain": {
+     "kind": "until_attr",
+     "entity_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+     "attr": "hears_speaker",
+     "value": "true"
+    }
+   }
+  ],
+  "kind": "interpretation",
+  "schema_version": "beat_frame/4"
+ },
+ {
+  "kind": "narration",
+  "message": {
+   "speaker_id": null,
+   "speaker_label": "",
+   "kind": "narration",
+   "text": "The square opens around you, cobbles worn smooth by generations of feet. A low wall rings the central well, its stone dark with damp, and the air carries the faded murmur of voices from the streets that feed into this place. No one stands close enough to touch.",
+   "quote": null
   },
-  {
-    "kind": "narration",
-    "message": {
-      "speaker_id": null,
-      "speaker_label": "",
-      "kind": "narration",
-      "text": "Scene: On arriving, I noticed someone already here. On arriving, I noticed someone already here. On arriving, I noticed someone already here. The target seems unmoved. The target seems unmoved. On arriving, I noticed someone already here. I move to locB to get away On arriving, I noticed someone already here. Mara greets the player I greet Mara back I shift my weight but stay put I lean in and speak On arriving, I noticed someone already here. a plain dagger takes shape under his hammer he takes a slow breath and starts The target seems unmoved. I cross to B I cross to C I make the long crossing to A On arriving, I noticed someone already here."
-    },
-    "schema_version": "beat_frame/3"
+  "schema_version": "beat_frame/4"
+ },
+ {
+  "kind": "scene",
+  "scene": {
+   "schema_version": "scene_current/3",
+   "place": {
+    "id": "000000a0-0000-0000-0000-0000000000a1",
+    "label": "Square",
+    "description": null,
+    "tone": null,
+    "image": null
+   },
+   "participants": [],
+   "now": {
+    "tick": 12545,
+    "display_label": "Day 2"
+   },
+   "journey": {
+    "active": true,
+    "kind": "watch",
+    "goal_label": null,
+    "where_label": null,
+    "progress": 0.1428587962962963,
+    "legs_done": 1,
+    "legs_total": 7,
+    "interruptible": true,
+    "status": "active"
+   },
+   "current": [
+    "I moved to square",
+    "I moved to dock",
+    "I moved to market",
+    "I moved to tavern",
+    "I moved to road",
+    "I moved to square",
+    "It is now common knowledge that the mayor keeps a hidden ledger"
+   ]
   },
-  {
-    "kind": "scene",
-    "scene": {
-      "schema_version": "scene_current/3",
-      "place": {
-        "id": "f2000000-0000-0000-0000-000000000001",
-        "label": "ten-A",
-        "description": null,
-        "tone": "tense",
-        "image": null
-      },
-      "participants": [
-        {
-          "id": "f2000000-0000-0000-0000-0000000000e1",
-          "label": "jb-encumbered",
-          "kind": "actor",
-          "image": null
-        }
-      ],
-      "now": {
-        "tick": 96063,
-        "display_label": "Day 2"
-      },
-      "journey": null,
-      "current": [
-        "On arriving, I noticed someone already here.",
-        "On arriving, I noticed someone already here.",
-        "On arriving, I noticed someone already here.",
-        "The target seems unmoved.",
-        "The target seems unmoved.",
-        "On arriving, I noticed someone already here.",
-        "I move to locB to get away",
-        "On arriving, I noticed someone already here.",
-        "Mara greets the player",
-        "I greet Mara back",
-        "I shift my weight but stay put",
-        "I lean in and speak",
-        "On arriving, I noticed someone already here.",
-        "a plain dagger takes shape under his hammer",
-        "he takes a slow breath and starts",
-        "The target seems unmoved.",
-        "I cross to B",
-        "I cross to C",
-        "I make the long crossing to A",
-        "On arriving, I noticed someone already here."
-      ]
-    },
-    "schema_version": "beat_frame/3"
+  "schema_version": "beat_frame/4"
+ },
+ {
+  "journey": {
+   "active": true,
+   "kind": "watch",
+   "goal_label": null,
+   "where_label": null,
+   "progress": 0.1428587962962963,
+   "legs_done": 1,
+   "legs_total": 7,
+   "interruptible": true,
+   "status": "active"
   },
-  {
-    "journey": null,
-    "kind": "journey",
-    "schema_version": "beat_frame/3"
+  "kind": "journey",
+  "schema_version": "beat_frame/4"
+ },
+ {
+  "kind": "result",
+  "result": {
+   "committed": [],
+   "halt_reason": "journey_leg",
+   "ticks_advanced": 12343,
+   "unresolved_candidates": [],
+   "telegraphs": []
   },
-  {
-    "kind": "result",
-    "result": {
-      "committed": [],
-      "halt_reason": "completed",
-      "ticks_advanced": 2,
-      "unresolved_candidates": [],
-      "telegraphs": []
-    },
-    "schema_version": "beat_frame/3"
-  },
-  {
-    "kind": "trace",
-    "reasoning_log": {
-      "decompose": [],
-      "world_turn": [
-        {
-          "clock_delta_s": 2,
-          "rolls": [
-            {
-              "tier": "large",
-              "chance": 0,
-              "roll": 0.7601878821843986,
-              "fired": false
-            },
-            {
-              "tier": "medium",
-              "chance": 0,
-              "roll": 0.6513794926621781,
-              "fired": false
-            },
-            {
-              "tier": "small",
-              "chance": 0,
-              "roll": 0.11294783945549713,
-              "fired": false
-            }
-          ]
-        }
-      ],
-      "halt_reason": "completed",
-      "committed": []
-    },
-    "schema_version": "beat_frame/3"
-  }
+  "schema_version": "beat_frame/4"
+ }
 ]

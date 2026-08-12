@@ -11,6 +11,16 @@ export type StageParticipant = {
   readonly face?: string | undefined;
 };
 
+/**
+ * One voiced segment as the wire shapes it: prose in `text`, spoken words in `quote`.
+ *
+ * They are separate fields because they are separate things. For an action, `text` is the whole act
+ * and `quote` is null. For speech, `quote` is the verbatim words and `text` is only the STAGING
+ * around them — "she leans in, her voice dropping" — which is legitimately EMPTY when the line is
+ * delivered bare. Rendering `text` unconditionally puts a blank paragraph above half the dialogue.
+ */
+export type StageVoice = { readonly kind: string; readonly text: string; readonly quote: string | null };
+
 export type StageLine =
   | { readonly who: "you"; readonly text: string }
   | { readonly who: "note"; readonly text: string }
@@ -19,6 +29,7 @@ export type StageLine =
       readonly kind: string;
       readonly speakerLabel: string;
       readonly text: string;
+      readonly quote: string | null;
       readonly face?: string | undefined;
       /**
        * Further lines from the SAME speaker, in arrival order.
@@ -27,7 +38,7 @@ export type StageLine =
        * talking arrives as several frames. The caller groups them; this renders them under one
        * portrait and one name, because three frames from Mara are one person speaking.
        */
-      readonly more?: readonly { readonly kind: string; readonly text: string }[];
+      readonly more?: readonly StageVoice[];
     };
 
 /**
@@ -42,9 +53,17 @@ export type StageLine =
  * That changes where `kind` comes from, not what it means here; this is the single place either kind
  * is drawn, so a remembered line and a live line cannot drift apart.
  */
-function Voiced({ kind, text }: { kind: string; text: string }) {
-  if (kind === "action") return <p className="dc-action-body">{text}</p>;
-  return <p className="dc-speech-body">{`\u201c${text}\u201d`}</p>;
+function Voiced({ text, quote }: StageVoice) {
+  return (
+    <>
+      {/* Staging: an act, or the movement around a spoken line. Italic prose, never quoted —
+          quotation marks around a movement claim the character said it. Empty for a bare line. */}
+      {text !== "" && <p className="dc-action-body">{text}</p>}
+      {/* The words themselves, verbatim. The wire sends them without quotation marks; the marks are
+          ours, and they are how a reader sees where the speech starts and stops. */}
+      {quote !== null && quote !== "" && <p className="dc-speech-body">{`\u201c${quote}\u201d`}</p>}
+    </>
+  );
 }
 
 function toneChips(tone: string | null): string[] {
@@ -444,14 +463,22 @@ export function PlayStage({
                         <Portrait src={line.face} className="dc-dialogue-face" />
                         <div>
                           <p className="dc-line-label">{line.speakerLabel}</p>
-                          <Voiced kind={line.kind} text={line.text} />
-                          {line.more?.map((m, j) => <Voiced key={j} kind={m.kind} text={m.text} />)}
+                          <Voiced kind={line.kind} text={line.text} quote={line.quote} />
+                          {line.more?.map((m, j) => (
+                            <Voiced key={j} kind={m.kind} text={m.text} quote={m.quote} />
+                          ))}
                         </div>
                       </div>
                     ) : (
                       <>
-                        <p className="dc-note-line">{line.text}</p>
-                        {line.more?.map((m, j) => <p key={j} className="dc-note-line">{m.text}</p>)}
+                        {line.text !== "" && <p className="dc-note-line">{line.text}</p>}
+                        {line.more?.map((m, j) =>
+                          m.text === "" ? null : (
+                            <p key={j} className="dc-note-line">
+                              {m.text}
+                            </p>
+                          ),
+                        )}
                       </>
                     )
                   )}
