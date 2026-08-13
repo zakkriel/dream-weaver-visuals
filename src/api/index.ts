@@ -1,4 +1,5 @@
 import { HOSTED_API_BASE, isLocalHostname } from "./hosted";
+import { authHeaders, requireLogin, withAuthToken } from "./auth";
 import type { WorldDirectory2GETWorldsTheWorldsACallerMayChooseBetweenSPEC028ADIRECTORYNeverCanonAnIdANameALineOfFictionALookACoverWhereYouLeftOffAndWhetherAnyoneCanPlayItNoWorldSTATEOnThisSurface as WorldDirectoryT } from "./types/world_directory";
 import type { SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent as SceneCurrentT } from "./types/scene_current";
 import type { BeatFrame4OneSSEFrameOfPOSTWorldsWBeatsDesign48SupersedesBeatFrame3ANarrationMessageNowCarriesQuoteTheVerbatimSpokenWordsAsAFieldSeparateFromTheStagingProseInText as BeatFrameT } from "./types/beat_frame";
@@ -126,6 +127,20 @@ export function hasConfiguredBase(): boolean {
   return apiBase() !== "";
 }
 
+function withAuth(init: RequestInit): RequestInit {
+  const extra = authHeaders();
+  if (Object.keys(extra).length === 0) return init;
+  const headers = new Headers(init.headers);
+  for (const [name, value] of Object.entries(extra)) headers.set(name, value);
+  return { ...init, headers };
+}
+
+export async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const res = await fetch(url, withAuth(init));
+  if (res.status === 401) requireLogin();
+  return res;
+}
+
 /**
  * Fetch + status + `schema_version` handling, shared by every read.
  *
@@ -134,7 +149,7 @@ export function hasConfiguredBase(): boolean {
  * not-found or degraded surface. Degrading to "could not load" is honest; reading v3 through v2 is not.
  */
 async function getJson<T>(url: string, expected: string): Promise<Fetched<T>> {
-  const res = await fetch(url);
+  const res = await apiFetch(url);
   if (res.status === 404) return NOT_FOUND;
   if (!res.ok) throw new Error(`request failed: ${res.status}`);
   const payload = (await res.json()) as { schema_version?: unknown } | null;
@@ -195,7 +210,7 @@ export async function streamBeat(
     press === "continue"
       ? { method: "POST" }
       : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) };
-  const res = await fetch(`${apiBase()}/worlds/${encodeURIComponent(world)}/${path}`, init);
+  const res = await apiFetch(`${apiBase()}/worlds/${encodeURIComponent(world)}/${path}`, init);
   if (!res.ok) throw new Error(`request failed: ${res.status}`);
   if (res.body === null) throw new Error("beat stream carried no body");
 
@@ -247,5 +262,8 @@ function dispatchFrame(block: string, onFrame: (frame: BeatFrame) => void): void
  */
 export function imageUrl(ref: ImageRef, tier?: ImageTier): string {
   const base = `${apiBase()}${ref.path}`;
-  return tier ? `${base}?tier=${tier}` : base;
+  const withTier = tier
+    ? `${base}${base.includes("?") ? "&" : "?"}tier=${encodeURIComponent(tier)}`
+    : base;
+  return withAuthToken(withTier);
 }

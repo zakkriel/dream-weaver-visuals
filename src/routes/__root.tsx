@@ -7,9 +7,11 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
+import { Atmosphere } from "@/components/dc/Atmosphere";
+import { InvalidCredentialsError, isAuthRequired, login, subscribeAuthRequired } from "@/api/auth";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -126,13 +128,86 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+function LoginGate() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await login(email, password);
+      window.location.reload();
+    } catch (err) {
+      if (err instanceof InvalidCredentialsError) {
+        setError("invalid credentials");
+      } else {
+        setError("Could not sign in right now. Try again.");
+      }
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <Atmosphere>
+      <main className="mx-auto flex min-h-screen w-full max-w-2xl items-center justify-center px-6 py-12">
+        <section className="dc-glass w-full rounded-dc-lg border border-dc-border p-6 sm:p-8">
+          <p className="dc-label text-dc-text-muted">DreamChat</p>
+          <h1 className="mt-3 font-display text-3xl text-dc-text">Sign in</h1>
+          <p className="mt-2 font-body text-dc-text-muted">Enter your account to continue this world.</p>
+          <form className="mt-6 flex flex-col gap-4" onSubmit={onSubmit}>
+            <label className="flex flex-col gap-2">
+              <span className="dc-label text-dc-text-muted">Email</span>
+              <input
+                type="email"
+                autoComplete="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={submitting}
+                className="dc-focus rounded-dc-sm border border-dc-border bg-black/20 px-3 py-2 font-ui text-sm text-dc-text outline-none placeholder:text-dc-text-muted/60 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </label>
+            <label className="flex flex-col gap-2">
+              <span className="dc-label text-dc-text-muted">Password</span>
+              <input
+                type="password"
+                autoComplete="current-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={submitting}
+                className="dc-focus rounded-dc-sm border border-dc-border bg-black/20 px-3 py-2 font-ui text-sm text-dc-text outline-none placeholder:text-dc-text-muted/60 disabled:cursor-not-allowed disabled:opacity-60"
+              />
+            </label>
+            {error && <p className="font-ui text-sm text-red-300">{error}</p>}
+            <button
+              type="submit"
+              disabled={submitting}
+              className="dc-focus mt-1 inline-flex items-center justify-center rounded-dc-sm bg-dc-world px-4 py-2.5 font-ui text-sm font-medium text-dc-on-accent transition hover:bg-dc-world-strong disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? "Signing in…" : "Sign in"}
+            </button>
+          </form>
+        </section>
+      </main>
+    </Atmosphere>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [authRequired, setAuthRequired] = useState(() => isAuthRequired());
+
+  useEffect(() => subscribeAuthRequired(setAuthRequired), []);
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      {authRequired ? <LoginGate /> : <Outlet />}
     </QueryClientProvider>
   );
 }
