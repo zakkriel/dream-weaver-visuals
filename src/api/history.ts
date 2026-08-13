@@ -1,4 +1,4 @@
-import { apiBase, type NarrationSegment, type Transcript } from "./index";
+import { apiBase, apiFetch, type NarrationSegment, type Transcript } from "./index";
 
 /**
  * The played history — everything said and generated in this world, read back.
@@ -106,7 +106,7 @@ export async function fetchHistory(
   const q = query.toString();
   const url = `${apiBase()}/worlds/${encodeURIComponent(world)}/transcript${q === "" ? "" : `?${q}`}`;
 
-  const res = await fetch(url);
+  const res = await apiFetch(url);
   if (res.status === 404) return NO_HISTORY;
   if (!res.ok) throw new Error(`request failed: ${res.status}`);
   const payload = (await res.json()) as Transcript | null;
