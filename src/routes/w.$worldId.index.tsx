@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
-import { type WorldSummary } from "@/api";
+import { refreshWorld, WorldHasNoTemplateError, type WorldSummary } from "@/api";
 import { loadDirectory, type DirectoryResult } from "@/api/load";
 
 export const Route = createFileRoute("/w/$worldId/")({
@@ -32,7 +32,9 @@ export const Route = createFileRoute("/w/$worldId/")({
  */
 function WorldHome() {
   const { worldId } = Route.useParams();
+  const navigate = Route.useNavigate();
   const [loaded, setLoaded] = useState<DirectoryResult | null>(null);
+  const [refresh, setRefresh] = useState<RefreshState>({ state: "idle" });
 
   useEffect(() => {
     let live = true;
@@ -51,6 +53,27 @@ function WorldHome() {
   // identically and stay indistinguishable here (B-1, I-3). Note this is a judgement about the
   // WORLD, not about the read: failing to read the directory degrades to the capture instead.
   const missing = loaded?.state === "ok" && world === undefined;
+  const refreshNoteId = "refresh-note";
+  const refreshNote =
+    refresh.state === "no-template"
+      ? "This world was not made from a template, so it cannot be refreshed."
+      : refresh.state === "error"
+        ? refresh.message
+        : null;
+
+  async function confirmRefresh(targetWorldId: string): Promise<void> {
+    setRefresh({ state: "working" });
+    try {
+      const refreshed = await refreshWorld(targetWorldId);
+      await navigate({ to: "/w/$worldId/play", params: { worldId: refreshed.id } });
+    } catch (error) {
+      if (error instanceof WorldHasNoTemplateError) {
+        setRefresh({ state: "no-template" });
+      } else {
+        setRefresh({ state: "error", message: "Could not refresh this world right now. Try again." });
+      }
+    }
+  }
 
   return (
     <Atmosphere>
@@ -127,7 +150,49 @@ function WorldHome() {
               >
                 Other worlds
               </Link>
+
+              {refresh.state === "confirm" ? (
+                <section className="w-full rounded-dc-sm border border-dc-border bg-dc-overlay px-4 py-4">
+                  <p className="font-ui text-sm text-dc-text">Refresh this world?</p>
+                  <p className="mt-2 max-w-[58ch] font-body text-sm text-dc-text-muted">
+                    A fresh copy of this world is created and the current one is retired from your
+                    list; nothing that happened is deleted.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => void confirmRefresh(world.id)}
+                      className="dc-focus dc-enter rounded-dc-sm px-5 py-2.5 font-ui text-sm font-medium"
+                    >
+                      Refresh now
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRefresh({ state: "idle" })}
+                      className="dc-focus rounded-dc-sm border border-dc-border px-5 py-2.5 font-ui text-sm text-dc-text-muted hover:border-dc-accent hover:text-dc-text"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </section>
+              ) : (
+                <button
+                  type="button"
+                  disabled={refresh.state === "working"}
+                  aria-describedby={refreshNote ? refreshNoteId : undefined}
+                  onClick={() => setRefresh({ state: "confirm" })}
+                  className="dc-focus rounded-dc-sm border border-dc-border px-5 py-2.5 font-ui text-sm text-dc-text-muted enabled:hover:border-dc-accent enabled:hover:text-dc-text disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {refresh.state === "working" ? "Refreshing..." : "Refresh"}
+                </button>
+              )}
             </nav>
+
+            {refreshNote && (
+              <p id={refreshNoteId} role="status" aria-live="polite" className="font-ui text-sm text-dc-text-muted">
+                {refreshNote}
+              </p>
+            )}
 
             {/* The Glossary's four compendium destinations are deliberately absent until those
                 surfaces exist. A nav item that goes nowhere is a promise the product cannot keep,
@@ -138,3 +203,10 @@ function WorldHome() {
     </Atmosphere>
   );
 }
+
+type RefreshState =
+  | { state: "idle" }
+  | { state: "confirm" }
+  | { state: "working" }
+  | { state: "error"; message: string }
+  | { state: "no-template" };
