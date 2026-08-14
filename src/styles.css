@@ -525,13 +525,14 @@
 }
 .dc-island::before, .dc-island::after { content: none; }
 
-.dc-dialogue-card { flex: 0 0 auto; width: 100%; min-height: 160px; margin: 0 0 8px; padding: 24px 32px; }
-.dc-transcript { min-height: 60px; max-height: 168px; overflow-y: auto; padding: 0 2px 4px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent; }
+.dc-dialogue-card { flex: 0 0 auto; width: 100%; min-height: 160px; margin: 0 0 8px; padding: 26px 32px; }
+.dc-transcript { min-height: 60px; max-height: 200px; overflow-y: auto; padding: 0 2px 4px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent; }
 .dc-empty-line, .dc-note-line { color: rgba(185, 170, 140, .92); font-family: var(--dc-font-body); font-size: 1.05rem; font-style: italic; line-height: 1.5; overflow-wrap: anywhere; }
 .dc-speaking-line { display: flex; align-items: flex-start; gap: 24px; }
 .dc-dialogue-face { width: 56px; height: 56px; }
-.dc-line-label { margin-bottom: 4px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; }
-.dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.05rem; font-weight: 500; line-height: 1.5; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+.dc-line-label { margin-bottom: 6px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; text-shadow: 0 0 14px rgba(255,190,88,.35); }
+.dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.25rem; font-weight: 500; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+
 /* Staging, not speech. Roleplay has always drawn an action as italic prose beside the name and
    never in quotation marks — quotes around a movement claim the character said it. Same family and
    voice as speech; only the slant and the quiet tell them apart.
