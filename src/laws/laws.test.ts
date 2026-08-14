@@ -166,10 +166,35 @@ describe("law: the picker is read-only (surface 1)", () => {
 
 // Rules 12-13 [D-7, C-4, D-14]. Whose perception this is, is decided server-side; and a nav item
 // that goes nowhere is a promise the product cannot keep.
+//
+// AMENDED 2026-08-13 (B-1 landed). This law was written when the API had NO session model at all —
+// `worldshandler.go` said of world creation, in its own words, "NOT AUTHENTICATED, and this is the
+// deployment risk to close first ... should be the first thing auth is put in front of when B1
+// lands." B1 landed: the deployed API now requires a bearer token on every route, because an
+// unauthenticated caller reached the live world through the public origin, spent real model credits
+// and wrote permanent canon. A login gate is therefore mandatory, and a mandatory gate is not the
+// thing this law forbids.
+//
+// What the law still forbids, everywhere, unchanged: choosing WHOSE eyes you look through ("view
+// as", a user/character/viewer switcher) — that is the D-7 perception boundary and it is decided
+// server-side — plus any account/commerce surface (Billing, Subscription). What it now permits, in
+// the AUTH GATE ONLY, is sign-in copy. Any other mounted file carrying sign-in/out language is still
+// a violation: one gate is a gate, a gate per surface is a session model nobody designed.
+const AUTH_GATE = [join("src", "routes", "__root.tsx"), join("src", "api", "auth.ts")];
+
 describe("law: no session identity and no dead navigation (rules 12-13)", () => {
   it("no viewer/account/profile switcher is mounted", () => {
-    const RE = /\b(view as|switch (?:user|character|viewer)|sign (?:in|out)|log (?:in|out)|Billing|Subscription)\b/i;
+    const RE = /\b(view as|switch (?:user|character|viewer)|Billing|Subscription)\b/i;
     const offenders = read(MOUNTED)
+      .filter(({ src }) => RE.test(src))
+      .map(({ file }) => file);
+    expect(offenders).toEqual([]);
+  });
+
+  it("no sign-in affordance is mounted outside the auth gate", () => {
+    const RE = /\b(sign (?:in|out)|log (?:in|out))\b/i;
+    const offenders = read(MOUNTED)
+      .filter(({ file }) => !AUTH_GATE.includes(file))
       .filter(({ src }) => RE.test(src))
       .map(({ file }) => file);
     expect(offenders).toEqual([]);
