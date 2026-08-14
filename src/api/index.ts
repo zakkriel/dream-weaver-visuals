@@ -42,6 +42,22 @@ export type ImageRef = NonNullable<Participant["image"]>;
 
 /** 256 / 768 / 1024 px. The backend defaults to `preview` when none is asked for. */
 export type ImageTier = "thumbnail" | "preview" | "final";
+/**
+ * `world_refreshed/1` — POST /worlds/{id}/refresh.
+ *
+ * Mirrors a `world_directory/2` entry (same `id`/`display_name`/`theme`/`playable` reader) plus the
+ * `source_world_id` it supersedes, exactly as `world_created/1` does for creation. `playable` is
+ * always true here: refresh instantiates a template, so the successor has entities from the start —
+ * the opposite of bare creation.
+ */
+export type RefreshedWorld = {
+  schema_version: "world_refreshed/1";
+  source_world_id: string;
+  id: string;
+  display_name: string;
+  theme: WorldSummary["theme"];
+  playable: true;
+};
 
 /**
  * The schema version each endpoint is pinned to, by EXACT string equality.
@@ -56,6 +72,7 @@ const PIN = {
   beat: "beat_frame/4",
   transcript: "transcript/1",
   carrying: "carrying/1",
+  refreshed: "world_refreshed/1",
 } as const;
 
 /** Thrown when a payload's `schema_version` is not the one this client was generated against (D-4). */
@@ -66,6 +83,13 @@ export class SchemaMismatchError extends Error {
   ) {
     super(`schema mismatch: expected ${expected}, received ${String(received)}`);
     this.name = "SchemaMismatchError";
+  }
+}
+
+export class WorldHasNoTemplateError extends Error {
+  constructor() {
+    super("world has no template");
+    this.name = "WorldHasNoTemplateError";
   }
 }
 
@@ -181,6 +205,32 @@ export function fetchScene(world: string): Promise<Fetched<Scene>> {
  */
 export function fetchCarrying(world: string): Promise<Fetched<Carrying>> {
   return getJson<Carrying>(`${apiBase()}/worlds/${encodeURIComponent(world)}/carrying`, PIN.carrying);
+}
+
+
+/**
+ * Refresh: instantiate this world's template as a NEW world and retire the current one from the
+ * directory. Canon is append-only — the old world is superseded, never deleted — so the successor
+ * arrives with a fresh id and the caller navigates there.
+ *
+ * The `schema_version` is verified by exact equality like every other reader (D-4): a successor id
+ * read out of an unpinned payload is the one mistake here that would navigate the player into a
+ * world that does not exist.
+ */
+export async function refreshWorld(worldId: string): Promise<RefreshedWorld> {
+  const res = await apiFetch(`${apiBase()}/worlds/${encodeURIComponent(worldId)}/refresh`, {
+    method: "POST",
+  });
+  if (res.status === 404) {
+    const payload = (await res.json().catch(() => null)) as { error?: unknown } | null;
+    if (payload?.error === "world has no template") throw new WorldHasNoTemplateError();
+  }
+  if (!res.ok) throw new Error(`request failed: ${res.status}`);
+  const payload = (await res.json()) as { schema_version?: unknown } | null;
+  if (payload?.schema_version !== PIN.refreshed) {
+    throw new SchemaMismatchError(PIN.refreshed, payload?.schema_version);
+  }
+  return payload as RefreshedWorld;
 }
 
 /** What the player did: said something, or pressed Continue (which carries no text at all). */
