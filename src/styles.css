@@ -465,7 +465,7 @@
 
 .dc-stage-root { position: relative; height: 100dvh; min-height: 600px; overflow: hidden; background: var(--dc-bg); }
 .dc-stage-art, .dc-stage-scrim, .dc-stage-grain { position: absolute; inset: 0; pointer-events: none; }
-.dc-stage-art { background-size: cover; background-position: center; filter: saturate(0.85) brightness(0.78); transform: scale(1.02); }
+.dc-stage-art { background-size: cover; background-position: center; background-repeat: no-repeat; filter: saturate(0.9) brightness(0.82); transform: scale(1.02); }
 .dc-stage-scrim {
   background:
     radial-gradient(ellipse 70% 50% at 50% 75%, rgba(190, 132, 58, 0.18), transparent 75%),
@@ -488,7 +488,7 @@
 .dc-top-icon:hover { border-color: var(--dc-accent-strong); background: rgba(20, 24, 24, .72); color: var(--dc-accent-strong); }
 .dc-stage-spacer { flex: 1 1 auto; min-height: 20px; }
 
-.dc-rail { grid-column: 1; grid-row: 1 / 3; display: flex; min-height: 0; flex-direction: column; align-items: center; justify-content: center; gap: 12px; border-radius: 28px; padding: 16px 8px; }
+.dc-rail { grid-column: 1; grid-row: 1 / 3; align-self: center; display: flex; height: auto; max-height: 100%; min-height: 0; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border-radius: 28px; padding: 14px 8px; }
 .dc-rail-home { display: grid; width: 40px; height: 40px; place-items: center; border-radius: 999px; color: color-mix(in srgb, var(--dc-accent-strong) 85%, transparent); }
 .dc-rail-home svg { width: 22px; height: 22px; }
 .dc-rail-hair { display: block; width: 48px; height: 1px; margin: 2px 0; background: linear-gradient(90deg, transparent, rgba(214,162,82,.28), transparent); }
@@ -525,13 +525,14 @@
 }
 .dc-island::before, .dc-island::after { content: none; }
 
-.dc-dialogue-card { flex: 0 0 auto; width: 100%; min-height: 160px; margin: 0 0 8px; padding: 24px 32px; }
-.dc-transcript { min-height: 60px; max-height: 168px; overflow-y: auto; padding: 0 2px 4px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent; }
+.dc-dialogue-card { flex: 0 0 auto; width: 100%; min-height: 160px; margin: 0 0 8px; padding: 26px 32px; }
+.dc-transcript { min-height: 60px; max-height: 200px; overflow-y: auto; padding: 0 2px 4px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent; }
 .dc-empty-line, .dc-note-line { color: rgba(185, 170, 140, .92); font-family: var(--dc-font-body); font-size: 1.05rem; font-style: italic; line-height: 1.5; overflow-wrap: anywhere; }
 .dc-speaking-line { display: flex; align-items: flex-start; gap: 24px; }
 .dc-dialogue-face { width: 56px; height: 56px; }
-.dc-line-label { margin-bottom: 4px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; }
-.dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.05rem; font-weight: 500; line-height: 1.5; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+.dc-line-label { margin-bottom: 6px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .82rem; letter-spacing: .12em; text-transform: uppercase; text-shadow: 0 0 14px rgba(255,190,88,.35); }
+.dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.25rem; font-weight: 500; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+
 /* Staging, not speech. Roleplay has always drawn an action as italic prose beside the name and
    never in quotation marks — quotes around a movement claim the character said it. Same family and
    voice as speech; only the slant and the quiet tell them apart.

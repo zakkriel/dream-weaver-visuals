@@ -314,8 +314,16 @@ export function PlayStage({
       <div
         aria-hidden
         className="dc-stage-art"
-        style={{ backgroundImage: `url(${backdrop ?? fallbackBackdrop.url})` }}
+        // The world's own backdrop sits on top; the house plate sits under it, so a scene whose
+        // picture cannot be fetched still opens on atmosphere rather than a black rectangle.
+        style={{
+          backgroundImage:
+            backdrop === undefined
+              ? `url(${fallbackBackdrop.url})`
+              : `url(${backdrop}), url(${fallbackBackdrop.url})`,
+        }}
       />
+
       <div aria-hidden className="dc-stage-scrim" />
       <div aria-hidden className="dc-stage-grain" />
 
