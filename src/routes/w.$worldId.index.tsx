@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
-import { refreshWorld, WorldHasNoTemplateError, type WorldSummary } from "@/api";
+import { refreshWorld, NoTemplateError, type WorldSummary } from "@/api";
 import { loadDirectory, type DirectoryResult } from "@/api/load";
 
 export const Route = createFileRoute("/w/$worldId/")({
@@ -67,7 +67,7 @@ function WorldHome() {
       const refreshed = await refreshWorld(targetWorldId);
       await navigate({ to: "/w/$worldId/play", params: { worldId: refreshed.id } });
     } catch (error) {
-      if (error instanceof WorldHasNoTemplateError) {
+      if (error instanceof NoTemplateError) {
         setRefresh({ state: "no-template" });
       } else {
         setRefresh({ state: "error", message: "Could not refresh this world right now. Try again." });

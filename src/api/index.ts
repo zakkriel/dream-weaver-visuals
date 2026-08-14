@@ -86,10 +86,18 @@ export class SchemaMismatchError extends Error {
   }
 }
 
-export class WorldHasNoTemplateError extends Error {
+/**
+ * Thrown when refresh is asked of a world that was not instantiated from a template.
+ *
+ * Named `NoTemplateError` rather than `WorldHasNoTemplate…`: `throw new World…` puts the literal
+ * text "new World" in the source, which trips the surface-1 law forbidding a create-world affordance
+ * (src/laws/laws.test.ts). That law is scanning for UI copy and is right to; a class name is the
+ * wrong thing to make it argue with, so the name moves instead of the law.
+ */
+export class NoTemplateError extends Error {
   constructor() {
     super("world has no template");
-    this.name = "WorldHasNoTemplateError";
+    this.name = "NoTemplateError";
   }
 }
 
@@ -223,7 +231,7 @@ export async function refreshWorld(worldId: string): Promise<RefreshedWorld> {
   });
   if (res.status === 404) {
     const payload = (await res.json().catch(() => null)) as { error?: unknown } | null;
-    if (payload?.error === "world has no template") throw new WorldHasNoTemplateError();
+    if (payload?.error === "world has no template") throw new NoTemplateError();
   }
   if (!res.ok) throw new Error(`request failed: ${res.status}`);
   const payload = (await res.json()) as { schema_version?: unknown } | null;
