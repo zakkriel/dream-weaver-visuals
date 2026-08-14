@@ -465,7 +465,7 @@
 
 .dc-stage-root { position: relative; height: 100dvh; min-height: 600px; overflow: hidden; background: var(--dc-bg); }
 .dc-stage-art, .dc-stage-scrim, .dc-stage-grain { position: absolute; inset: 0; pointer-events: none; }
-.dc-stage-art { background-size: cover; background-position: center; filter: saturate(0.85) brightness(0.78); transform: scale(1.02); }
+.dc-stage-art { background-size: cover; background-position: center; background-repeat: no-repeat; filter: saturate(0.9) brightness(0.82); transform: scale(1.02); }
 .dc-stage-scrim {
   background:
     radial-gradient(ellipse 70% 50% at 50% 75%, rgba(190, 132, 58, 0.18), transparent 75%),
