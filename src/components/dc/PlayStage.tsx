@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Portrait } from "@/components/dc/Portrait";
 import { rpSegments } from "@/lib/rp-text";
 import { Button } from "@/components/ui/button";
+import { playVisualMocks } from "@/components/dc/playVisualMocks";
 import fallbackBackdrop from "@/assets/drowned-lantern-backdrop.jpg.asset.json";
 
 export type StageParticipant = {
@@ -96,6 +97,38 @@ function WorldGlyph() {
   );
 }
 
+function TimelineGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.35">
+      <circle cx="12" cy="6" r="2.2" /><circle cx="12" cy="18" r="2.2" /><path d="M12 8.2v7.6M6 12h12" />
+    </svg>
+  );
+}
+
+function ActorsGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.35">
+      <circle cx="12" cy="8" r="3" /><path d="M5.5 19c.6-4 2.8-6 6.5-6s5.9 2 6.5 6M17 6.5a2.5 2.5 0 0 1 0 4.8M19 13.5c1.5.8 2.4 2.3 2.6 4.5" />
+    </svg>
+  );
+}
+
+function LocationGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.35">
+      <path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" /><circle cx="12" cy="10" r="2.2" />
+    </svg>
+  );
+}
+
+function ArtifactGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.35">
+      <path d="m12 3 7 5v8l-7 5-7-5V8zM5 8l7 5 7-5M12 13v8" />
+    </svg>
+  );
+}
+
 function PanelGlyph({ expanded }: { expanded: boolean }) {
   return (
     <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -179,7 +212,7 @@ export function PlayStage({
 }) {
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
-  const [contextTab, setContextTab] = useState<"place" | "current">("current");
+  const [contextTab, setContextTab] = useState<"current" | "previous" | "threads">("current");
 
   /**
    * Follow the newest line as the beat streams in.
@@ -336,14 +369,13 @@ export function PlayStage({
             </svg>
           </Link>
           <span aria-hidden className="dc-rail-hair" />
-          <Link to="/worlds" className="dc-rail-item dc-focus">
-            <CompassGlyph />
-            <span>Worlds</span>
+          <Link to="/w/$worldId/play" params={{ worldId }} className="dc-rail-item dc-focus" data-status="active">
+            <WorldGlyph /><span>Play</span>
           </Link>
-          <Link to="/w/$worldId" params={{ worldId }} className="dc-rail-item dc-focus">
-            <WorldGlyph />
-            <span>World</span>
-          </Link>
+          <Button type="button" variant="ghost" className="dc-rail-item dc-focus"><TimelineGlyph /><span>Timeline</span></Button>
+          <Button type="button" variant="ghost" className="dc-rail-item dc-focus"><ActorsGlyph /><span>Actors</span></Button>
+          <Button type="button" variant="ghost" className="dc-rail-item dc-focus"><LocationGlyph /><span>Locations</span></Button>
+          <Button type="button" variant="ghost" className="dc-rail-item dc-focus"><ArtifactGlyph /><span>Artifacts</span></Button>
           <span aria-hidden className="dc-rail-hair dc-rail-hair-bottom" />
         </nav>
 
@@ -519,25 +551,7 @@ export function PlayStage({
         </main>
 
         <aside aria-label="Context" className="dc-island dc-aux">
-          <div className="dc-aux-heading">
-            <div>
-              <p className="dc-aux-kicker">World context</p>
-              <h2>In this moment</h2>
-            </div>
-            <Button type="button" variant="ghost" size="icon" className="dc-aux-expand" aria-label={contextExpanded ? "Dock context panel" : "Expand context panel"} onClick={() => setContextExpanded((value) => !value)}>
-              <PanelGlyph expanded={contextExpanded} />
-            </Button>
-          </div>
           <div className="dc-aux-tabs">
-            <Button
-              type="button"
-              variant="ghost"
-              className={`dc-aux-tab${contextTab === "place" ? " dc-aux-tab-active" : ""}`}
-              aria-pressed={contextTab === "place"}
-              onClick={() => setContextTab("place")}
-            >
-              Place
-            </Button>
             <Button
               type="button"
               variant="ghost"
@@ -547,22 +561,32 @@ export function PlayStage({
             >
               Current
             </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className={`dc-aux-tab${contextTab === "previous" ? " dc-aux-tab-active" : ""}`}
+              aria-pressed={contextTab === "previous"}
+              onClick={() => setContextTab("previous")}
+            >
+              Previously
+            </Button>
+            <Button type="button" variant="ghost" className={`dc-aux-tab${contextTab === "threads" ? " dc-aux-tab-active" : ""}`} aria-pressed={contextTab === "threads"} onClick={() => setContextTab("threads")}>Open threads</Button>
           </div>
           <div className="dc-aux-scroll" data-tab={contextTab}>
-            <div className="dc-aux-place-panel">
-            <StageIsland label="Current place" className="dc-current-card">
-              <h2><SunGlyph /><span>{placeLabel}</span></h2>
-              {placeDescription !== null && <p className="dc-place-description">{placeDescription}</p>}
-              {chips.length > 0 && (
-                <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Atmosphere</p><ul className="dc-tone-list">{chips.map((chip, index) => <li key={index}>{chip}</li>)}</ul></>
-              )}
-              {nowLabel !== null && (
-                <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Time</p><p className="dc-context-time"><SunGlyph className="size-4" />{nowLabel}</p></>
-              )}
-            </StageIsland>
-            </div>
             <div className="dc-aux-current-panel">
-            {aux}
+              <StageIsland label="Current place" className="dc-current-card">
+                <h2><SunGlyph /><span>{placeLabel}</span></h2>
+                {placeDescription !== null && <p className="dc-place-description">{placeDescription}</p>}
+                {chips.length > 0 && <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Atmosphere</p><ul className="dc-tone-list">{chips.map((chip, index) => <li key={index}>{chip}</li>)}</ul></>}
+                {nowLabel !== null && <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Time</p><p className="dc-context-time"><SunGlyph className="size-4" />{nowLabel}</p></>}
+              </StageIsland>
+              {aux}
+            </div>
+            <div className="dc-aux-previous-panel">
+              {playVisualMocks.previous.map((item) => <StageIsland key={item.title} label={item.title} className="dc-mock-context-card"><h2>{item.title}</h2><p>{item.detail}</p></StageIsland>)}
+            </div>
+            <div className="dc-aux-threads-panel">
+              {playVisualMocks.threads.map((item) => <StageIsland key={item.title} label={item.title} className="dc-mock-context-card"><h2>{item.title}</h2><p>{item.detail}</p></StageIsland>)}
             </div>
           </div>
         </aside>
