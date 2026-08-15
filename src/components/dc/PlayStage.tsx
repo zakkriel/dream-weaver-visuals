@@ -179,6 +179,7 @@ export function PlayStage({
 }) {
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
+  const [contextTab, setContextTab] = useState<"place" | "current">("current");
 
   /**
    * Follow the newest line as the beat streams in.
@@ -518,13 +519,37 @@ export function PlayStage({
         </main>
 
         <aside aria-label="Context" className="dc-island dc-aux">
-          <div className="dc-aux-tabs">
-            <span className="dc-aux-tab-active">Current</span>
+          <div className="dc-aux-heading">
+            <div>
+              <p className="dc-aux-kicker">World context</p>
+              <h2>In this moment</h2>
+            </div>
             <Button type="button" variant="ghost" size="icon" className="dc-aux-expand" aria-label={contextExpanded ? "Dock context panel" : "Expand context panel"} onClick={() => setContextExpanded((value) => !value)}>
               <PanelGlyph expanded={contextExpanded} />
             </Button>
           </div>
-          <div className="dc-aux-scroll">
+          <div className="dc-aux-tabs">
+            <Button
+              type="button"
+              variant="ghost"
+              className={`dc-aux-tab${contextTab === "place" ? " dc-aux-tab-active" : ""}`}
+              aria-pressed={contextTab === "place"}
+              onClick={() => setContextTab("place")}
+            >
+              Place
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className={`dc-aux-tab${contextTab === "current" ? " dc-aux-tab-active" : ""}`}
+              aria-pressed={contextTab === "current"}
+              onClick={() => setContextTab("current")}
+            >
+              Current
+            </Button>
+          </div>
+          <div className="dc-aux-scroll" data-tab={contextTab}>
+            <div className="dc-aux-place-panel">
             <StageIsland label="Current place" className="dc-current-card">
               <h2><SunGlyph /><span>{placeLabel}</span></h2>
               {placeDescription !== null && <p className="dc-place-description">{placeDescription}</p>}
@@ -535,7 +560,10 @@ export function PlayStage({
                 <><div className="dc-panel-divider" /><p className="dc-aux-eyebrow">Time</p><p className="dc-context-time"><SunGlyph className="size-4" />{nowLabel}</p></>
               )}
             </StageIsland>
+            </div>
+            <div className="dc-aux-current-panel">
             {aux}
+            </div>
           </div>
         </aside>
       </div>
