@@ -477,11 +477,11 @@
 .dc-stage-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 96px minmax(0, 1fr) 318px; grid-template-rows: 101px minmax(0, 1fr); gap: 0 20px; height: 100%; padding: 0 14px 16px; }
 .dc-stage-main { grid-column: 2; grid-row: 2; min-width: 0; min-height: 0; }
 .dc-stage-main-inner { display: flex; height: 100%; min-height: 0; flex-direction: column; padding: 0 15px 15px; }
-.dc-stage-header { grid-column: 2 / 4; grid-row: 1; display: flex; min-width: 0; height: 101px; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 14px 0 12px; }
+.dc-stage-header { grid-column: 2 / 4; grid-row: 1; display: flex; min-width: 0; height: 101px; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 18px 0 12px; }
 .dc-stage-heading { min-width: 0; }
-.dc-stage-title { display: block; width: fit-content; max-width: 100%; color: var(--dc-text); font-family: var(--dc-font-display); font-size: 2.45rem; font-weight: 600; letter-spacing: 0; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,.65), 0 0 28px rgba(214, 162, 82, .2); overflow-wrap: anywhere; }
+.dc-stage-title { display: block; width: fit-content; max-width: 100%; color: var(--dc-text); font-family: var(--dc-font-display); font-size: 2.625rem; font-weight: 600; letter-spacing: 0; line-height: 1; text-shadow: 0 2px 12px rgba(0,0,0,.65), 0 0 28px rgba(214, 162, 82, .2); overflow-wrap: anywhere; }
 .dc-stage-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 9px; color: color-mix(in srgb, var(--dc-text) 80%, transparent); font-family: var(--dc-font-body); font-size: .82rem; letter-spacing: 0; text-shadow: 0 1px 10px var(--dc-bg); }
-.dc-stage-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; }
+.dc-stage-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 12px; margin-top: 9px; }
 .dc-now-chip { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 9px; height: 50px; border: 1px solid var(--dc-border-accent); border-radius: 16px; background: rgba(8, 17, 22, .48); padding: 0 18px; color: var(--dc-text); box-shadow: 0 14px 36px -16px rgba(0,0,0,.9), 0 0 22px rgba(214,162,82,.14), inset 0 1px 0 rgba(255,225,170,.10); backdrop-filter: blur(6px); }
 .dc-now-chip svg { color: var(--dc-accent-strong); }
 .dc-top-icon { width: 50px; height: 50px; border: 1px solid var(--dc-border-accent); border-radius: 999px; background: rgba(8, 17, 22, .48); color: var(--dc-accent-strong); box-shadow: 0 14px 36px -16px rgba(0,0,0,.9), 0 0 22px rgba(214,162,82,.14), inset 0 1px 0 rgba(255,225,170,.10); backdrop-filter: blur(6px); }
