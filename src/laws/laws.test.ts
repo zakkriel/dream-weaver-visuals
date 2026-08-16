@@ -271,6 +271,33 @@ describe("law: images are built from the payload path (rule 11)", () => {
       .map(({ file }) => file);
     expect(offenders).toEqual([]);
   });
+
+  /**
+   * A world's own art may never stand in for a world that has none.
+   *
+   * PlayStage used to import `drowned-lantern-backdrop.jpg.asset.json` and render it behind ANY
+   * world whose place carried no image. Since genesis commissions no art, every world a user
+   * created was played against The Drowned Lantern's backdrop — the app showing one world's
+   * picture while naming another world's room, which is rule 1's lie told in paint instead of
+   * prose. The founder caught it on the first world he built.
+   *
+   * `null` is the ordinary state (D-8) and the house plates exist for exactly this: they are
+   * atmosphere that depicts NO world, so standing one in claims nothing. The fence is therefore on
+   * provenance, not on fallbacks — a fallback is fine, a fallback wearing a specific world's face
+   * is not. Named after a world in the fiction, it is world art; keep it out of the shared path.
+   */
+  it("no mounted component falls back to a named world's art", () => {
+    const NAMED_WORLD_ART = /["'@][^"']*(drowned|lantern|tavern|silt|registry)[^"']*\.(jpg|jpeg|png|webp|avif)/i;
+    const offenders = read(MOUNTED)
+      .filter(({ src }) => NAMED_WORLD_ART.test(src))
+      .map(({ file }) => file);
+    expect(
+      offenders,
+      "A mounted component references art named after a world in the fiction. World art belongs to " +
+        "the world that earned it and arrives from the payload; a stand-in must be house art that " +
+        "depicts no world (src/lib/mood-plate.ts).",
+    ).toEqual([]);
+  });
 });
 
 /**

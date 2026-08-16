@@ -4,7 +4,7 @@ import { Portrait } from "@/components/dc/Portrait";
 import { rpSegments } from "@/lib/rp-text";
 import { Button } from "@/components/ui/button";
 import { playVisualMocks } from "@/components/dc/playVisualMocks";
-import fallbackBackdrop from "@/assets/drowned-lantern-backdrop.jpg.asset.json";
+import { housePlate } from "@/lib/mood-plate";
 
 export type StageParticipant = {
   readonly id: string;
@@ -349,12 +349,13 @@ export function PlayStage({
         aria-hidden
         className="dc-stage-art"
         // The world's own backdrop sits on top; the house plate sits under it, so a scene whose
-        // picture cannot be fetched still opens on atmosphere rather than a black rectangle.
+        // picture cannot be fetched still opens on atmosphere rather than a black rectangle. The
+        // plate depicts NO world, which is what makes it safe to sit under all of them.
         style={{
           backgroundImage:
             backdrop === undefined
-              ? `url(${fallbackBackdrop.url})`
-              : `url(${backdrop}), url(${fallbackBackdrop.url})`,
+              ? `url(${housePlate})`
+              : `url(${backdrop}), url(${housePlate})`,
         }}
       />
 
