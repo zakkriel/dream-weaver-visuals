@@ -12,6 +12,8 @@ declare -a PAIRS=(
   "contracts/transcript.v1.schema.json:src/api/types/transcript.ts"
   "contracts/narration.v2.schema.json:src/api/types/narration.ts"
   "contracts/carrying.v1.schema.json:src/api/types/carrying.ts"
+  "contracts/world_genesis_frame.v1.schema.json:src/api/types/world_genesis_frame.ts"
+  "contracts/world_interview_turn.v1.schema.json:src/api/types/world_interview_turn.ts"
 )
 
 tmp="$(mktemp -d)"

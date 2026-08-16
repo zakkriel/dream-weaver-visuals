@@ -25,7 +25,8 @@ function sourceFiles(dir: string): string[] {
 
 /** Everything the app ships, excluding generated types and the vendored shadcn primitives. */
 const APP = sourceFiles("src").filter(
-  (f) => !f.startsWith(join("src", "api", "types")) && !f.startsWith(join("src", "components", "ui")),
+  (f) =>
+    !f.startsWith(join("src", "api", "types")) && !f.startsWith(join("src", "components", "ui")),
 );
 
 /** Only what a route can actually reach. Unrouted components cannot violate anything on screen. */
@@ -36,7 +37,12 @@ function reachableFrom(entry: string[], seen = new Set<string>()): Set<string> {
     const src = readFileSync(file, "utf8");
     for (const spec of src.matchAll(/from\s+"(@\/[^"]+)"/g)) {
       const rel = spec[1]!.replace("@/", "src/");
-      for (const cand of [`${rel}.tsx`, `${rel}.ts`, join(rel, "index.tsx"), join(rel, "index.ts")]) {
+      for (const cand of [
+        `${rel}.tsx`,
+        `${rel}.ts`,
+        join(rel, "index.tsx"),
+        join(rel, "index.ts"),
+      ]) {
         if (existsSync(cand)) {
           reachableFrom([cand], seen);
           break;
@@ -49,7 +55,8 @@ function reachableFrom(entry: string[], seen = new Set<string>()): Set<string> {
 
 const ROUTES = sourceFiles("src/routes");
 const MOUNTED = [...reachableFrom(ROUTES)].filter(
-  (f) => !f.startsWith(join("src", "components", "ui")) && !f.startsWith(join("src", "api", "types")),
+  (f) =>
+    !f.startsWith(join("src", "components", "ui")) && !f.startsWith(join("src", "api", "types")),
 );
 
 /**
@@ -89,7 +96,8 @@ describe("law: no ticks and no wall-clock (rule 4, B-5)", () => {
   });
 
   it("no wall-clock or relative-time formatting reaches the mounted app", () => {
-    const CLOCK = /toLocaleDateString|toLocaleTimeString|toLocaleString|Intl\.DateTimeFormat|formatDistance|\bdate-fns\b/;
+    const CLOCK =
+      /toLocaleDateString|toLocaleTimeString|toLocaleString|Intl\.DateTimeFormat|formatDistance|\bdate-fns\b/;
     const offenders = read(MOUNTED)
       .filter(({ src }) => CLOCK.test(src))
       .map(({ file }) => file);
@@ -153,14 +161,34 @@ describe("law: no corrections or approval UI (rule 7)", () => {
   });
 });
 
-// Surface 1 constraint. Creation exists server-side but is unauthenticated; a control would ship a hole.
+// Surface 1 constraint.
+//
+// AMENDED 2026-08-15 (world creation shipped). This law was written when the API had creation but no way
+// to protect it — the original note here said, in full: "Creation exists server-side but is
+// unauthenticated; a control would ship a hole." That premise is now gone. B-1 landed on 2026-08-13 and
+// every route requires a bearer token, so a create control no longer exposes an unauthenticated write;
+// and the backend gained a real creation pipeline (`prd_world_creation.md`) instead of the empty
+// `POST /worlds` that authored no entities and produced a world nobody could enter. Offering a button
+// for THAT would have been the dead affordance this file's sibling law forbids.
+//
+// What the law was actually protecting, and what it still enforces unchanged: THE PICKER IS READ-ONLY.
+// Surface 1 lists the worlds you may choose between and does nothing else — no create tile, no "New
+// World" affordance, no import. Creation lives on its own surface (`/create`), reachable from the rail,
+// so the picker cannot grow a second job. The scan is therefore scoped to the picker rather than dropped:
+// a create affordance appearing there again is still a violation, and this test still fails on it.
 describe("law: the picker is read-only (surface 1)", () => {
-  it("no create-world affordance is mounted", () => {
-    const RE = /Create New World|New World|Import Seed|Create a world/i;
-    const offenders = read(MOUNTED)
+  const PICKER = join("src", "routes", "worlds.tsx");
+
+  it("the picker carries no create-world affordance", () => {
+    const RE = /Create New World|New World|Import Seed|Create a world|Create a New World/i;
+    const offenders = read([PICKER])
       .filter(({ src }) => RE.test(src))
       .map(({ file }) => file);
     expect(offenders).toEqual([]);
+  });
+
+  it("the picker is still a mounted surface, so this law cannot pass vacuously", () => {
+    expect(MOUNTED).toContain(PICKER);
   });
 });
 
@@ -224,7 +252,11 @@ describe("law: world-authored strings are not transformed (rule 1)", () => {
 
   it("no payload array is sorted or filtered before render", () => {
     const offenders = read(MOUNTED)
-      .filter(({ src }) => /\.(worlds|participants|current|carried|entries|records)\s*\.\s*(sort|filter|reverse)\(/.test(src))
+      .filter(({ src }) =>
+        /\.(worlds|participants|current|carried|entries|records)\s*\.\s*(sort|filter|reverse)\(/.test(
+          src,
+        ),
+      )
       .map(({ file }) => file);
     expect(offenders).toEqual([]);
   });

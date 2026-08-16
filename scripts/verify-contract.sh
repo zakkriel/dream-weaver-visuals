@@ -21,6 +21,8 @@ declare -a FILES=(
   transcript.v1.schema.json
   narration.v2.schema.json
   carrying.v1.schema.json
+  world_genesis_frame.v1.schema.json
+  world_interview_turn.v1.schema.json
 )
 
 tmp="$(mktemp -d)"

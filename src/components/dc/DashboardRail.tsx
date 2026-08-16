@@ -1,4 +1,4 @@
-import { Castle, ChevronLeft, Compass, House, Sparkles } from "lucide-react";
+import { Castle, ChevronLeft, Compass, House, Plus, Sparkles } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 /**
@@ -15,6 +15,10 @@ import { Link } from "@tanstack/react-router";
 const DESTINATIONS = [
   { label: "Dashboard", icon: House, to: "/" },
   { label: "Worlds", icon: Castle, to: "/worlds" },
+  // Added the commit /create shipped, which is the rule this list already stated: a destination appears
+  // here the day its surface does. Creation is its own surface and never a control on the picker — the
+  // picker stays read-only (surface 1), and the law test still enforces that.
+  { label: "Create", icon: Plus, to: "/create" },
 ] as const;
 
 export function DashboardRail({ active = "/" }: { active?: string }) {
