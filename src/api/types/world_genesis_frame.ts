@@ -5,37 +5,47 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type WorldGenesisFrame1ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsWorldIsTheTerminalSuccessCarryingTheIdYouCanNowEnterRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 =
+export type WorldGenesisFrame2ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamTheStreamNowEndsInAChoiceNotAWorldTheWorldItselfArrivesLaterOnTheKickstartTurnSDoneTrueBecauseCommitNoLongerHappensInsideTheStreamRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 =
   {
-    schema_version: "world_genesis_frame/1";
-    kind: "working" | "world" | "refused" | "error";
+    schema_version: "world_genesis_frame/2";
+    kind: "working" | "choice" | "refused" | "error";
     /**
      * World-authored text on `working` and `refused`, an honest failure line on `error`. Renders VERBATIM — never rewritten, summarised or title-cased (frontend law 1).
      */
     stated?: string;
     /**
-     * The new world's id. Present on `world` only; this is what the client navigates to.
+     * The draft's opaque handle. POST it to /worlds/genesis/kickstart with each answer. It expires; an expired handle is a stated refusal, and the build is simply made again.
      */
-    id?: string;
+    handle?: string;
+    question?: string;
     /**
-     * The world's name as authored. Present on `world` only.
+     * @minItems 1
      */
-    display_name?: string;
-    /**
-     * The world's one line of fiction. Present on `world` only.
-     */
-    tagline?: string;
-    /**
-     * Always true on a `world` frame: this frame is emitted after the transaction committed, and a committed genesis always stamped player_entity_id. A build that could not reach that point ends in `refused` or `error` with no world at all — there is no frame shape for a half-built world, because one is never created.
-     */
-    playable?: true;
+    options?: [
+      {
+        label: string;
+        implication?: string;
+        /**
+         * At most one option per question carries this.
+         */
+        recommended?: boolean;
+      },
+      ...{
+        label: string;
+        implication?: string;
+        /**
+         * At most one option per question carries this.
+         */
+        recommended?: boolean;
+      }[]
+    ];
   } & (
     | {
         kind?: "working" | "refused" | "error";
         [k: string]: unknown;
       }
     | {
-        kind?: "world";
+        kind?: "choice";
         [k: string]: unknown;
       }
   );
