@@ -546,7 +546,13 @@
 /* The record. Growing the card is the only way an expand affordance can mean anything, so this is
    the smallest height that makes the mode exist — a viewport-relative cap, capped again in pixels so
    it never outgrows the dock on a tall screen. BEHAVIOURAL MINIMUM — sizing is Lovable's. */
-.dc-transcript-expanded { max-height: min(62vh, 620px); }
+.dc-transcript-expanded { max-height: none; }
+/* Expanded, the card grows UPWARD: it takes the slack above it (spacer, then the cast strip) instead
+   of overflowing past the dock, and the scroller keeps the remaining height. */
+.dc-dialogue-card-expanded { display: flex; flex: 1 1 auto; height: auto; min-height: 190px; max-height: none; flex-direction: column; }
+.dc-dialogue-card-expanded .dc-transcript { min-height: 0; flex: 1 1 auto; overflow-y: auto; }
+.dc-stage-main-inner:has(.dc-dialogue-card-expanded) .dc-stage-spacer { flex: 0 0 0; min-height: 0; }
+.dc-stage-main-inner:has(.dc-dialogue-card-expanded) .dc-cast { flex: 0 1 auto; min-height: 0; overflow: hidden; }
 
 .dc-transcript-bar { display: flex; align-items: center; gap: 12px; height: 22px; margin-bottom: 3px; }
 .dc-transcript-toggle, .dc-transcript-now { border: 1px solid var(--dc-border); border-radius: 999px; padding: 3px 12px; color: rgba(185,170,140,.92); font-family: var(--dc-font-body); font-size: .78rem; letter-spacing: .04em; transition: color .2s, border-color .2s; }
