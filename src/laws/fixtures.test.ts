@@ -10,20 +10,20 @@ import { join } from "node:path";
 
 const PINS: Record<string, string> = {
   "world_directory.json": "world_directory/2",
-  "scene_current.json": "scene_current/3",
+  "scene_current.json": "scene_current/4",
   "carrying.json": "carrying/1",
   "carrying.mara.json": "carrying/1",
-  "scene_current.mara.json": "scene_current/3",
-  "transcript.json": "transcript/1",
-  "transcript.mara.json": "transcript/1",
+  "scene_current.mara.json": "scene_current/4",
+  "transcript.json": "transcript/2",
+  "transcript.mara.json": "transcript/2",
 };
 
 const SCHEMA_OF: Record<string, string> = {
   "world_directory/2": "contracts/world_directory.v2.schema.json",
-  "scene_current/3": "contracts/scene_current.v3.schema.json",
-  "beat_frame/4": "contracts/beat_frame.v4.schema.json",
-  "transcript/1": "contracts/transcript.v1.schema.json",
-  "narration/2": "contracts/narration.v2.schema.json",
+  "scene_current/4": "contracts/scene_current.v4.schema.json",
+  "beat_frame/5": "contracts/beat_frame.v5.schema.json",
+  "transcript/2": "contracts/transcript.v2.schema.json",
+  "narration/3": "contracts/narration.v3.schema.json",
   "carrying/1": "contracts/carrying.v1.schema.json",
 };
 
@@ -43,7 +43,7 @@ describe("fixtures carry the version the client pins", () => {
         schema_version?: string;
       }[];
       expect(frames.length).toBeGreaterThan(0);
-      for (const f of frames) expect(f.schema_version).toBe("beat_frame/4");
+      for (const f of frames) expect(f.schema_version).toBe("beat_frame/5");
     },
   );
 

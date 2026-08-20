@@ -1,7 +1,7 @@
 {
- "entries": [],
- "world_id": "11111111-1111-1111-1111-111111111111",
- "viewer_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
- "next_before": null,
- "schema_version": "transcript/1"
+  "entries": [],
+  "world_id": "11111111-1111-1111-1111-111111111111",
+  "viewer_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+  "next_before": null,
+  "schema_version": "transcript/2"
 }

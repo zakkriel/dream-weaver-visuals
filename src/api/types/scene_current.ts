@@ -5,8 +5,8 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export interface SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent {
-  schema_version: "scene_current/3";
+export interface SceneCurrent4WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent {
+  schema_version: "scene_current/4";
   place: {
     id: string;
     label: string;
@@ -32,6 +32,31 @@ export interface SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSce
       schema_version: "image_ref/1";
       asset_id: string;
       path: string;
+    };
+    /**
+     * Sprite set for the participant. Null until all four emotion variants exist; non-null only when every variant is filled.
+     */
+    sprites: null | {
+      neutral: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+      happy: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+      angry: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+      sad: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
     };
   }[];
   now: {

@@ -7,10 +7,11 @@ set -euo pipefail
 
 declare -a PAIRS=(
   "contracts/world_directory.v2.schema.json:src/api/types/world_directory.ts"
-  "contracts/scene_current.v3.schema.json:src/api/types/scene_current.ts"
-  "contracts/beat_frame.v4.schema.json:src/api/types/beat_frame.ts"
-  "contracts/transcript.v1.schema.json:src/api/types/transcript.ts"
-  "contracts/narration.v2.schema.json:src/api/types/narration.ts"
+  "contracts/scene_current.v4.schema.json:src/api/types/scene_current.ts"
+  "contracts/beat_frame.v5.schema.json:src/api/types/beat_frame.ts"
+  "contracts/transcript.v2.schema.json:src/api/types/transcript.ts"
+  "contracts/narration.v3.schema.json:src/api/types/narration.ts"
+  "contracts/image_regenerate.v1.schema.json:src/api/types/image_regenerate.ts"
   "contracts/carrying.v1.schema.json:src/api/types/carrying.ts"
   "contracts/world_genesis_frame.v1.schema.json:src/api/types/world_genesis_frame.ts"
   "contracts/world_interview_turn.v1.schema.json:src/api/types/world_interview_turn.ts"

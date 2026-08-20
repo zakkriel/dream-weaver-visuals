@@ -1,10 +1,11 @@
 import { HOSTED_API_BASE, isLocalHostname } from "./hosted";
 import { authHeaders, requireLogin, withAuthToken } from "./auth";
 import type { WorldDirectory2GETWorldsTheWorldsACallerMayChooseBetweenSPEC028ADIRECTORYNeverCanonAnIdANameALineOfFictionALookACoverWhereYouLeftOffAndWhetherAnyoneCanPlayItNoWorldSTATEOnThisSurface as WorldDirectoryT } from "./types/world_directory";
-import type { SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent as SceneCurrentT } from "./types/scene_current";
-import type { BeatFrame4OneSSEFrameOfPOSTWorldsWBeatsDesign48SupersedesBeatFrame3ANarrationMessageNowCarriesQuoteTheVerbatimSpokenWordsAsAFieldSeparateFromTheStagingProseInText as BeatFrameT } from "./types/beat_frame";
-import type { Transcript1TheViewerSLivedStoryDeliveredNarrationNewestFirstCursorPaginated as TranscriptT } from "./types/transcript";
+import type { SceneCurrent4WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent as SceneCurrentT } from "./types/scene_current";
+import type { BeatFrame5OneSSEFrameOfPOSTWorldsWBeatsSupersedesBeatFrame4WithNarrationEmotionAndEmbeddedSceneCurrent4Sprites as BeatFrameT } from "./types/beat_frame";
+import type { Transcript2TheViewerSLivedStoryDeliveredNarrationNewestFirstCursorPaginated as TranscriptT } from "./types/transcript";
 import type { Carrying as CarryingT } from "./types/carrying";
+import type { ImageRegenerate1ResponseForPOSTWorldsWImagesRegenerate as ImageRegenerateT } from "./types/image_regenerate";
 
 /**
  * The transport seam. Every request the app makes is built here and nowhere else.
@@ -27,7 +28,7 @@ export type TranscriptEntry = Transcript["entries"][number];
 /**
  * One delivered narration segment.
  *
- * Byte-identical between a live `beat_frame/4` narration frame and a stored transcript entry, on
+ * Byte-identical between a live `beat_frame/5` narration frame and a stored transcript entry, on
  * purpose: the backend shaped them the same so history and live prose render through one path.
  */
 export type NarrationSegment = TranscriptEntry["segments"][number];
@@ -59,20 +60,24 @@ export type RefreshedWorld = {
   playable: true;
 };
 
+
+export type ImageRegenerate = ImageRegenerateT;
+
 /**
  * The schema version each endpoint is pinned to, by EXACT string equality.
  *
- * Not a family check on purpose. `scene_current/2` and `scene_current/3` are different contracts, and
+ * Not a family check on purpose. `scene_current/3` and `scene_current/4` are different contracts, and
  * reading v3 data through v2 field access is the failure mode this exists to make impossible. When a
  * pin moves, the vendored schema, the generated types and this constant all move in one commit.
  */
 const PIN = {
   worlds: "world_directory/2",
-  scene: "scene_current/3",
-  beat: "beat_frame/4",
-  transcript: "transcript/1",
+  scene: "scene_current/4",
+  beat: "beat_frame/5",
+  transcript: "transcript/2",
   carrying: "carrying/1",
   refreshed: "world_refreshed/1",
+  regenerate: "image_regenerate/1",
 } as const;
 
 /** Thrown when a payload's `schema_version` is not the one this client was generated against (D-4). */
@@ -239,6 +244,24 @@ export async function refreshWorld(worldId: string): Promise<RefreshedWorld> {
     throw new SchemaMismatchError(PIN.refreshed, payload?.schema_version);
   }
   return payload as RefreshedWorld;
+}
+
+
+/**
+ * Regenerate cast art for this world's current participants.
+ *
+ * The endpoint clears actor image slots, starts regeneration in background, and returns immediately.
+ */
+export async function regenerateArt(worldId: string): Promise<ImageRegenerate> {
+  const res = await apiFetch(`${apiBase()}/worlds/${encodeURIComponent(worldId)}/images/regenerate`, {
+    method: "POST",
+  });
+  if (!res.ok) throw new Error(`request failed: ${res.status}`);
+  const payload = (await res.json()) as { schema_version?: unknown } | null;
+  if (payload?.schema_version !== PIN.regenerate) {
+    throw new SchemaMismatchError(PIN.regenerate, payload?.schema_version);
+  }
+  return payload as ImageRegenerate;
 }
 
 /** What the player did: said something, or pressed Continue (which carries no text at all). */

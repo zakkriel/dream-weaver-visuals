@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
-import { refreshWorld, NoTemplateError, type WorldSummary } from "@/api";
+import { refreshWorld, regenerateArt, NoTemplateError, type WorldSummary } from "@/api";
 import { loadDirectory, type DirectoryResult } from "@/api/load";
 
 export const Route = createFileRoute("/w/$worldId/")({
@@ -35,6 +35,7 @@ function WorldHome() {
   const navigate = Route.useNavigate();
   const [loaded, setLoaded] = useState<DirectoryResult | null>(null);
   const [refresh, setRefresh] = useState<RefreshState>({ state: "idle" });
+  const [regenerate, setRegenerate] = useState<RegenerateState>({ state: "idle" });
 
   useEffect(() => {
     let live = true;
@@ -60,6 +61,13 @@ function WorldHome() {
       : refresh.state === "error"
         ? refresh.message
         : null;
+  const regenerateNoteId = "regenerate-note";
+  const regenerateNote =
+    regenerate.state === "success"
+      ? "The cast is being redrawn. New art appears as this world is read again."
+      : regenerate.state === "error"
+        ? regenerate.message
+        : null;
 
   async function confirmRefresh(targetWorldId: string): Promise<void> {
     setRefresh({ state: "working" });
@@ -72,6 +80,17 @@ function WorldHome() {
       } else {
         setRefresh({ state: "error", message: "Could not refresh this world right now. Try again." });
       }
+    }
+  }
+
+
+  async function confirmRegenerate(targetWorldId: string): Promise<void> {
+    setRegenerate({ state: "working" });
+    try {
+      const started = await regenerateArt(targetWorldId);
+      setRegenerate({ state: "success", cleared: started.cleared });
+    } catch {
+      setRegenerate({ state: "error", message: "Could not start redrawing art right now. Try again." });
     }
   }
 
@@ -186,11 +205,53 @@ function WorldHome() {
                   {refresh.state === "working" ? "Refreshing..." : "Refresh"}
                 </button>
               )}
+
+              {regenerate.state === "confirm" ? (
+                <section className="w-full rounded-dc-sm border border-dc-border bg-dc-overlay px-4 py-4">
+                  <p className="font-ui text-sm text-dc-text">Redraw cast art?</p>
+                  <p className="mt-2 max-w-[58ch] font-body text-sm text-dc-text-muted">
+                    The current cast portraits are cleared and redrawn in the background. New art appears
+                    on later reads of this world.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => void confirmRegenerate(world.id)}
+                      className="dc-focus dc-enter rounded-dc-sm px-5 py-2.5 font-ui text-sm font-medium"
+                    >
+                      Redraw now
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRegenerate({ state: "idle" })}
+                      className="dc-focus rounded-dc-sm border border-dc-border px-5 py-2.5 font-ui text-sm text-dc-text-muted hover:border-dc-accent hover:text-dc-text"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </section>
+              ) : (
+                <button
+                  type="button"
+                  disabled={regenerate.state === "working"}
+                  aria-describedby={regenerateNote ? regenerateNoteId : undefined}
+                  onClick={() => setRegenerate({ state: "confirm" })}
+                  className="dc-focus rounded-dc-sm border border-dc-border px-5 py-2.5 font-ui text-sm text-dc-text-muted enabled:hover:border-dc-accent enabled:hover:text-dc-text disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {regenerate.state === "working" ? "Redrawing..." : "Regenerate art"}
+                </button>
+              )}
+
             </nav>
 
             {refreshNote && (
               <p id={refreshNoteId} role="status" aria-live="polite" className="font-ui text-sm text-dc-text-muted">
                 {refreshNote}
+              </p>
+            )}
+            {regenerateNote && (
+              <p id={regenerateNoteId} role="status" aria-live="polite" className="font-ui text-sm text-dc-text-muted">
+                {regenerateNote}
               </p>
             )}
 
@@ -210,3 +271,10 @@ type RefreshState =
   | { state: "working" }
   | { state: "error"; message: string }
   | { state: "no-template" };
+
+type RegenerateState =
+  | { state: "idle" }
+  | { state: "confirm" }
+  | { state: "working" }
+  | { state: "success"; cleared: number }
+  | { state: "error"; message: string };

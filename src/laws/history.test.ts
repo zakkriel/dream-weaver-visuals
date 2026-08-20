@@ -44,7 +44,7 @@ function payload(
   next_before: number | null = null,
 ): Transcript {
   return {
-    schema_version: "transcript/1",
+    schema_version: "transcript/2",
     world_id: WORLD,
     viewer_id: MARA,
     entries,
@@ -55,7 +55,7 @@ function payload(
 /** The face resolver the LIVE transcript uses: the cast as it stands in the room right now. */
 const liveFace = (id: string | null) => (id === MARA ? "mara-now.png" : undefined);
 
-describe("transcript/1: one entry is a beat, not a line", () => {
+describe("transcript/2: one entry is a beat, not a line", () => {
   it("reads the player's words first, then the narration as delivered", () => {
     const page = toPage(
       payload([
@@ -220,7 +220,7 @@ describe("history + live: one transcript, two sources", () => {
   });
 
   it("gives a memory the silhouette rather than a face the viewer did not have", () => {
-    // `transcript/1` stores no picture per entry, so there is nothing to draw but the silhouette —
+    // `transcript/2` stores no picture per entry, so there is nothing to draw but the silhouette —
     // and borrowing today's portrait would leak an identity backwards through the record.
     const merged = groupStageLines(
       [{ who: "world", message: seg({ speaker_label: "a hooded figure" }), remembered: true }],

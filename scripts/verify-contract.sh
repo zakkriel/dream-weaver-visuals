@@ -16,10 +16,11 @@ RAW="https://raw.githubusercontent.com/zakkriel/dreamchat-world-backend/main/cor
 # surface starts reading it — a pin on a payload nothing renders gates on nothing.
 declare -a FILES=(
   world_directory.v2.schema.json
-  scene_current.v3.schema.json
-  beat_frame.v4.schema.json
-  transcript.v1.schema.json
-  narration.v2.schema.json
+  scene_current.v4.schema.json
+  beat_frame.v5.schema.json
+  transcript.v2.schema.json
+  narration.v3.schema.json
+  image_regenerate.v1.schema.json
   carrying.v1.schema.json
   world_genesis_frame.v1.schema.json
   world_interview_turn.v1.schema.json

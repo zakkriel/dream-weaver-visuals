@@ -1,87 +1,87 @@
 {
- "entries": [
-  {
-   "tick": 72,
-   "stated": "I wait in silence for someone to speak first.",
-   "journey": {
-    "kind": "watch",
-    "active": true,
-    "status": "active",
-    "progress": 0.1428587962962963,
-    "legs_done": 1,
-    "goal_label": null,
-    "legs_total": 7,
-    "where_label": null,
-    "interruptible": true
-   },
-   "entry_no": 3,
-   "segments": [
+  "entries": [
     {
-     "kind": "action",
-     "text": "Mara breaks the silence with a dry remark, her voice carrying just enough to reach you across the worn floorboards.",
-     "quote": null,
-     "speaker_id": "2ac70000-0000-0000-0000-0000000000a2",
-     "speaker_label": "Mara"
+      "tick": 72,
+      "stated": "I wait in silence for someone to speak first.",
+      "journey": {
+        "kind": "watch",
+        "active": true,
+        "status": "active",
+        "progress": 0.1428587962962963,
+        "legs_done": 1,
+        "goal_label": null,
+        "legs_total": 7,
+        "where_label": null,
+        "interruptible": true
+      },
+      "entry_no": 3,
+      "segments": [
+        {
+          "kind": "action",
+          "text": "Mara breaks the silence with a dry remark, her voice carrying just enough to reach you across the worn floorboards.",
+          "quote": null,
+          "speaker_id": "2ac70000-0000-0000-0000-0000000000a2",
+          "speaker_label": "Mara"
+        },
+        {
+          "kind": "action",
+          "text": "Jonas addresses you directly, his voice low and flat, the words settling into the salt-rot air between you.",
+          "quote": null,
+          "speaker_id": "2ac70000-0000-0000-0000-0000000000a3",
+          "speaker_label": "Jonas"
+        }
+      ],
+      "halt_reason": "journey_leg"
     },
     {
-     "kind": "action",
-     "text": "Jonas addresses you directly, his voice low and flat, the words settling into the salt-rot air between you.",
-     "quote": null,
-     "speaker_id": "2ac70000-0000-0000-0000-0000000000a3",
-     "speaker_label": "Jonas"
-    }
-   ],
-   "halt_reason": "journey_leg"
-  },
-  {
-   "tick": 71,
-   "stated": "I say to Mara: 'Then tell me plainly what he wants.'",
-   "journey": null,
-   "entry_no": 2,
-   "segments": [
-    {
-     "kind": "narration",
-     "text": "Mara meets your eye. The low beams seem to press the sound down, holding her voice close between you.",
-     "quote": null,
-     "speaker_id": null,
-     "speaker_label": ""
-    }
-   ],
-   "halt_reason": "completed"
-  },
-  {
-   "tick": 71,
-   "stated": "I ask Mara what she meant about not learning his name.",
-   "journey": null,
-   "entry_no": 1,
-   "segments": [
-    {
-     "kind": "narration",
-     "text": "The fire spits softly into the silence your question leaves behind. Jonas hasn't moved, his bulk still a low wall between you and the bar. Mara is across the room, near the hearth\u2014far enough that the salt-damp air lies thick between you.",
-     "quote": null,
-     "speaker_id": null,
-     "speaker_label": ""
+      "tick": 71,
+      "stated": "I say to Mara: 'Then tell me plainly what he wants.'",
+      "journey": null,
+      "entry_no": 2,
+      "segments": [
+        {
+          "kind": "narration",
+          "text": "Mara meets your eye. The low beams seem to press the sound down, holding her voice close between you.",
+          "quote": null,
+          "speaker_id": null,
+          "speaker_label": ""
+        }
+      ],
+      "halt_reason": "completed"
     },
     {
-     "kind": "action",
-     "text": "She tilts her head, her mouth crooking into something that isn't quite a smile.",
-     "quote": null,
-     "speaker_id": "2ac70000-0000-0000-0000-0000000000a2",
-     "speaker_label": "Mara"
-    },
-    {
-     "kind": "narration",
-     "text": "The hooded figure by the bar lifts her cup, but her eyes are still on you\u2014a sidelong glance held a beat too long before she drinks.",
-     "quote": null,
-     "speaker_id": null,
-     "speaker_label": ""
+      "tick": 71,
+      "stated": "I ask Mara what she meant about not learning his name.",
+      "journey": null,
+      "entry_no": 1,
+      "segments": [
+        {
+          "kind": "narration",
+          "text": "The fire spits softly into the silence your question leaves behind. Jonas hasn't moved, his bulk still a low wall between you and the bar. Mara is across the room, near the hearth—far enough that the salt-damp air lies thick between you.",
+          "quote": null,
+          "speaker_id": null,
+          "speaker_label": ""
+        },
+        {
+          "kind": "action",
+          "text": "She tilts her head, her mouth crooking into something that isn't quite a smile.",
+          "quote": null,
+          "speaker_id": "2ac70000-0000-0000-0000-0000000000a2",
+          "speaker_label": "Mara"
+        },
+        {
+          "kind": "narration",
+          "text": "The hooded figure by the bar lifts her cup, but her eyes are still on you—a sidelong glance held a beat too long before she drinks.",
+          "quote": null,
+          "speaker_id": null,
+          "speaker_label": ""
+        }
+      ],
+      "halt_reason": "completed"
     }
-   ],
-   "halt_reason": "completed"
-  }
- ],
- "world_id": "22222222-2222-2222-2222-222222222222",
- "viewer_id": "2ac70000-0000-0000-0000-0000000000a1",
- "next_before": null,
- "schema_version": "transcript/1"
+  ],
+  "world_id": "22222222-2222-2222-2222-222222222222",
+  "viewer_id": "2ac70000-0000-0000-0000-0000000000a1",
+  "next_before": null,
+  "schema_version": "transcript/2"
 }
