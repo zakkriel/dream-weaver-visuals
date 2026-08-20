@@ -484,10 +484,16 @@ export function PlayStage({
               onScroll={(e) => onTranscriptScroll(e.currentTarget)}
             >
               {lines.length === 0 && <p className="dc-empty-line">{emptyTranscript}</p>}
-              {lines.map((line, i) => (
-                <div key={i}>
+              {lines.map((line, i) => {
+                const variant =
+                  line.who === "you" ? "you"
+                  : line.who === "note" ? "note"
+                  : line.kind === "speech" || line.kind === "action" ? "world"
+                  : "narration";
+                return (
+                <div key={i} className={`dc-line dc-line-${variant}`}>
                   {line.who === "you" && (
-                    <div>
+                    <div className="dc-bubble dc-bubble-you">
                       <p className="dc-line-label">You</p>
                       {/* The player's own asterisks read as staging. Display only — what was sent and
                           what is stored keep every character they were typed with. */}
@@ -503,7 +509,7 @@ export function PlayStage({
                     line.kind === "speech" || line.kind === "action" ? (
                       <div className="dc-speaking-line">
                         <Portrait src={line.face} className="dc-dialogue-face" />
-                        <div>
+                        <div className="dc-bubble dc-bubble-world">
                           <p className="dc-line-label">{line.speakerLabel}</p>
                           <Voiced kind={line.kind} text={line.text} quote={line.quote} />
                           {line.more?.map((m, j) => (
@@ -525,7 +531,8 @@ export function PlayStage({
                     )
                   )}
                 </div>
-              ))}
+                );
+              })}
               {statusNote !== undefined && <p className="dc-status-note">{statusNote}</p>}
             </div>
 
