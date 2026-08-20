@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { serializeArtStyle } from "@/api/genesis";
 
 /**
  * The law tests.
@@ -371,5 +372,22 @@ describe("law: no mounted component renders a contract-less JSON blob (rule 2)",
       "This file is no longer imported by anything mounted, so its exemption is dead. Remove it from " +
         "PENDING_RULING.",
     ).toEqual([]);
+  });
+});
+
+
+describe("law: genesis art style field is encoded exactly once", () => {
+  it("sends a preset key verbatim", () => {
+    expect(serializeArtStyle({ kind: "preset", key: "anime" })).toBe("anime");
+  });
+
+  it("prefixes a written style with custom:", () => {
+    expect(serializeArtStyle({ kind: "custom", text: "rough ink, cold palette" })).toBe(
+      "custom:rough ink, cold palette",
+    );
+  });
+
+  it("omits art_style when nothing is chosen", () => {
+    expect(serializeArtStyle({ kind: "none" })).toBeUndefined();
   });
 });

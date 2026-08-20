@@ -23,6 +23,7 @@ declare -a FILES=(
   carrying.v1.schema.json
   world_genesis_frame.v1.schema.json
   world_interview_turn.v1.schema.json
+  art_styles.v1.schema.json
 )
 
 tmp="$(mktemp -d)"
