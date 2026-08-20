@@ -437,7 +437,7 @@ export function PlayStage({
             </ul>
             )}
 
-            <StageIsland label="The moment" className="dc-dialogue-card">
+            <StageIsland label="The moment" className={`dc-dialogue-card${expanded ? " dc-dialogue-card-expanded" : ""}`}>
             {/* The record and the moment are ONE reading. History sits above the live lines in the
                 same card with nothing between them, because to the player there is no seam: it is
                 all the same story, and only one end of it happens to be arriving now. */}
