@@ -4,6 +4,7 @@ import { Atmosphere } from "@/components/dc/Atmosphere";
 import {
   askInterview,
   answerKickstart,
+  ExpiredBuildError,
   fetchArtStyles,
   buildWorld,
   BRIEF_MAX_CHARS,
@@ -134,10 +135,14 @@ function CreateWorld() {
         setLane({ state: "choosing", handle, question: turn.question ?? "", options: turn.options ?? [] });
       }
     } catch (err) {
-      setLane({
-        state: "failed",
-        stated: err instanceof Error ? err.message : "the opening could not be reached",
-      });
+      if (err instanceof ExpiredBuildError) {
+        setLane({ state: "refused", stated: err.message });
+      } else {
+        setLane({
+          state: "failed",
+          stated: err instanceof Error ? err.message : "the opening could not be reached",
+        });
+      }
     } finally {
       inFlight.current = false;
     }
@@ -158,6 +163,9 @@ function CreateWorld() {
             setLane({ state: "building", lines: [...lines] });
             break;
           case "choice":
+            // The free-text field is shared with the interview screen; without this, leftover text
+            // typed but never submitted there would arrive pre-filled on the kickstart question.
+            setTyped("");
             setLane({
               state: "choosing",
               handle: frame.handle ?? "",

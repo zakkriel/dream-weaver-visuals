@@ -100,6 +100,13 @@ export async function askInterview(
 }
 
 /**
+ * An expired or spent kickstart handle (410). Distinguishable from every other failure mode because it
+ * is a STATED refusal — the world answering "no, that draft is gone" — not a connection or server
+ * failure, so callers route it to the refusal surface rather than the generic error one.
+ */
+export class ExpiredBuildError extends Error {}
+
+/**
  * One kickstart answer in, the next question or the built world out. `answer` is a chosen option's
  * label or the user's own words — the server cannot tell and must not care.
  */
@@ -111,7 +118,7 @@ export async function answerKickstart(handle: string, answer: string): Promise<K
   });
   if (!res.ok) {
     if (res.status === 410) {
-      throw new Error("that build has expired — write the brief again and rebuild");
+      throw new ExpiredBuildError("that build has expired — write the brief again and rebuild");
     }
     throw new Error(`request failed: ${res.status}`);
   }
