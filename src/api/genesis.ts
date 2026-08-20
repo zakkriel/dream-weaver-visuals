@@ -1,4 +1,5 @@
 import { apiBase, apiFetch, SchemaMismatchError } from "./index";
+import type { ArtStyles1GETWorldsArtStylesSelectableWorldArtStylesInDisplayOrder as ArtStylesT } from "./types/art_styles";
 import type { WorldGenesisFrame1ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsWorldIsTheTerminalSuccessCarryingTheIdYouCanNowEnterRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 as GenesisFrameT } from "./types/world_genesis_frame";
 import type { WorldInterviewTurn1TheResponseToPOSTWorldsInterviewONEQuestionAboutABriefOrNothingLeftToAskTheExchangeIsSTATELESSTheClientSendsTheBriefAndEveryPriorAnswerAndReceivesOneTurnSoThereIsNoSessionNoStoredInterviewAndNothingToResumeDoneTrueArrivesWithNoQuestionAndIsAGoodAnswerNotAFailureABriefThatLeavesNothingUndeterminedShouldBeAskedNothingAndTheSurfaceAlwaysLetsTheUserBuildImmediatelyRegardless as InterviewTurnT } from "./types/world_interview_turn";
 
@@ -18,21 +19,60 @@ import type { WorldInterviewTurn1TheResponseToPOSTWorldsInterviewONEQuestionAbou
 export type GenesisFrame = GenesisFrameT;
 export type InterviewTurn = InterviewTurnT;
 export type InterviewOption = NonNullable<InterviewTurnT["options"]>[number];
+export type ArtStyles = ArtStylesT;
+export type ArtStylePreset = ArtStylesT["styles"][number];
 
 /** One thing the user was asked and what they said. Sent back on every subsequent call. */
 export type InterviewAnswer = { question: string; answer: string };
 
 /**
- * Pins for the two creation payloads, by exact string equality like every other contract here. When one
+ * One optional art-style choice from the creation surface.
+ *
+ * `none` means "use the house look" and intentionally serializes to no `art_style` field at all.
+ */
+export type ArtStyleChoice =
+  | { kind: "none" }
+  | { kind: "preset"; key: string }
+  | { kind: "custom"; text: string };
+
+/**
+ * Pins for the creation payloads, by exact string equality like every other contract here. When one
  * moves, the vendored schema, the generated type and this constant move in the same commit.
  */
 const PIN = {
+  artStyles: "art_styles/1",
   interview: "world_interview_turn/1",
   genesisFrame: "world_genesis_frame/1",
 } as const;
 
 /** The maximum brief the server will accept (8 KiB there); mirrored so the surface can say so first. */
 export const BRIEF_MAX_CHARS = 8000;
+
+/** A stable encoder for the genesis request's optional `art_style` field. */
+export function serializeArtStyle(choice: ArtStyleChoice): string | undefined {
+  if (choice.kind === "preset") return choice.key;
+  if (choice.kind === "custom") {
+    const text = choice.text.trim();
+    return text === "" ? undefined : `custom:${text}`;
+  }
+  return undefined;
+}
+
+/**
+ * The backend's art-style catalogue.
+ *
+ * This is the single source of truth for keys and copy. Consumers render what arrives; they do not
+ * hardcode style names.
+ */
+export async function fetchArtStyles(): Promise<ArtStyles> {
+  const res = await apiFetch(`${apiBase()}/worlds/art-styles`);
+  if (!res.ok) throw new Error(`request failed: ${res.status}`);
+  const list = (await res.json()) as { schema_version?: unknown };
+  if (list.schema_version !== PIN.artStyles) {
+    throw new SchemaMismatchError(PIN.artStyles, list.schema_version);
+  }
+  return list as ArtStyles;
+}
 
 /**
  * Ask what is still worth knowing about a brief. Returns `{ done: true }` when nothing is — which is a
@@ -67,11 +107,15 @@ export async function buildWorld(
   brief: string,
   answers: InterviewAnswer[],
   onFrame: (frame: GenesisFrame) => void,
+  artStyle?: string,
 ): Promise<void> {
+  const body: { brief: string; answers: InterviewAnswer[]; art_style?: string } = { brief, answers };
+  if (artStyle !== undefined) body.art_style = artStyle;
+
   const res = await apiFetch(`${apiBase()}/worlds/genesis`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ brief, answers }),
+    body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`request failed: ${res.status}`);
   if (res.body === null) throw new Error("the build stream carried no body");

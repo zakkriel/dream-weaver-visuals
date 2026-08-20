@@ -1,10 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
 import {
   askInterview,
+  fetchArtStyles,
   buildWorld,
   BRIEF_MAX_CHARS,
+  serializeArtStyle,
+  type ArtStyleChoice,
+  type ArtStylePreset,
   type GenesisFrame,
   type InterviewAnswer,
   type InterviewOption,
@@ -30,12 +34,14 @@ export const Route = createFileRoute("/create")({
  * What it establishes is the flow and the data — and the flow is the point:
  *
  *  1. You write what you want. Nothing else is on screen, because there is nothing to decide yet.
- *  2. Only then do the two lanes appear. Fast builds from the brief alone; Custom asks first. The lane
+ *  2. Then style appears. It applies equally to both build lanes, so it belongs before either lane is
+ *     chosen.
+ *  3. Only then do the two lanes appear. Fast builds from the brief alone; Custom asks first. The lane
  *     choice comes AFTER the writing on purpose — a fork presented before the user has said anything is a
  *     fork they have no basis to answer.
- *  3. Custom asks one question at a time. Every question carries real options, a free-text field, and
+ *  4. Custom asks one question at a time. Every question carries real options, a free-text field, and
  *     "Build it now" — so the interview is never a corridor.
- *  4. The build streams. Each line is something that was actually authored; there is no progress bar,
+ *  5. The build streams. Each line is something that was actually authored; there is no progress bar,
  *     because the server sends no progress and a bar driven by a timer would be a number nothing produced
  *     (law 2).
  *
@@ -47,12 +53,32 @@ function CreateWorld() {
   const [lane, setLane] = useState<Lane>({ state: "writing" });
   const [answers, setAnswers] = useState<InterviewAnswer[]>([]);
   const [typed, setTyped] = useState("");
+  const [styleChoice, setStyleChoice] = useState<ArtStyleChoice>({ kind: "none" });
+  const [styleCatalog, setStyleCatalog] = useState<ArtStyleState>({ state: "loading" });
   // Guards a double-submit: the build takes a while and the button stays on screen throughout.
   const inFlight = useRef(false);
 
   const trimmed = brief.trim();
   const tooLong = brief.length > BRIEF_MAX_CHARS;
   const canStart = trimmed !== "" && !tooLong;
+
+  useEffect(() => {
+    let alive = true;
+    void (async () => {
+      try {
+        const catalog = await fetchArtStyles();
+        if (!alive) return;
+        setStyleCatalog({ state: "ready", presets: catalog.styles ?? [] });
+      } catch {
+        if (!alive) return;
+        // Like a failed interview question: style choice is optional, so creation stays usable without it.
+        setStyleCatalog({ state: "unavailable" });
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   async function startInterview() {
     if (!canStart || inFlight.current) return;
@@ -94,6 +120,7 @@ function CreateWorld() {
     const lines: string[] = [];
     setLane({ state: "building", lines });
     try {
+      const artStyle = serializeArtStyle(styleChoice);
       await buildWorld(trimmed, answers, (frame) => {
         switch (frame.kind) {
           case "working":
@@ -116,7 +143,7 @@ function CreateWorld() {
             setLane({ state: "failed", stated: frame.stated ?? "" });
             break;
         }
-      });
+      }, artStyle);
     } catch {
       // The stream never opened, or it broke before saying why. Distinct from a `refused` frame, which is
       // the world answering; this is the connection.
@@ -169,6 +196,70 @@ function CreateWorld() {
             )}
           </section>
         )}
+
+        {/* This choice applies to BOTH lanes, so it sits between writing the brief and choosing a lane. */}
+        {(lane.state === "writing" ||
+          lane.state === "asking" ||
+          lane.state === "question" ||
+          lane.state === "ready") &&
+          styleCatalog.state === "ready" && (
+            <section aria-label="Art style" className="flex flex-col gap-3">
+              <p className="dc-label">How should this world look?</p>
+              <ul className="flex flex-col gap-2">
+                {styleCatalog.presets.map((preset) => {
+                  const selected = styleChoice.kind === "preset" && styleChoice.key === preset.key;
+                  return (
+                    <li key={preset.key}>
+                      <button
+                        type="button"
+                        onClick={() => setStyleChoice({ kind: "preset", key: preset.key })}
+                        // The accessible name is composed explicitly: visual lines are split, but SR output
+                        // would otherwise run together.
+                        aria-label={[preset.label, preset.blurb].filter((part) => part !== "").join(" — ")}
+                        aria-pressed={selected}
+                        className={`dc-focus flex w-full flex-col gap-1 rounded-dc-sm border px-4 py-3 text-left ${selected ? "border-dc-accent" : "border-dc-border hover:border-dc-accent"}`}
+                      >
+                        <span className="font-ui text-sm text-dc-text">{preset.label}</span>
+                        <span className="font-body text-xs text-dc-text-muted">{preset.blurb}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+                <li>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setStyleChoice((current) =>
+                        current.kind === "custom" ? current : { kind: "custom", text: "" },
+                      )
+                    }
+                    aria-label={["Describe your own", "Write a style for the whole world."].join(" — ")}
+                    aria-pressed={styleChoice.kind === "custom"}
+                    className={`dc-focus flex w-full flex-col gap-1 rounded-dc-sm border px-4 py-3 text-left ${styleChoice.kind === "custom" ? "border-dc-accent" : "border-dc-border hover:border-dc-accent"}`}
+                  >
+                    <span className="font-ui text-sm text-dc-text">Describe your own</span>
+                    <span className="font-body text-xs text-dc-text-muted">
+                      Write the visual language yourself; this applies to either build lane.
+                    </span>
+                  </button>
+                </li>
+              </ul>
+              {styleChoice.kind === "custom" && (
+                <div className="flex flex-col gap-2">
+                  <label htmlFor="custom-art-style" className="dc-label">
+                    Your style
+                  </label>
+                  <input
+                    id="custom-art-style"
+                    value={styleChoice.text}
+                    onChange={(e) => setStyleChoice({ kind: "custom", text: e.target.value })}
+                    placeholder="high-contrast watercolor, pale skies, rough ink lines"
+                    className="dc-focus dc-input min-w-[18rem] rounded-dc-sm px-3 py-2 font-body text-sm"
+                  />
+                </div>
+              )}
+            </section>
+          )}
 
         {/* Both lanes, offered only once there is something to build from. */}
         {lane.state === "writing" && (
@@ -410,6 +501,11 @@ function Question({
  * Where the journey is. `writing` and `ready` both show the brief and a build button; they differ in what
  * they say about the interview, which is why they are distinct rather than one state with a flag.
  */
+type ArtStyleState =
+  | { state: "loading" }
+  | { state: "ready"; presets: ArtStylePreset[] }
+  | { state: "unavailable" };
+
 type Lane =
   | { state: "writing" }
   | { state: "asking" }
