@@ -1,7 +1,8 @@
 import { apiBase, apiFetch, SchemaMismatchError } from "./index";
 import type { ArtStyles1GETWorldsArtStylesSelectableWorldArtStylesInDisplayOrder as ArtStylesT } from "./types/art_styles";
-import type { WorldGenesisFrame1ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsWorldIsTheTerminalSuccessCarryingTheIdYouCanNowEnterRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 as GenesisFrameT } from "./types/world_genesis_frame";
+import type { WorldGenesisFrame2ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamTheStreamNowEndsInAChoiceNotAWorldTheWorldItselfArrivesLaterOnTheKickstartTurnSDoneTrueBecauseCommitNoLongerHappensInsideTheStreamRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 as GenesisFrameT } from "./types/world_genesis_frame";
 import type { WorldInterviewTurn1TheResponseToPOSTWorldsInterviewONEQuestionAboutABriefOrNothingLeftToAskTheExchangeIsSTATELESSTheClientSendsTheBriefAndEveryPriorAnswerAndReceivesOneTurnSoThereIsNoSessionNoStoredInterviewAndNothingToResumeDoneTrueArrivesWithNoQuestionAndIsAGoodAnswerNotAFailureABriefThatLeavesNothingUndeterminedShouldBeAskedNothingAndTheSurfaceAlwaysLetsTheUserBuildImmediatelyRegardless as InterviewTurnT } from "./types/world_interview_turn";
+import type { WorldKickstartTurn1TheResponseToPOSTWorldsGenesisKickstartSameGrammarAsTheInterviewTurnDoneFalseCarriesTheNextQuestionDoneTrueCarriesTheWorldBuiltAndPlayableTheFreeTextAnswerIsAPropertyOfTheSurfaceAndIsDeliberatelyNotEnumeratedHere as KickstartTurnT } from "./types/world_kickstart_turn";
 
 /**
  * World creation, client side (backend PRD: `prd_world_creation.md`).
@@ -19,6 +20,8 @@ import type { WorldInterviewTurn1TheResponseToPOSTWorldsInterviewONEQuestionAbou
 export type GenesisFrame = GenesisFrameT;
 export type InterviewTurn = InterviewTurnT;
 export type InterviewOption = NonNullable<InterviewTurnT["options"]>[number];
+export type KickstartTurn = KickstartTurnT;
+export type ChoiceOption = NonNullable<KickstartTurnT["options"]>[number];
 export type ArtStyles = ArtStylesT;
 export type ArtStylePreset = ArtStylesT["styles"][number];
 
@@ -42,7 +45,8 @@ export type ArtStyleChoice =
 const PIN = {
   artStyles: "art_styles/1",
   interview: "world_interview_turn/1",
-  genesisFrame: "world_genesis_frame/1",
+  kickstart: "world_kickstart_turn/1",
+  genesisFrame: "world_genesis_frame/2",
 } as const;
 
 /** The maximum brief the server will accept (8 KiB there); mirrored so the surface can say so first. */
@@ -93,6 +97,29 @@ export async function askInterview(
     throw new SchemaMismatchError(PIN.interview, turn.schema_version);
   }
   return turn as InterviewTurn;
+}
+
+/**
+ * One kickstart answer in, the next question or the built world out. `answer` is a chosen option's
+ * label or the user's own words — the server cannot tell and must not care.
+ */
+export async function answerKickstart(handle: string, answer: string): Promise<KickstartTurn> {
+  const res = await apiFetch(`${apiBase()}/worlds/genesis/kickstart`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ handle, answer }),
+  });
+  if (!res.ok) {
+    if (res.status === 410) {
+      throw new Error("that build has expired — write the brief again and rebuild");
+    }
+    throw new Error(`request failed: ${res.status}`);
+  }
+  const turn = (await res.json()) as { schema_version?: unknown };
+  if (turn.schema_version !== PIN.kickstart) {
+    throw new SchemaMismatchError(PIN.kickstart, turn.schema_version);
+  }
+  return turn as KickstartTurn;
 }
 
 /**

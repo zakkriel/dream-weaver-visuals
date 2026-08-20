@@ -3,15 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
 import {
   askInterview,
+  answerKickstart,
   fetchArtStyles,
   buildWorld,
   BRIEF_MAX_CHARS,
   serializeArtStyle,
   type ArtStyleChoice,
   type ArtStylePreset,
+  type ChoiceOption,
   type GenesisFrame,
   type InterviewAnswer,
-  type InterviewOption,
   type InterviewTurn,
 } from "@/api/genesis";
 
@@ -114,6 +115,34 @@ function CreateWorld() {
     }
   }
 
+  async function choose(handle: string, said: string) {
+    const trimmedAnswer = said.trim();
+    if (trimmedAnswer === "" || inFlight.current) return;
+    inFlight.current = true;
+    setTyped("");
+    setLane({ state: "committing" });
+    try {
+      const turn = await answerKickstart(handle, trimmedAnswer);
+      if (turn.done && turn.world) {
+        setLane({
+          state: "built",
+          id: turn.world.id,
+          displayName: turn.world.display_name,
+          tagline: turn.world.tagline,
+        });
+      } else {
+        setLane({ state: "choosing", handle, question: turn.question ?? "", options: turn.options ?? [] });
+      }
+    } catch (err) {
+      setLane({
+        state: "failed",
+        stated: err instanceof Error ? err.message : "the opening could not be reached",
+      });
+    } finally {
+      inFlight.current = false;
+    }
+  }
+
   async function build() {
     if (!canStart || inFlight.current) return;
     inFlight.current = true;
@@ -128,12 +157,12 @@ function CreateWorld() {
             lines.push(frame.stated ?? "");
             setLane({ state: "building", lines: [...lines] });
             break;
-          case "world":
+          case "choice":
             setLane({
-              state: "built",
-              id: frame.id ?? "",
-              displayName: frame.display_name ?? "",
-              tagline: frame.tagline ?? "",
+              state: "choosing",
+              handle: frame.handle ?? "",
+              question: frame.question ?? "",
+              options: frame.options ?? [],
             });
             break;
           case "refused":
@@ -340,6 +369,30 @@ function CreateWorld() {
           </section>
         )}
 
+        {lane.state === "choosing" && (
+          <Question
+            turn={{ question: lane.question, options: lane.options }}
+            typed={typed}
+            onTyped={setTyped}
+            answered={0}
+            onChoose={(label) => void choose(lane.handle, label)}
+            onBuild={() => {}}
+            escape={{
+              label: "Start here",
+              onPress: () => {
+                const rec = lane.options.find((o) => o.recommended) ?? lane.options[0];
+                if (rec) void choose(lane.handle, rec.label);
+              },
+            }}
+          />
+        )}
+
+        {lane.state === "committing" && (
+          <p role="status" aria-live="polite" className="font-ui text-sm text-dc-text-muted">
+            Opening the way in&hellip;
+          </p>
+        )}
+
         {lane.state === "built" && (
           <section className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
@@ -392,10 +445,22 @@ function CreateWorld() {
 }
 
 /**
+ * The shape `Question` actually reads off a turn — deliberately narrower than any one generated turn
+ * type, so both the interview's `InterviewTurn` and a constructed view of a kickstart choice satisfy it
+ * without carrying fields (`done`, `schema_version`) the component never looks at.
+ */
+type QuestionOption = { label: string; implication?: string; recommended?: boolean };
+type QuestionTurn = { question?: string; why?: string; options?: readonly QuestionOption[] };
+
+/**
  * One question: its options, a field to write your own answer instead, and the way out.
  *
  * The recommended option is marked in words rather than only by styling, because "recommended" is
  * information and styling alone does not reach a screen reader.
+ *
+ * `escape` parameterizes the way-out button so a non-interview caller (the kickstart choice screens) can
+ * offer its own accept-defaults exit; omitted, the button keeps its original "Build it now" behavior so
+ * every interview callsite is untouched.
  */
 function Question({
   turn,
@@ -404,15 +469,17 @@ function Question({
   answered,
   onChoose,
   onBuild,
+  escape,
 }: {
-  turn: InterviewTurn;
+  turn: QuestionTurn;
   typed: string;
   onTyped: (v: string) => void;
   answered: number;
   onChoose: (label: string) => void;
   onBuild: () => void;
+  escape?: { label: string; onPress: () => void };
 }) {
-  const options: InterviewOption[] = turn.options ?? [];
+  const options: readonly QuestionOption[] = turn.options ?? [];
   return (
     <section aria-label="One question" className="flex flex-col gap-4">
       <div className="flex flex-col gap-1">
@@ -487,10 +554,10 @@ function Question({
       <div>
         <button
           type="button"
-          onClick={onBuild}
+          onClick={escape ? escape.onPress : onBuild}
           className="dc-focus rounded-dc-sm border border-dc-border px-5 py-2.5 font-ui text-sm text-dc-text-muted hover:border-dc-accent hover:text-dc-text"
         >
-          Build it now
+          {escape ? escape.label : "Build it now"}
         </button>
       </div>
     </section>
@@ -512,6 +579,8 @@ type Lane =
   | { state: "question"; turn: InterviewTurn }
   | { state: "ready" }
   | { state: "building"; lines: string[] }
+  | { state: "choosing"; handle: string; question: string; options: ChoiceOption[] }
+  | { state: "committing" }
   | { state: "built"; id: string; displayName: string; tagline: string }
   | { state: "refused"; stated: string }
   | { state: "failed"; stated: string };
