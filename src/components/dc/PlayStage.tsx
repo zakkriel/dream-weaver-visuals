@@ -493,7 +493,7 @@ export function PlayStage({
                 return (
                 <div key={i} className={`dc-line dc-line-${variant}`}>
                   {line.who === "you" && (
-                    <div className="dc-bubble dc-bubble-you">
+                    <div className="dc-manuscript-row dc-manuscript-row-you">
                       <p className="dc-line-label">You</p>
                       {/* The player's own asterisks read as staging. Display only — what was sent and
                           what is stored keep every character they were typed with. */}
@@ -509,7 +509,7 @@ export function PlayStage({
                     line.kind === "speech" || line.kind === "action" ? (
                       <div className="dc-speaking-line">
                         <Portrait src={line.face} className="dc-dialogue-face" />
-                        <div className="dc-bubble dc-bubble-world">
+                        <div className="dc-manuscript-row dc-manuscript-row-world">
                           <p className="dc-line-label">{line.speakerLabel}</p>
                           <Voiced kind={line.kind} text={line.text} quote={line.quote} />
                           {line.more?.map((m, j) => (
