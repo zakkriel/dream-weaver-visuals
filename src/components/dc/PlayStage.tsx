@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Portrait } from "@/components/dc/Portrait";
 import { rpSegments } from "@/lib/rp-text";
@@ -10,7 +10,12 @@ export type StageParticipant = {
   readonly id: string;
   readonly label: string;
   readonly face?: string | undefined;
+  readonly sprites?: StageSpriteSet | undefined;
+  readonly spriteEmotion?: SpriteEmotion | undefined;
 };
+
+export type SpriteEmotion = "neutral" | "happy" | "angry" | "sad";
+export type StageSpriteSet = Readonly<Record<SpriteEmotion, string>>;
 
 /**
  * One voiced segment as the wire shapes it: prose in `text`, spoken words in `quote`.
@@ -20,7 +25,12 @@ export type StageParticipant = {
  * around them — "she leans in, her voice dropping" — which is legitimately EMPTY when the line is
  * delivered bare. Rendering `text` unconditionally puts a blank paragraph above half the dialogue.
  */
-export type StageVoice = { readonly kind: string; readonly text: string; readonly quote: string | null };
+export type StageVoice = {
+  readonly kind: string;
+  readonly text: string;
+  readonly quote: string | null;
+  readonly emotion?: SpriteEmotion | undefined;
+};
 
 export type StageLine =
   | { readonly who: "you"; readonly text: string }
@@ -28,9 +38,11 @@ export type StageLine =
   | {
       readonly who: "world";
       readonly kind: string;
+      readonly speakerId: string | null;
       readonly speakerLabel: string;
       readonly text: string;
       readonly quote: string | null;
+      readonly emotion?: SpriteEmotion | undefined;
       readonly face?: string | undefined;
       /**
        * Further lines from the SAME speaker, in arrival order.
@@ -64,6 +76,67 @@ function Voiced({ text, quote }: StageVoice) {
           ours, and they are how a reader sees where the speech starts and stops. */}
       {quote !== null && quote !== "" && <p className="dc-speech-body">{`\u201c${quote}\u201d`}</p>}
     </>
+  );
+}
+
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
+}
+
+function SpriteBust({
+  src,
+  label,
+  dimmed,
+  slot,
+}: {
+  src: string;
+  label: string;
+  dimmed: boolean;
+  slot: number;
+}) {
+  const [frontSrc, setFrontSrc] = useState(src);
+  const [backSrc, setBackSrc] = useState<string | null>(null);
+  const [fading, setFading] = useState(false);
+
+  useEffect(() => {
+    if (src === frontSrc) return;
+    if (prefersReducedMotion()) {
+      setFrontSrc(src);
+      setBackSrc(null);
+      setFading(false);
+      return;
+    }
+    setBackSrc(src);
+    setFading(true);
+    const timer = window.setTimeout(() => {
+      setFrontSrc(src);
+      setBackSrc(null);
+      setFading(false);
+    }, 260);
+    return () => window.clearTimeout(timer);
+  }, [frontSrc, src]);
+
+  return (
+    <li
+      className="dc-stage-sprite"
+      data-dimmed={dimmed ? "true" : "false"}
+      style={{ ["--dc-sprite-slot" as string]: slot }}
+    >
+      <img
+        src={frontSrc}
+        alt=""
+        className={`dc-stage-sprite-img dc-stage-sprite-front${fading ? " dc-stage-sprite-hidden" : ""}`}
+      />
+      {backSrc && (
+        <img
+          src={backSrc}
+          alt={label}
+          className={`dc-stage-sprite-img dc-stage-sprite-next${fading ? " dc-stage-sprite-visible" : ""}`}
+        />
+      )}
+    </li>
   );
 }
 
@@ -161,6 +234,7 @@ export function PlayStage({
   backdrop,
   participants,
   speakingId,
+  recentSpeakerIds = [],
   lines,
   emptyTranscript,
   statusNote,
@@ -188,6 +262,7 @@ export function PlayStage({
   backdrop?: string | undefined;
   participants: readonly StageParticipant[];
   speakingId: string | null;
+  recentSpeakerIds?: readonly string[];
   lines: readonly StageLine[];
   emptyTranscript: string;
   statusNote?: string | undefined;
@@ -213,6 +288,35 @@ export function PlayStage({
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
   const [contextTab, setContextTab] = useState<"current" | "previous" | "threads">("current");
+  const spriteParticipants = useMemo(() => {
+    const withSprites = participants.filter((participant) => participant.sprites !== undefined);
+    if (withSprites.length === 0) return [];
+    const recency = new Map<string, number>();
+    recentSpeakerIds.forEach((id, index) => recency.set(id, index));
+    return [...withSprites]
+      .sort((a, b) => {
+        const aRecent = recency.get(a.id);
+        const bRecent = recency.get(b.id);
+        if (aRecent !== undefined && bRecent !== undefined) return aRecent - bRecent;
+        if (aRecent !== undefined) return -1;
+        if (bRecent !== undefined) return 1;
+        return participants.findIndex((p) => p.id === a.id) - participants.findIndex((p) => p.id === b.id);
+      })
+      .slice(0, 3)
+      .map((participant) => {
+        const emotion = participant.spriteEmotion ?? "neutral";
+        return {
+          id: participant.id,
+          label: participant.label,
+          sprite: participant.sprites?.[emotion] ?? participant.sprites?.neutral,
+        };
+      })
+      .filter((participant) => participant.sprite !== undefined) as {
+      id: string;
+      label: string;
+      sprite: string;
+    }[];
+  }, [participants, recentSpeakerIds]);
 
   /**
    * Follow the newest line as the beat streams in.
@@ -361,6 +465,21 @@ export function PlayStage({
 
       <div aria-hidden className="dc-stage-scrim" />
       <div aria-hidden className="dc-stage-grain" />
+      {spriteParticipants.length > 0 && (
+        <div aria-hidden className="dc-stage-sprites">
+          <ul className="dc-stage-sprite-list" data-count={spriteParticipants.length}>
+            {spriteParticipants.map((participant, index) => (
+              <SpriteBust
+                key={participant.id}
+                src={participant.sprite}
+                label={participant.label}
+                dimmed={speakingId !== null && participant.id !== speakingId}
+                slot={index}
+              />
+            ))}
+          </ul>
+        </div>
+      )}
 
       <div className="dc-stage-grid">
         <nav aria-label="World navigation" className="dc-island dc-rail">

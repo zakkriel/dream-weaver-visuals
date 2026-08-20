@@ -8,7 +8,7 @@
 /**
  * Supersedes narration/1, which folded a spoken line and the staging around it into one `text` string. That forced every consumer to guess where the quote began: the frontend could not style speech differently from prose, and the verbatim belt had to substring-match a whole sentence of narrator writing against a perception line. Splitting them makes the spoken words a first-class field — the UI formats them, and the belt checks exactly the words claimed to be spoken and nothing else.
  */
-export type Narration2OrderedNarrationSegmentsSpeechCarriesItsVerbatimQuoteAsItsOwnFieldSeparateFromStagingProse = (
+export type Narration3OrderedNarrationSegmentsSpeechActionMayCarryOptionalEmotionMetadataForSpriteSelection = (
   | {
       speaker_id?: null;
       kind?: "narration";
@@ -16,6 +16,7 @@ export type Narration2OrderedNarrationSegmentsSpeechCarriesItsVerbatimQuoteAsIts
         [k: string]: unknown;
       };
       quote?: null;
+      emotion?: null;
       [k: string]: unknown;
     }
   | {
@@ -25,12 +26,14 @@ export type Narration2OrderedNarrationSegmentsSpeechCarriesItsVerbatimQuoteAsIts
         [k: string]: unknown;
       };
       quote?: null;
+      emotion?: "neutral" | "happy" | "angry" | "sad" | null;
       [k: string]: unknown;
     }
   | {
       speaker_id?: string;
       kind?: "speech";
       quote?: string;
+      emotion?: "neutral" | "happy" | "angry" | "sad" | null;
       [k: string]: unknown;
     }
 )[];

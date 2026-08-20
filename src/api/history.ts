@@ -7,7 +7,7 @@ import { apiBase, apiFetch, type NarrationSegment, type Transcript } from "./ind
  *
  * Every other read in this client is a projection: ask again and the backend recomputes it from
  * world state. This one cannot be. The prose a model wrote once is gone the moment it is not stored,
- * so `transcript/1` returns what was **delivered**, exactly as delivered.
+ * so `transcript/2` returns what was **delivered**, exactly as delivered.
  *
  * That is why an old line still says *"the muscle by the bar"* after the viewer learns the name
  * Jonas. A memory of an experience is itself a perception (D-7), and re-labelling it would rewrite
@@ -21,7 +21,7 @@ import { apiBase, apiFetch, type NarrationSegment, type Transcript } from "./ind
  *
  * `stated` is the player's raw input — null when he pressed Continue and typed nothing, which is a
  * different fact from an empty string. `segments` is the delivered narration in order, in the same
- * shape a live `beat_frame/4` narration frame carries, so both render through one path.
+ * shape a live `beat_frame/5` narration frame carries, so both render through one path.
  */
 
 /** Cursor for the next older page. `entry_no` is a row handle, not domain time — a tick cannot order. */
@@ -88,7 +88,7 @@ export const NO_HISTORY = Symbol("no_history");
 export type FetchedPage = HistoryPage | typeof NO_HISTORY;
 
 /** The pin. A payload that is not this shape fails the read rather than being guessed at (D-4). */
-const PIN = "transcript/1";
+const PIN = "transcript/2";
 
 /**
  * Read one page of this world's story for the viewer.

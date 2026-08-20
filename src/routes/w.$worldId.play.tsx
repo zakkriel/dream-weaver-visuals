@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useReducer, useRef, useState, type FormEvent } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
-import { PlayStage, StageIsland, type StageLine } from "@/components/dc/PlayStage";
+import { PlayStage, StageIsland, type SpriteEmotion, type StageLine } from "@/components/dc/PlayStage";
 import {
   fetchCarrying,
   fetchScene,
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/w/$worldId/play")({
  *
  * `remembered` marks a line read back out of the stored record rather than streamed this session.
  * A remembered line keeps the label it was delivered with and is never re-resolved against the cast
- * as it stands now (D-7); it also wears no portrait, because `transcript/1` stores no picture per
+ * as it stands now (D-7); it also wears no portrait, because `transcript/2` stores no picture per
  * entry and the silhouette is the honest likeness of a memory (D-8) — see `api/history.ts`.
  */
 export type Line =
@@ -66,6 +66,38 @@ const HALT: Record<string, string> = {
   journey_barred: "The way is shut.",
   journey_unresolved: "You waited, and it never came.",
 };
+
+
+function readEmotion(value: unknown): SpriteEmotion | null {
+  return value === "neutral" || value === "happy" || value === "angry" || value === "sad"
+    ? value
+    : null;
+}
+
+function messageEmotion(message: NarrationMessage): SpriteEmotion | undefined {
+  const raw = readEmotion((message as { emotion?: unknown }).emotion);
+  return raw ?? undefined;
+}
+
+function spriteUrls(participant: Scene["participants"][number]):
+  | Record<SpriteEmotion, string>
+  | undefined {
+  const sprites = (participant as {
+    sprites?: {
+      neutral?: ImageRef;
+      happy?: ImageRef;
+      angry?: ImageRef;
+      sad?: ImageRef;
+    } | null;
+  }).sprites;
+  if (!sprites?.neutral || !sprites.happy || !sprites.angry || !sprites.sad) return undefined;
+  return {
+    neutral: imageUrl(sprites.neutral, "final"),
+    happy: imageUrl(sprites.happy, "final"),
+    angry: imageUrl(sprites.angry, "final"),
+    sad: imageUrl(sprites.sad, "final"),
+  };
+}
 
 /**
  * Surface 3 — Play.
@@ -113,7 +145,7 @@ export function groupStageLines(
     if (continues && prev?.who === "world") {
       out[out.length - 1] = {
         ...prev,
-        more: [...(prev.more ?? []), { kind: m.kind, text: m.text, quote: m.quote }],
+        more: [...(prev.more ?? []), { kind: m.kind, text: m.text, quote: m.quote, emotion: messageEmotion(m) }],
       };
       continue;
     }
@@ -122,9 +154,11 @@ export function groupStageLines(
     out.push({
       who: "world",
       kind: m.kind,
+      speakerId: m.speaker_id,
       speakerLabel: m.speaker_label,
       text: m.text,
       quote: m.quote,
+      emotion: messageEmotion(m),
       // Only a live line is resolved against the cast standing in the room. A memory keeps the
       // silhouette rather than borrowing a face the viewer did not have at the time.
       face: remembered ? undefined : faceOf(m.speaker_id),
@@ -140,6 +174,8 @@ function Play() {
   const [lines, setLines] = useState<Line[]>([]);
   const [outcome, setOutcome] = useState<BeatOutcome | null>(null);
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  const [speakerEmotion, setSpeakerEmotion] = useState<ReadonlyMap<string, SpriteEmotion>>(new Map());
+  const [recentSpeakerIds, setRecentSpeakerIds] = useState<readonly string[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -189,6 +225,8 @@ function Play() {
   // times per page load. It is idempotent in the reducer, but three requests is still three requests.
   const openedWorld = useRef<string | null>(null);
   useEffect(() => {
+    setSpeakerEmotion(new Map());
+    setRecentSpeakerIds([]);
     if (openedWorld.current === worldId) return;
     openedWorld.current = worldId;
     inFlightRef.current = false;
@@ -247,6 +285,18 @@ function Play() {
         case "narration":
           setLines((prev) => [...prev, { who: "world", message: frame.message }]);
           setSpeakingId(frame.message.speaker_id);
+          if (frame.message.speaker_id !== null) {
+            setRecentSpeakerIds((prev) => [frame.message.speaker_id as string, ...prev.filter((id) => id !== frame.message.speaker_id)].slice(0, 12));
+            if (frame.message.kind === "speech") {
+              const emotion = readEmotion((frame.message as { emotion?: unknown }).emotion) ?? "neutral";
+              setSpeakerEmotion((prev) => {
+                if (prev.get(frame.message.speaker_id as string) === emotion) return prev;
+                const next = new Map(prev);
+                next.set(frame.message.speaker_id as string, emotion);
+                return next;
+              });
+            }
+          }
           return;
         case "scene":
           setScene({ state: "ok", data: frame.scene as Scene, source: "live" });
@@ -363,8 +413,11 @@ function Play() {
         id: p.id,
         label: p.label,
         face: p.image ? imageUrl(p.image, "thumbnail") : undefined,
+        sprites: spriteUrls(p),
+        spriteEmotion: speakerEmotion.get(p.id) ?? "neutral",
       }))}
       speakingId={speakingId}
+      recentSpeakerIds={recentSpeakerIds}
       lines={stageLines}
       emptyTranscript="Say what you do."
       expanded={expanded}

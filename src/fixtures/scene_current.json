@@ -1,93 +1,97 @@
 {
- "schema_version": "scene_current/3",
- "place": {
-  "id": "210c0000-0000-0000-0000-0000000000d1",
-  "label": "The Drowned Lantern",
-  "description": "Low beams, salt-rot, one hearth, a bar with a hatch, a back door to the alley.",
-  "tone": "tense",
-  "image": {
-   "schema_version": "image_ref/1",
-   "asset_id": "asset_3f8fc8f25aae18c6",
-   "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_3f8fc8f25aae18c6"
-  }
- },
- "participants": [
-  {
-   "id": "2ac70000-0000-0000-0000-0000000000a3",
-   "label": "Jonas",
-   "kind": "actor",
-   "image": {
-    "schema_version": "image_ref/1",
-    "asset_id": "asset_c43f72391594e5c8",
-    "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_c43f72391594e5c8"
-   }
+  "schema_version": "scene_current/4",
+  "place": {
+    "id": "210c0000-0000-0000-0000-0000000000d1",
+    "label": "The Drowned Lantern",
+    "description": "Low beams, salt-rot, one hearth, a bar with a hatch, a back door to the alley.",
+    "tone": "tense",
+    "image": {
+      "schema_version": "image_ref/1",
+      "asset_id": "asset_3f8fc8f25aae18c6",
+      "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_3f8fc8f25aae18c6"
+    }
   },
-  {
-   "id": "2ac70000-0000-0000-0000-0000000000a2",
-   "label": "Mara",
-   "kind": "actor",
-   "image": {
-    "schema_version": "image_ref/1",
-    "asset_id": "asset_d8985dd584f5ae7f",
-    "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_d8985dd584f5ae7f"
-   }
+  "participants": [
+    {
+      "id": "2ac70000-0000-0000-0000-0000000000a3",
+      "label": "Jonas",
+      "kind": "actor",
+      "image": {
+        "schema_version": "image_ref/1",
+        "asset_id": "asset_c43f72391594e5c8",
+        "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_c43f72391594e5c8"
+      },
+      "sprites": null
+    },
+    {
+      "id": "2ac70000-0000-0000-0000-0000000000a2",
+      "label": "Mara",
+      "kind": "actor",
+      "image": {
+        "schema_version": "image_ref/1",
+        "asset_id": "asset_d8985dd584f5ae7f",
+        "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_d8985dd584f5ae7f"
+      },
+      "sprites": null
+    },
+    {
+      "id": "2ac70000-0000-0000-0000-0000000000aa",
+      "label": "a hooded figure",
+      "kind": "actor",
+      "image": {
+        "schema_version": "image_ref/1",
+        "asset_id": "asset_31cc2b8360b9e373",
+        "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_31cc2b8360b9e373"
+      },
+      "sprites": null
+    },
+    {
+      "id": "2ac70000-0000-0000-0000-0000000000a4",
+      "label": "a hooded figure",
+      "kind": "actor",
+      "image": {
+        "schema_version": "image_ref/1",
+        "asset_id": "asset_872b3b2b2b492e3a",
+        "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_872b3b2b2b492e3a"
+      },
+      "sprites": null
+    }
+  ],
+  "now": {
+    "tick": 12415,
+    "display_label": "Arrival"
   },
-  {
-   "id": "2ac70000-0000-0000-0000-0000000000aa",
-   "label": "a hooded figure",
-   "kind": "actor",
-   "image": {
-    "schema_version": "image_ref/1",
-    "asset_id": "asset_31cc2b8360b9e373",
-    "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_31cc2b8360b9e373"
-   }
+  "journey": {
+    "active": true,
+    "kind": "watch",
+    "goal_label": null,
+    "where_label": null,
+    "progress": 0.1428587962962963,
+    "legs_done": 1,
+    "legs_total": 7,
+    "interruptible": true,
+    "status": "active"
   },
-  {
-   "id": "2ac70000-0000-0000-0000-0000000000a4",
-   "label": "a hooded figure",
-   "kind": "actor",
-   "image": {
-    "schema_version": "image_ref/1",
-    "asset_id": "asset_872b3b2b2b492e3a",
-    "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_872b3b2b2b492e3a"
-   }
-  }
- ],
- "now": {
-  "tick": 12415,
-  "display_label": "Arrival"
- },
- "journey": {
-  "active": true,
-  "kind": "watch",
-  "goal_label": null,
-  "where_label": null,
-  "progress": 0.1428587962962963,
-  "legs_done": 1,
-  "legs_total": 7,
-  "interruptible": true,
-  "status": "active"
- },
- "current": [
-  "I look to Mara: 'Do me the courtesy of a name for the man in my way, so I know who I am apologising to.'",
-  "Jonas answers the stranger directly, flat and final",
-  "Mara warns Jonas off in a low, dry voice",
-  "The a hooded figure's eyes linger on the stranger for a beat longer than necessary before she turns her attention to her cup.",
-  "Mara warns Jonas off in a low, dry voice.",
-  "Jonas answers the stranger, voice low and flat",
-  "Kade takes one slow step back, widening the gap between himself and the bar.",
-  "I lower my hands. 'Fine. No trouble from me tonight.'",
-  "On arriving, I noticed someone already here.",
-  "Jonas growls a low warning to the stranger moving back toward the bar",
-  "then back to the bar",
-  "On arriving, I noticed someone already here.",
-  "On arriving, I noticed someone already here.",
-  "On arriving, I noticed someone already here.",
-  "Hey Mara!",
-  "I talk to Mara",
-  "I say to Mara: 'Then tell me plainly what he wants.'",
-  "Mara answers the boy plainly, her tone dry but not unkind",
-  "Mara breaks the silence with a dry remark",
-  "Jonas addresses the stranger, voice low and flat"
- ]
+  "current": [
+    "I look to Mara: 'Do me the courtesy of a name for the man in my way, so I know who I am apologising to.'",
+    "Jonas answers the stranger directly, flat and final",
+    "Mara warns Jonas off in a low, dry voice",
+    "The a hooded figure's eyes linger on the stranger for a beat longer than necessary before she turns her attention to her cup.",
+    "Mara warns Jonas off in a low, dry voice.",
+    "Jonas answers the stranger, voice low and flat",
+    "Kade takes one slow step back, widening the gap between himself and the bar.",
+    "I lower my hands. 'Fine. No trouble from me tonight.'",
+    "On arriving, I noticed someone already here.",
+    "Jonas growls a low warning to the stranger moving back toward the bar",
+    "then back to the bar",
+    "On arriving, I noticed someone already here.",
+    "On arriving, I noticed someone already here.",
+    "On arriving, I noticed someone already here.",
+    "Hey Mara!",
+    "I talk to Mara",
+    "I say to Mara: 'Then tell me plainly what he wants.'",
+    "Mara answers the boy plainly, her tone dry but not unkind",
+    "Mara breaks the silence with a dry remark",
+    "Jonas addresses the stranger, voice low and flat"
+  ]
 }

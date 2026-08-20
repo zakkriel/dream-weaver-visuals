@@ -1,129 +1,133 @@
 [
- {
-  "chain": [
-   {
-    "type": "QUERY",
-    "stated": "I take in the room and wait for whoever speaks first.",
-    "query_target_ids": [
-     "210c0000-0000-0000-0000-0000000000d1"
-    ]
-   }
-  ],
-  "kind": "interpretation",
-  "schema_version": "beat_frame/4"
- },
- {
-  "kind": "narration",
-  "message": {
-   "speaker_id": null,
-   "speaker_label": "",
-   "kind": "narration",
-   "text": "The low beams of The Drowned Lantern hold the hush after speaking. Salt-rot hangs in the air, thick and familiar, and the single hearth pops softly to itself. Across the room, far off beyond the bar, the front door sits shut against the night. The bar with its closed hatch stands between you and Jonas, and he has not moved from that ground. Behind you, the back door to the alley is there, and somewhere underfoot the cellar hatch lies dark in the floorboards. No one fills the silence Jonas left; no one steps forward to break it. The hooded figure near the ballast crate gave you a long look, and now only studies her cup. Mara watches from the bar, her dry warning still hanging in the quiet, and waits.",
-   "quote": null
+  {
+    "chain": [
+      {
+        "type": "QUERY",
+        "stated": "I take in the room and wait for whoever speaks first.",
+        "query_target_ids": [
+          "210c0000-0000-0000-0000-0000000000d1"
+        ]
+      }
+    ],
+    "kind": "interpretation",
+    "schema_version": "beat_frame/5"
   },
-  "schema_version": "beat_frame/4"
- },
- {
-  "kind": "scene",
-  "scene": {
-   "schema_version": "scene_current/3",
-   "place": {
-    "id": "210c0000-0000-0000-0000-0000000000d1",
-    "label": "The Drowned Lantern",
-    "description": "Low beams, salt-rot, one hearth, a bar with a hatch, a back door to the alley.",
-    "tone": "tense",
-    "image": {
-     "schema_version": "image_ref/1",
-     "asset_id": "asset_3f8fc8f25aae18c6",
-     "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_3f8fc8f25aae18c6"
-    }
-   },
-   "participants": [
-    {
-     "id": "2ac70000-0000-0000-0000-0000000000a3",
-     "label": "Jonas",
-     "kind": "actor",
-     "image": {
-      "schema_version": "image_ref/1",
-      "asset_id": "asset_c43f72391594e5c8",
-      "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_c43f72391594e5c8"
-     }
+  {
+    "kind": "narration",
+    "message": {
+      "speaker_id": null,
+      "speaker_label": "",
+      "kind": "narration",
+      "text": "The low beams of The Drowned Lantern hold the hush after speaking. Salt-rot hangs in the air, thick and familiar, and the single hearth pops softly to itself. Across the room, far off beyond the bar, the front door sits shut against the night. The bar with its closed hatch stands between you and Jonas, and he has not moved from that ground. Behind you, the back door to the alley is there, and somewhere underfoot the cellar hatch lies dark in the floorboards. No one fills the silence Jonas left; no one steps forward to break it. The hooded figure near the ballast crate gave you a long look, and now only studies her cup. Mara watches from the bar, her dry warning still hanging in the quiet, and waits.",
+      "quote": null
     },
-    {
-     "id": "2ac70000-0000-0000-0000-0000000000a2",
-     "label": "Mara",
-     "kind": "actor",
-     "image": {
-      "schema_version": "image_ref/1",
-      "asset_id": "asset_d8985dd584f5ae7f",
-      "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_d8985dd584f5ae7f"
-     }
-    },
-    {
-     "id": "2ac70000-0000-0000-0000-0000000000aa",
-     "label": "a hooded figure",
-     "kind": "actor",
-     "image": {
-      "schema_version": "image_ref/1",
-      "asset_id": "asset_31cc2b8360b9e373",
-      "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_31cc2b8360b9e373"
-     }
-    },
-    {
-     "id": "2ac70000-0000-0000-0000-0000000000a4",
-     "label": "a hooded figure",
-     "kind": "actor",
-     "image": {
-      "schema_version": "image_ref/1",
-      "asset_id": "asset_872b3b2b2b492e3a",
-      "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_872b3b2b2b492e3a"
-     }
-    }
-   ],
-   "now": {
-    "tick": 12415,
-    "display_label": "Arrival"
-   },
-   "journey": null,
-   "current": [
-    "I look to Mara: 'Do me the courtesy of a name for the man in my way, so I know who I am apologising to.'",
-    "Jonas answers the stranger directly, flat and final",
-    "Mara warns Jonas off in a low, dry voice",
-    "The a hooded figure's eyes linger on the stranger for a beat longer than necessary before she turns her attention to her cup.",
-    "Mara warns Jonas off in a low, dry voice.",
-    "Jonas answers the stranger, voice low and flat",
-    "Kade takes one slow step back, widening the gap between himself and the bar.",
-    "I lower my hands. 'Fine. No trouble from me tonight.'",
-    "On arriving, I noticed someone already here.",
-    "Jonas growls a low warning to the stranger moving back toward the bar",
-    "then back to the bar",
-    "On arriving, I noticed someone already here.",
-    "On arriving, I noticed someone already here.",
-    "On arriving, I noticed someone already here.",
-    "Hey Mara!",
-    "I talk to Mara",
-    "I say to Mara: 'Then tell me plainly what he wants.'",
-    "Mara answers the boy plainly, her tone dry but not unkind",
-    "Mara breaks the silence with a dry remark",
-    "Jonas addresses the stranger, voice low and flat"
-   ]
+    "schema_version": "beat_frame/5"
   },
-  "schema_version": "beat_frame/4"
- },
- {
-  "journey": null,
-  "kind": "journey",
-  "schema_version": "beat_frame/4"
- },
- {
-  "kind": "result",
-  "result": {
-   "committed": [],
-   "halt_reason": "completed",
-   "ticks_advanced": 2,
-   "unresolved_candidates": [],
-   "telegraphs": []
+  {
+    "kind": "scene",
+    "scene": {
+      "schema_version": "scene_current/4",
+      "place": {
+        "id": "210c0000-0000-0000-0000-0000000000d1",
+        "label": "The Drowned Lantern",
+        "description": "Low beams, salt-rot, one hearth, a bar with a hatch, a back door to the alley.",
+        "tone": "tense",
+        "image": {
+          "schema_version": "image_ref/1",
+          "asset_id": "asset_3f8fc8f25aae18c6",
+          "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_3f8fc8f25aae18c6"
+        }
+      },
+      "participants": [
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000a3",
+          "label": "Jonas",
+          "kind": "actor",
+          "image": {
+            "schema_version": "image_ref/1",
+            "asset_id": "asset_c43f72391594e5c8",
+            "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_c43f72391594e5c8"
+          },
+          "sprites": null
+        },
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000a2",
+          "label": "Mara",
+          "kind": "actor",
+          "image": {
+            "schema_version": "image_ref/1",
+            "asset_id": "asset_d8985dd584f5ae7f",
+            "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_d8985dd584f5ae7f"
+          },
+          "sprites": null
+        },
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000aa",
+          "label": "a hooded figure",
+          "kind": "actor",
+          "image": {
+            "schema_version": "image_ref/1",
+            "asset_id": "asset_31cc2b8360b9e373",
+            "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_31cc2b8360b9e373"
+          },
+          "sprites": null
+        },
+        {
+          "id": "2ac70000-0000-0000-0000-0000000000a4",
+          "label": "a hooded figure",
+          "kind": "actor",
+          "image": {
+            "schema_version": "image_ref/1",
+            "asset_id": "asset_872b3b2b2b492e3a",
+            "path": "/worlds/22222222-2222-2222-2222-222222222222/images/asset_872b3b2b2b492e3a"
+          },
+          "sprites": null
+        }
+      ],
+      "now": {
+        "tick": 12415,
+        "display_label": "Arrival"
+      },
+      "journey": null,
+      "current": [
+        "I look to Mara: 'Do me the courtesy of a name for the man in my way, so I know who I am apologising to.'",
+        "Jonas answers the stranger directly, flat and final",
+        "Mara warns Jonas off in a low, dry voice",
+        "The a hooded figure's eyes linger on the stranger for a beat longer than necessary before she turns her attention to her cup.",
+        "Mara warns Jonas off in a low, dry voice.",
+        "Jonas answers the stranger, voice low and flat",
+        "Kade takes one slow step back, widening the gap between himself and the bar.",
+        "I lower my hands. 'Fine. No trouble from me tonight.'",
+        "On arriving, I noticed someone already here.",
+        "Jonas growls a low warning to the stranger moving back toward the bar",
+        "then back to the bar",
+        "On arriving, I noticed someone already here.",
+        "On arriving, I noticed someone already here.",
+        "On arriving, I noticed someone already here.",
+        "Hey Mara!",
+        "I talk to Mara",
+        "I say to Mara: 'Then tell me plainly what he wants.'",
+        "Mara answers the boy plainly, her tone dry but not unkind",
+        "Mara breaks the silence with a dry remark",
+        "Jonas addresses the stranger, voice low and flat"
+      ]
+    },
+    "schema_version": "beat_frame/5"
   },
-  "schema_version": "beat_frame/4"
- }
+  {
+    "journey": null,
+    "kind": "journey",
+    "schema_version": "beat_frame/5"
+  },
+  {
+    "kind": "result",
+    "result": {
+      "committed": [],
+      "halt_reason": "completed",
+      "ticks_advanced": 2,
+      "unresolved_candidates": [],
+      "telegraphs": []
+    },
+    "schema_version": "beat_frame/5"
+  }
 ]

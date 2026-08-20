@@ -5,7 +5,7 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type BeatFrame4OneSSEFrameOfPOSTWorldsWBeatsDesign48SupersedesBeatFrame3ANarrationMessageNowCarriesQuoteTheVerbatimSpokenWordsAsAFieldSeparateFromTheStagingProseInText =
+export type BeatFrame5OneSSEFrameOfPOSTWorldsWBeatsSupersedesBeatFrame4WithNarrationEmotionAndEmbeddedSceneCurrent4Sprites =
   InterpretationFrame | NarrationFrame | SceneFrame | JourneyFrame | ResultFrame | ErrorFrame | TraceFrame;
 export type Attempt =
   | {
@@ -170,12 +170,12 @@ export type Attempt =
     };
 
 export interface InterpretationFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "interpretation";
   chain: Attempt[];
 }
 export interface NarrationFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "narration";
   message: {
     speaker_id: string | null;
@@ -189,18 +189,22 @@ export interface NarrationFrame {
      * The verbatim spoken words, without quotation marks or attribution. Non-empty exactly when kind is speech; null otherwise. Render it as speech; render `text` as prose.
      */
     quote: string | null;
+    /**
+     * Optional per-line speaker emotion for sprite selection. Null/absent means neutral.
+     */
+    emotion?: "neutral" | "happy" | "angry" | "sad" | null;
   };
 }
 export interface SceneFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "scene";
-  scene: SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent;
+  scene: SceneCurrent4WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent;
 }
 /**
  * EMBEDDED COPY of the published scene_current/3 payload — the scene frame carries the identical object GET /worlds/{w}/scene/current returns. It is duplicated rather than $ref'd because ci/schema_contract.py loads each schema file independently and has no cross-file resolver. THE COUPLING IS REAL AND HAS BITTEN: bumping scene_current invalidates this branch and therefore forces a beat_frame bump too, which is how /3 happened. Keep them in lockstep, or give the checker a resolver and $ref this instead.
  */
-export interface SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent {
-  schema_version: "scene_current/3";
+export interface SceneCurrent4WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSceneCurrent {
+  schema_version: "scene_current/4";
   place: {
     id: string;
     label: string;
@@ -227,6 +231,31 @@ export interface SceneCurrent2WhereYouAreWhoIsPresentWhatMattersNowGETWorldsWSce
       asset_id: string;
       path: string;
     };
+    /**
+     * Sprite set for the participant. Null until all four emotion variants exist; non-null only when every variant is filled.
+     */
+    sprites: null | {
+      neutral: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+      happy: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+      angry: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+      sad: {
+        schema_version: "image_ref/1";
+        asset_id: string;
+        path: string;
+      };
+    };
   }[];
   now: {
     tick: number;
@@ -247,12 +276,12 @@ export interface JourneyBlock {
   status: "active" | "arrived" | "ended";
 }
 export interface JourneyFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "journey";
   journey: null | JourneyBlock;
 }
 export interface ResultFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "result";
   result: {
     committed: string[];
@@ -266,12 +295,12 @@ export interface ResultFrame {
   };
 }
 export interface ErrorFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "error";
   message: string;
 }
 export interface TraceFrame {
-  schema_version: "beat_frame/4";
+  schema_version: "beat_frame/5";
   kind: "trace";
   reasoning_log: BeatTrace;
 }

@@ -8,8 +8,8 @@
 /**
  * GET /worlds/{w}/transcript. Viewer-scoped. Unlike every other read surface this is a RECORD, not a projection: the prose a model wrote once cannot be recomputed from world state. Entries are returned exactly as they were delivered and are NEVER retro-labelled — an entry written before the viewer learned a name still says 'the muscle by the bar' after he learns 'Jonas', because a memory of an experience is itself a perception. History begins when the feature shipped; beats played before it are not stored and are not fabricated.
  */
-export interface Transcript1TheViewerSLivedStoryDeliveredNarrationNewestFirstCursorPaginated {
-  schema_version: "transcript/1";
+export interface Transcript2TheViewerSLivedStoryDeliveredNarrationNewestFirstCursorPaginated {
+  schema_version: "transcript/2";
   world_id: string;
   viewer_id: string;
   /**
@@ -36,7 +36,7 @@ export interface Transcript1TheViewerSLivedStoryDeliveredNarrationNewestFirstCur
       [k: string]: unknown;
     } | null;
     /**
-     * The delivered narration, in order — the SAME message shape a live beat_frame/4 narration frame carries, so history and live prose render through one path.
+     * The delivered narration, in order — the SAME message shape a live beat_frame/5 narration frame carries, so history and live prose render through one path.
      */
     segments: {
       speaker_id: string | null;
@@ -53,6 +53,10 @@ export interface Transcript1TheViewerSLivedStoryDeliveredNarrationNewestFirstCur
        * The verbatim spoken words. Non-empty exactly when kind is speech; null otherwise.
        */
       quote: string | null;
+      /**
+       * Optional per-line speaker emotion for sprite selection. Null/absent means neutral.
+       */
+      emotion?: "neutral" | "happy" | "angry" | "sad" | null;
     }[];
   }[];
   /**
