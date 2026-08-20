@@ -543,44 +543,49 @@
 
 .dc-dialogue-card { flex: 0 0 190px; width: 100%; height: 190px; min-height: 190px; margin: 0; padding: 18px 20px 16px; }
 .dc-transcript { min-height: 58px; max-height: 76px; overflow-y: auto; padding: 0 2px 2px; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--dc-accent) 45%, transparent) transparent; }
-.dc-empty-line, .dc-note-line { color: rgba(225, 213, 188, .9); font-family: var(--dc-font-body); font-size: 1rem; font-style: italic; line-height: 1.35; overflow-wrap: anywhere; }
-.dc-speaking-line { display: flex; align-items: flex-start; gap: 16px; }
+/* One reading column, one type scale. Every row — spoken, played, prose — shares the same left text
+   edge and the same measure; the difference between them is voice (color, slant, rail), never
+   geometry. --dc-line-gutter is the portrait column so a row without a face still starts where a
+   row with one does, and text never slides sideways between beats. */
+:root { --dc-line-gutter: 66px; }
+
+.dc-empty-line, .dc-note-line { color: color-mix(in srgb, var(--dc-text) 74%, transparent); font-family: var(--dc-font-body); font-size: 1.05rem; font-style: italic; font-weight: 400; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.5); overflow-wrap: anywhere; }
+.dc-speaking-line { display: flex; align-items: flex-start; gap: 14px; }
 .dc-dialogue-face { width: 52px; height: 52px; }
-.dc-line-label { margin-bottom: 3px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .86rem; font-weight: 500; letter-spacing: 0; text-transform: none; text-shadow: 0 0 14px rgba(255,190,88,.35); }
-.dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.25rem; font-weight: 500; line-height: 1.3; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+.dc-line-label { margin-bottom: 2px; color: var(--dc-accent-strong); font-family: var(--dc-font-body); font-size: .8rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; text-shadow: 0 0 14px rgba(255,190,88,.3); }
+.dc-speech-body { color: var(--dc-text); font-family: var(--dc-font-body); font-size: 1.15rem; font-weight: 400; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
 
 /* Staging, not speech. Roleplay has always drawn an action as italic prose beside the name and
    never in quotation marks — quotes around a movement claim the character said it. Same family and
-   voice as speech; only the slant and the quiet tell them apart.
-
-   The size is INHERITED on purpose. Sizing speech is Lovable's call and it has already changed once
-   (1.5rem -> 1.05rem); a hardcoded action size silently became the LARGER of the two the moment it
-   did. Inheriting keeps staging a step under speech through any resize.
+   voice as speech; only the slant and the quiet tell them apart. It shares one prose size with
+   narration and notes so nothing in the card looks accidentally shrunken.
    BEHAVIOURAL MINIMUM — the treatment is Lovable's, see AGENTS.md. */
-.dc-action-body { color: color-mix(in srgb, var(--dc-text) 82%, transparent); font-family: var(--dc-font-body); font-size: .93rem; font-style: italic; font-weight: 400; line-height: 1.35; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
+.dc-action-body { color: color-mix(in srgb, var(--dc-text) 74%, transparent); font-family: var(--dc-font-body); font-size: 1.05rem; font-style: italic; font-weight: 400; line-height: 1.45; text-shadow: 0 2px 8px rgba(0,0,0,.5); overflow-wrap: anywhere; }
 
-/* Manuscript rows. Attributed turns remain part of one continuous reading surface; a slim rail and
-   low-contrast wash make the speaker changes scannable without turning the record into a chat UI.
-   Narration stays borderless italic because it is prose, not a voice. */
-.dc-line { margin-bottom: 10px; }
+/* Manuscript rows. Attributed turns remain part of one continuous reading surface; a slim rail
+   makes speaker changes scannable without turning the record into a chat UI. Narration is
+   borderless italic because it is prose, not a voice. */
+.dc-line { margin-bottom: 12px; }
 .dc-line:last-child { margin-bottom: 0; }
-.dc-manuscript-row { position: relative; min-width: 0; flex: 1; border-left: 2px solid transparent; padding: 7px 16px 9px; overflow-wrap: anywhere; transition: border-color var(--dc-dur) var(--dc-ease), background var(--dc-dur) var(--dc-ease); }
+.dc-manuscript-row { position: relative; min-width: 0; max-width: 68ch; flex: 1; border-left: 2px solid transparent; padding: 4px 0 4px 16px; overflow-wrap: anywhere; transition: border-color var(--dc-dur) var(--dc-ease), background var(--dc-dur) var(--dc-ease); }
 .dc-manuscript-row-world {
-  border-left-color: color-mix(in srgb, var(--dc-accent-strong) 48%, transparent);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--dc-accent) 8%, transparent), transparent 78%);
+  border-left-color: color-mix(in srgb, var(--dc-accent-strong) 55%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--dc-accent) 7%, transparent), transparent 46%);
 }
-.dc-manuscript-row-world:hover { border-left-color: color-mix(in srgb, var(--dc-accent-strong) 78%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--dc-accent) 11%, transparent), transparent 82%); }
+.dc-manuscript-row-world:hover { border-left-color: color-mix(in srgb, var(--dc-accent-strong) 85%, transparent); }
 .dc-line-you { display: block; }
 .dc-manuscript-row-you {
-  width: 100%;
-  border-left-color: color-mix(in srgb, var(--dc-text-muted) 36%, transparent);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--dc-text) 4%, transparent), transparent 72%);
+  margin-left: var(--dc-line-gutter);
+  border-left-color: color-mix(in srgb, var(--dc-text-muted) 42%, transparent);
+  background: none;
 }
-.dc-manuscript-row-you:hover { border-left-color: color-mix(in srgb, var(--dc-text-muted) 62%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--dc-text) 6%, transparent), transparent 78%); }
-.dc-manuscript-row-you .dc-line-label { color: color-mix(in srgb, var(--dc-text-muted) 88%, transparent); text-shadow: none; }
-.dc-line-narration, .dc-line-note { display: flex; justify-content: center; padding: 2px 8%; }
-.dc-line-narration .dc-note-line, .dc-line-note .dc-note-line { max-width: 54ch; text-align: center; }
-.dc-speaking-line { gap: 14px; }
+.dc-manuscript-row-you:hover { border-left-color: color-mix(in srgb, var(--dc-text-muted) 70%, transparent); }
+.dc-manuscript-row-you .dc-line-label { color: color-mix(in srgb, var(--dc-text-muted) 92%, transparent); text-shadow: none; }
+/* Prose sits in the same column as a voice: same gutter, same rail indent, no rail drawn. */
+.dc-line-narration, .dc-line-note { display: block; margin-top: 16px; margin-bottom: 16px; padding: 0; }
+.dc-line-narration .dc-note-line, .dc-line-note .dc-note-line { max-width: 68ch; margin-left: calc(var(--dc-line-gutter) + 18px); text-align: left; }
+.dc-line-narration .dc-note-line + .dc-note-line, .dc-line-note .dc-note-line + .dc-note-line { margin-top: 8px; }
+
 
 /* The record. Growing the card is the only way an expand affordance can mean anything, so this is
    the smallest height that makes the mode exist — a viewport-relative cap, capped again in pixels so
