@@ -543,6 +543,24 @@
    BEHAVIOURAL MINIMUM — the treatment is Lovable's, see AGENTS.md. */
 .dc-action-body { color: color-mix(in srgb, var(--dc-text) 82%, transparent); font-family: var(--dc-font-body); font-size: .93rem; font-style: italic; font-weight: 400; line-height: 1.35; text-shadow: 0 2px 8px rgba(0,0,0,.55); overflow-wrap: anywhere; }
 
+/* Speech bubbles. Each attributed block sits in its own rounded glass bubble so the reader can tell
+   at a glance who is talking: the player's lines float on the right with a cooler accent, the
+   world's speakers sit on the left with a gold accent and a tail pointing at their portrait.
+   Narration/notes stay borderless italic — they are not speech and must not read as a voice.
+   The text inside is the verbatim payload; the bubble is chrome only. */
+.dc-line { margin-bottom: 12px; }
+.dc-line:last-child { margin-bottom: 0; }
+.dc-bubble { position: relative; border: 1px solid var(--dc-border); border-radius: 14px; padding: 9px 14px 11px; background: color-mix(in srgb, var(--dc-bg) 55%, transparent); box-shadow: 0 2px 10px rgba(0,0,0,.32); overflow-wrap: anywhere; }
+/* Character: gold-tinted glass, a left accent stripe, and a tail reaching toward the portrait. */
+.dc-bubble-world { border-color: color-mix(in srgb, var(--dc-accent) 38%, transparent); border-left: 2px solid color-mix(in srgb, var(--dc-accent) 72%, transparent); background: color-mix(in srgb, var(--dc-accent) 7%, var(--dc-bg) 58%); }
+.dc-bubble-world::before { content: ""; position: absolute; left: -8px; top: 16px; width: 0; height: 0; border: 7px solid transparent; border-right-color: color-mix(in srgb, var(--dc-accent) 72%, transparent); filter: drop-shadow(0 1px 2px rgba(0,0,0,.4)); }
+/* Player: right-aligned, a quieter steel tint and a right-pointing tail — the classic chat read that
+   separates "you" from the world without a second portrait. */
+.dc-line-you { display: flex; justify-content: flex-end; }
+.dc-bubble-you { max-width: 82%; border-color: color-mix(in srgb, var(--dc-text) 20%, transparent); border-right: 2px solid color-mix(in srgb, var(--dc-accent) 55%, transparent); background: color-mix(in srgb, var(--dc-text) 6%, var(--dc-bg) 62%); }
+.dc-bubble-you::before { content: ""; position: absolute; right: -8px; top: 16px; width: 0; height: 0; border: 7px solid transparent; border-left-color: color-mix(in srgb, var(--dc-accent) 55%, transparent); filter: drop-shadow(0 1px 2px rgba(0,0,0,.4)); }
+.dc-speaking-line { gap: 12px; }
+
 /* The record. Growing the card is the only way an expand affordance can mean anything, so this is
    the smallest height that makes the mode exist — a viewport-relative cap, capped again in pixels so
    it never outgrows the dock on a tall screen. BEHAVIOURAL MINIMUM — sizing is Lovable's. */
