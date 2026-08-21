@@ -52,10 +52,22 @@ export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
         className="absolute inset-0 opacity-45 mix-blend-soft-light [background-image:radial-gradient(120%_80%_at_50%_100%,rgb(var(--dc-world-accent-rgb,201_162_39)/0.55),transparent_70%)]"
       />
 
-      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 left-2 border-t border-l rounded-tl-[6px]" />
-      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 right-2 border-t border-r rounded-tr-[6px]" />
-      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 left-2 border-b border-l rounded-bl-[6px]" />
-      <span aria-hidden className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 right-2 border-b border-r rounded-br-[6px]" />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 left-2 border-t border-l rounded-tl-[6px]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] top-2 right-2 border-t border-r rounded-tr-[6px]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 left-2 border-b border-l rounded-bl-[6px]"
+      />
+      <span
+        aria-hidden
+        className="pointer-events-none absolute size-[22px] opacity-80 border-[color:color-mix(in_srgb,var(--dc-world-accent,var(--dc-accent))_70%,transparent)] bottom-2 right-2 border-b border-r rounded-br-[6px]"
+      />
 
       <div className="relative p-6 pt-10">
         <span
@@ -83,12 +95,13 @@ export function WorldCard({ world }: { world: WorldDirectoryEntry }) {
               Enter
             </Link>
           ) : (
-            <span
-              aria-disabled="true"
-              className="cursor-not-allowed rounded-dc-sm border border-dc-border px-5 py-2.5 font-ui text-sm font-medium tracking-wide text-dc-text-muted opacity-70"
+            <Link
+              to="/create"
+              search={{ world: world.id }}
+              className="dc-focus dc-enter rounded-dc-sm px-5 py-2.5 font-ui text-sm font-medium tracking-wide transition-transform duration-150 hover:-translate-y-px"
             >
-              Enter
-            </span>
+              Finish making it
+            </Link>
           )}
 
           <Link

@@ -5,9 +5,9 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type WorldKickstartTurn1TheResponseToPOSTWorldsGenesisKickstartSameGrammarAsTheInterviewTurnDoneFalseCarriesTheNextQuestionDoneTrueCarriesTheWorldBuiltAndPlayableTheFreeTextAnswerIsAPropertyOfTheSurfaceAndIsDeliberatelyNotEnumeratedHere =
+export type WorldKickstartTurn2TheResponseToPOSTWorldsGenesisKickstartSameGrammarAsTheInterviewTurnDoneFalseCarriesTheNextQuestionDoneTrueCarriesTheWorldBuiltAndPlayableTheRequestIsWorldIdAnswerAnEmptyAnswerReServesThePendingQuestionWhichIsHowAnUnfinishedCreationResumesAfterAnyInterruptionTheFreeTextAnswerIsAPropertyOfTheSurfaceAndIsDeliberatelyNotEnumeratedHere =
   {
-    schema_version: "world_kickstart_turn/1";
+    schema_version: "world_kickstart_turn/2";
     done: boolean;
     question?: string;
     why?: string;

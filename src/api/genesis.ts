@@ -1,8 +1,8 @@
 import { apiBase, apiFetch, SchemaMismatchError } from "./index";
 import type { ArtStyles1GETWorldsArtStylesSelectableWorldArtStylesInDisplayOrder as ArtStylesT } from "./types/art_styles";
-import type { WorldGenesisFrame2ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamTheStreamNowEndsInAChoiceNotAWorldTheWorldItselfArrivesLaterOnTheKickstartTurnSDoneTrueBecauseCommitNoLongerHappensInsideTheStreamRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 as GenesisFrameT } from "./types/world_genesis_frame";
+import type { WorldGenesisFrame3ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamItNowCarriesTheREALWorldIdBecauseTheWorldCommitsWhenAuthoringEndsDurableWorlds20260821TheWorldAlreadyExistsListedAsNotYetEnterableAndOnlyThePlayerAndTheArrivalWaitForTheKickstartAnswersRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceEitherMayCarryWorldIdWhenTheWorldHadAlreadyCommittedBeforeTheFailureThatWorldIsResumableNotLostThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListLaw2NeverInventADisplayedValue as GenesisFrameT } from "./types/world_genesis_frame";
 import type { WorldInterviewTurn1TheResponseToPOSTWorldsInterviewONEQuestionAboutABriefOrNothingLeftToAskTheExchangeIsSTATELESSTheClientSendsTheBriefAndEveryPriorAnswerAndReceivesOneTurnSoThereIsNoSessionNoStoredInterviewAndNothingToResumeDoneTrueArrivesWithNoQuestionAndIsAGoodAnswerNotAFailureABriefThatLeavesNothingUndeterminedShouldBeAskedNothingAndTheSurfaceAlwaysLetsTheUserBuildImmediatelyRegardless as InterviewTurnT } from "./types/world_interview_turn";
-import type { WorldKickstartTurn1TheResponseToPOSTWorldsGenesisKickstartSameGrammarAsTheInterviewTurnDoneFalseCarriesTheNextQuestionDoneTrueCarriesTheWorldBuiltAndPlayableTheFreeTextAnswerIsAPropertyOfTheSurfaceAndIsDeliberatelyNotEnumeratedHere as KickstartTurnT } from "./types/world_kickstart_turn";
+import type { WorldKickstartTurn2TheResponseToPOSTWorldsGenesisKickstartSameGrammarAsTheInterviewTurnDoneFalseCarriesTheNextQuestionDoneTrueCarriesTheWorldBuiltAndPlayableTheRequestIsWorldIdAnswerAnEmptyAnswerReServesThePendingQuestionWhichIsHowAnUnfinishedCreationResumesAfterAnyInterruptionTheFreeTextAnswerIsAPropertyOfTheSurfaceAndIsDeliberatelyNotEnumeratedHere as KickstartTurnT } from "./types/world_kickstart_turn";
 
 /**
  * World creation, client side (backend PRD: `prd_world_creation.md`).
@@ -34,9 +34,7 @@ export type InterviewAnswer = { question: string; answer: string };
  * `none` means "use the house look" and intentionally serializes to no `art_style` field at all.
  */
 export type ArtStyleChoice =
-  | { kind: "none" }
-  | { kind: "preset"; key: string }
-  | { kind: "custom"; text: string };
+  { kind: "none" } | { kind: "preset"; key: string } | { kind: "custom"; text: string };
 
 /**
  * Pins for the creation payloads, by exact string equality like every other contract here. When one
@@ -45,8 +43,8 @@ export type ArtStyleChoice =
 const PIN = {
   artStyles: "art_styles/1",
   interview: "world_interview_turn/1",
-  kickstart: "world_kickstart_turn/1",
-  genesisFrame: "world_genesis_frame/2",
+  kickstart: "world_kickstart_turn/2",
+  genesisFrame: "world_genesis_frame/3",
 } as const;
 
 /** The maximum brief the server will accept (8 KiB there); mirrored so the surface can say so first. */
@@ -100,25 +98,40 @@ export async function askInterview(
 }
 
 /**
- * An expired or spent kickstart handle (410). Distinguishable from every other failure mode because it
- * is a STATED refusal — the world answering "no, that draft is gone" — not a connection or server
- * failure, so callers route it to the refusal surface rather than the generic error one.
+ * A conflict (409): the world is already finished (it has its player) or was never authored from a
+ * brief. Stated by the server; callers route it away from the retry surface — there is nothing left
+ * to answer here.
  */
-export class ExpiredBuildError extends Error {}
+export class CreationConflictError extends Error {}
+
+/**
+ * A stated kickstart refusal (422): the world answering "not that opening", with its own sentence
+ * for why. The world itself is durable and untouched, so this is retryable forever — callers should
+ * restore the question, never send the user back to the brief.
+ */
+export class KickstartRefusedError extends Error {}
 
 /**
  * One kickstart answer in, the next question or the built world out. `answer` is a chosen option's
- * label or the user's own words — the server cannot tell and must not care.
+ * label or the user's own words — the server cannot tell and must not care. An EMPTY answer is the
+ * resume path: the server re-serves the pending question, which is how an unfinished creation picks
+ * up after a refusal, a closed tab or a server restart (durable-worlds, 2026-08-21).
  */
-export async function answerKickstart(handle: string, answer: string): Promise<KickstartTurn> {
+export async function answerKickstart(worldId: string, answer: string): Promise<KickstartTurn> {
   const res = await apiFetch(`${apiBase()}/worlds/genesis/kickstart`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ handle, answer }),
+    body: JSON.stringify({ world_id: worldId, answer }),
   });
   if (!res.ok) {
-    if (res.status === 410) {
-      throw new ExpiredBuildError("that build has expired — write the brief again and rebuild");
+    if (res.status === 409) {
+      throw new CreationConflictError(await statedReason(res));
+    }
+    if (res.status === 422) {
+      throw new KickstartRefusedError(await statedReason(res));
+    }
+    if (res.status === 404) {
+      throw new Error("that world is not here any more");
     }
     throw new Error(`request failed: ${res.status}`);
   }
@@ -127,6 +140,17 @@ export async function answerKickstart(handle: string, answer: string): Promise<K
     throw new SchemaMismatchError(PIN.kickstart, turn.schema_version);
   }
   return turn as KickstartTurn;
+}
+
+/** The server's own stated reason out of an error body, or a line that at least names the turn. */
+async function statedReason(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as { error?: unknown };
+    if (typeof body.error === "string" && body.error.trim() !== "") return body.error;
+  } catch {
+    // The body was not the JSON error shape — fall through to the generic line.
+  }
+  return "that answer could not open the world";
 }
 
 /**
@@ -143,7 +167,10 @@ export async function buildWorld(
   onFrame: (frame: GenesisFrame) => void,
   artStyle?: string,
 ): Promise<void> {
-  const body: { brief: string; answers: InterviewAnswer[]; art_style?: string } = { brief, answers };
+  const body: { brief: string; answers: InterviewAnswer[]; art_style?: string } = {
+    brief,
+    answers,
+  };
   if (artStyle !== undefined) body.art_style = artStyle;
 
   const res = await apiFetch(`${apiBase()}/worlds/genesis`, {

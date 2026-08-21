@@ -22,8 +22,8 @@ declare -a FILES=(
   narration.v3.schema.json
   image_regenerate.v1.schema.json
   carrying.v1.schema.json
-  world_genesis_frame.v2.schema.json
-  world_kickstart_turn.v1.schema.json
+  world_genesis_frame.v3.schema.json
+  world_kickstart_turn.v2.schema.json
   world_interview_turn.v1.schema.json
   art_styles.v1.schema.json
 )

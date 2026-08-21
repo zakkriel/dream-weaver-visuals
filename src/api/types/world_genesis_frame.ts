@@ -5,18 +5,14 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
-export type WorldGenesisFrame2ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamTheStreamNowEndsInAChoiceNotAWorldTheWorldItselfArrivesLaterOnTheKickstartTurnSDoneTrueBecauseCommitNoLongerHappensInsideTheStreamRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListAClientMustNeverRenderANumberNothingProducedFrontendLaw2 =
+export type WorldGenesisFrame3ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamItNowCarriesTheREALWorldIdBecauseTheWorldCommitsWhenAuthoringEndsDurableWorlds20260821TheWorldAlreadyExistsListedAsNotYetEnterableAndOnlyThePlayerAndTheArrivalWaitForTheKickstartAnswersRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceEitherMayCarryWorldIdWhenTheWorldHadAlreadyCommittedBeforeTheFailureThatWorldIsResumableNotLostThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListLaw2NeverInventADisplayedValue =
   {
-    schema_version: "world_genesis_frame/2";
+    schema_version: "world_genesis_frame/3";
     kind: "working" | "choice" | "refused" | "error";
     /**
      * World-authored text on `working` and `refused`, an honest failure line on `error`. Renders VERBATIM — never rewritten, summarised or title-cased (frontend law 1).
      */
     stated?: string;
-    /**
-     * The draft's opaque handle. POST it to /worlds/genesis/kickstart with each answer. It expires; an expired handle is a stated refusal, and the build is simply made again.
-     */
-    handle?: string;
     question?: string;
     /**
      * @minItems 1
@@ -39,6 +35,10 @@ export type WorldGenesisFrame2ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAu
         recommended?: boolean;
       }[]
     ];
+    /**
+     * The committed world's id. Always present on `choice` — POST it to /worlds/genesis/kickstart with each answer (an empty answer re-serves the pending question: the resume path). Present on `refused`/`error` only when the world had committed before the failure.
+     */
+    world_id?: string;
   } & (
     | {
         kind?: "working" | "refused" | "error";
