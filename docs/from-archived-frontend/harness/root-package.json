@@ -1,0 +1,31 @@
+{
+  "name": "dreamchat-world-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:fake-engine": "node scripts/dev/fake-engine.mjs",
+    "build": "tsc && vite build",
+    "gen:types": "json2ts -i contracts/actor_page.v2.schema.json -o src/types/actor_page.ts && json2ts -i contracts/location_page.v1.schema.json -o src/types/location_page.ts && json2ts -i contracts/artifact_page.v1.schema.json -o src/types/artifact_page.ts && json2ts -i contracts/timeline.v1.schema.json -o src/types/timeline.ts && json2ts -i contracts/compendium_index.v1.schema.json -o src/types/compendium_index.ts && json2ts -i contracts/scene_current.v2.schema.json -o src/types/scene_current.ts && json2ts -i contracts/beat_frame.v2.schema.json -o src/types/beat_frame.ts && json2ts -i contracts/world_directory.v1.schema.json -o src/types/world_directory.ts && json2ts -i contracts/carrying.v1.schema.json -o src/types/carrying.ts",
+    "test": "vitest run",
+    "verify:types": "bash scripts/verify-types.sh",
+    "verify:contract": "bash scripts/verify-contract.sh"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/node": "^20.19.43",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "jsdom": "^24.1.3",
+    "json-schema-to-typescript": "^15.0.0",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.0",
+    "vitest": "^2.1.9"
+  }
+}

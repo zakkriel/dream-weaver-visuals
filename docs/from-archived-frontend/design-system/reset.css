@@ -1,0 +1,28 @@
+/* The only global rules the design system sets, and it sets them because the app shell is full-height:
+   a default `body` margin shifts the whole 100dvh grid down and pushes its bottom slot off-screen. */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  block-size: 100%;
+}
+
+/* A bare `<a>` — the world picker's Play/Look-around, the compendium index lists — must take its
+   colour from the token contract, not from the user agent. This is a token binding, not a link
+   style: there is still no Link primitive, and giving one is a later pass.
+
+   It is here because the house skin turns this from a taste question into a legibility bug. The
+   user agent's default link blue measured 8.6:1 against the base skin's white and 1.83:1 against
+   the house skin's navy panel — a WCAG AA failure for body text, on the product's front door.
+   Every DS component that renders an anchor sets its own colour through a class, so all of them
+   out-rank this element rule and are untouched. */
+a {
+  color: var(--dc-accent-strong);
+}
+
+/* Sizing sanity for every DS component: padding and borders never inflate a declared width. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}

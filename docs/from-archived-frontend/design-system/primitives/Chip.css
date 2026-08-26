@@ -1,0 +1,7 @@
+.dc-chip { display: inline-flex; align-items: center; gap: var(--dc-space-1);
+  padding: var(--dc-space-1) var(--dc-space-3); border-radius: var(--dc-radius-pill);
+  border: 1px solid var(--dc-border); background: var(--dc-surface-raised);
+  color: var(--dc-text); font-family: var(--dc-font-body); font-size: var(--dc-text-xs);
+  text-decoration: none; }
+a.dc-chip:hover { border-color: var(--dc-border-accent); color: var(--dc-accent-strong); }
+.dc-chip__icon { display: inline-grid; place-items: center; color: var(--dc-accent); }

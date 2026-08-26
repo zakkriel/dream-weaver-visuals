@@ -1,0 +1,10 @@
+/* Text field. Raw color literals are banned outside skins/, so every surface value is a token. */
+.dc-field { width: 100%; box-sizing: border-box; resize: vertical;
+  padding: var(--dc-space-3); border: 1px solid var(--dc-border);
+  border-radius: var(--dc-radius-md); background-color: var(--dc-surface);
+  color: var(--dc-text); font-family: var(--dc-font-body); font-size: var(--dc-text-md);
+  line-height: var(--dc-leading-normal);
+  transition: border-color var(--dc-dur) var(--dc-ease), box-shadow var(--dc-dur) var(--dc-ease); }
+.dc-field::placeholder { color: var(--dc-text-muted); }
+.dc-field:focus-visible { outline: none; border-color: var(--dc-border-accent); box-shadow: var(--dc-ring); }
+.dc-field:disabled { opacity: 0.6; cursor: not-allowed; }

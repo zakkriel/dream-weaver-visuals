@@ -1,0 +1,26 @@
+/* DreamChat Design System — single style closure.
+   This file's transitive @import set is the entire DS look (the /design-sync root). */
+@import "./reset.css";
+@import "./skins/fonts/fonts.css";
+@import "./skins/base.css";
+@import "./skins/fantasy.css";
+@import "./skins/moods.css";
+@import "./primitives/Heading.css";
+@import "./primitives/Text.css";
+@import "./primitives/Panel.css";
+@import "./primitives/Divider.css";
+@import "./primitives/Button.css";
+@import "./primitives/Chip.css";
+@import "./primitives/Badge.css";
+@import "./primitives/InputField.css";
+@import "./primitives/Collapsible.css";
+@import "./primitives/PortraitFrame.css";
+@import "./primitives/ImageSlot.css";
+@import "./primitives/NavRail.css";
+@import "./primitives/ChronicleBar.css";
+@import "./primitives/AppShell.css";
+@import "./composed/KnowledgeList.css";
+@import "./composed/Timeline.css";
+@import "./composed/Dossier.css";
+@import "./composed/play.css";
+@import "./catalog/catalog.css";

@@ -1,0 +1,87 @@
+/* The play surface's composed blocks: scene canvas, participant strip, journey bar, Aux Current. */
+
+.dc-scene-canvas { display: flex; flex-direction: column; gap: var(--dc-space-3); }
+.dc-scene-canvas__place { margin: 0; font-family: var(--dc-font-display); font-weight: 700;
+  font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1; letter-spacing: 0.01em;
+  color: var(--dc-accent-strong); text-shadow: var(--dc-text-glow); }
+.dc-scene-canvas__prose { max-width: 58ch; font-size: var(--dc-text-lg);
+  line-height: var(--dc-leading-relaxed); }
+.dc-scene-canvas__tone { display: flex; flex-wrap: wrap; gap: var(--dc-space-2); }
+
+.dc-strip { list-style: none; margin: var(--dc-space-5) 0 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: var(--dc-space-5); }
+.dc-strip__item { display: flex; }
+.dc-strip__button { display: flex; flex-direction: column; align-items: center; gap: var(--dc-space-2);
+  background: none; border: 0; padding: 0; cursor: pointer; color: inherit; font: inherit; }
+.dc-strip__button:focus-visible { outline: none; box-shadow: var(--dc-ring); border-radius: var(--dc-radius-md); }
+.dc-strip__label { text-align: center; }
+
+.dc-journey { display: flex; flex-direction: column; gap: var(--dc-space-2);
+  padding: var(--dc-space-3) var(--dc-space-4); margin-bottom: var(--dc-space-3);
+  background-color: var(--dc-surface); border: 1px solid var(--dc-border-accent);
+  border-radius: var(--dc-radius-md); box-shadow: var(--dc-glow); }
+.dc-journey__line { display: flex; justify-content: space-between; gap: var(--dc-space-3); }
+.dc-journey__track { block-size: 3px; background-color: var(--dc-border); border-radius: var(--dc-radius-pill); }
+.dc-journey__fill { block-size: 3px; background-color: var(--dc-accent);
+  border-radius: var(--dc-radius-pill); transition: inline-size var(--dc-dur) var(--dc-ease); }
+
+.dc-aux { display: flex; flex-direction: column; gap: var(--dc-space-3); }
+.dc-aux__title { margin: 0; }
+.dc-aux__section { margin: var(--dc-space-3) 0 0; font-size: var(--dc-text-xs);
+  letter-spacing: var(--dc-tracking-label); text-transform: uppercase; color: var(--dc-text-muted); }
+.dc-aux__lines { list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: var(--dc-space-3); }
+.dc-aux__line { padding-inline-start: var(--dc-space-3); border-inline-start: 1px solid var(--dc-border-accent); }
+
+/* The Intent lens: a numbered ordered list whose ordinals sit in a gutter, so the reading column of
+   phrases and the player's own words stays flush. `list-style: none` because the ordinal is rendered
+   as content — an `<ol>` still carries the ordering for assistive tech. */
+.dc-intent { list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: var(--dc-space-4); }
+.dc-intent__unit { display: grid; grid-template-columns: var(--dc-space-6) minmax(0, 1fr);
+  gap: var(--dc-space-3); align-items: start; }
+.dc-intent__ordinal { font-family: var(--dc-font-display); font-size: var(--dc-text-xl);
+  line-height: var(--dc-leading-tight); color: var(--dc-accent); text-align: end; }
+.dc-intent__body { display: flex; flex-direction: column; gap: var(--dc-space-1); min-width: 0; }
+.dc-intent__label { font-family: var(--dc-font-display); }
+.dc-intent__unclear { font-style: italic; }
+
+.dc-play__form { display: flex; flex-direction: column; gap: var(--dc-space-2); }
+.dc-play__actions { display: flex; gap: var(--dc-space-2); justify-content: flex-end; }
+
+/* The world picker's card grid. */
+.dc-worlds { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--dc-space-4);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+.dc-worlds__card { height: 100%; }
+.dc-worlds__swatch { display: inline-block; inline-size: 0.7em; block-size: 0.7em;
+  margin-inline-end: var(--dc-space-2); border-radius: var(--dc-radius-pill);
+  border: 1px solid var(--dc-border); vertical-align: baseline; }
+
+/* Carrying now — the Aux sidebar's bottom gadget. Deliberately the lightest block on the surface:
+   a disclosure, a column of rows, one separator each. No grid, no slots, no encumbrance bar — the PRD
+   bans an inventory system here, and box density is what would make it read as one. */
+.dc-carrying { display: flex; flex-direction: column; gap: var(--dc-space-3);
+  padding-block-start: var(--dc-space-4); border-block-start: 1px solid var(--dc-border); }
+.dc-carrying__summary { cursor: pointer; list-style: none; }
+.dc-carrying__summary::-webkit-details-marker { display: none; }
+.dc-carrying__summary:focus-visible { outline: none; box-shadow: var(--dc-ring);
+  border-radius: var(--dc-radius-md); }
+/* The disclosure triangle, drawn from the token contract rather than the platform glyph, so it
+   matches the rest of the sidebar and turns with the state. */
+.dc-carrying__summary::after { content: ""; float: inline-end; inline-size: 0.5em; block-size: 0.5em;
+  margin-block-start: 0.5em; border-inline-end: 2px solid var(--dc-text-muted);
+  border-block-end: 2px solid var(--dc-text-muted); transform: rotate(45deg);
+  transition: transform var(--dc-dur) var(--dc-ease); }
+.dc-carrying__disclosure[open] .dc-carrying__summary::after { transform: rotate(-135deg);
+  margin-block-start: 0.75em; }
+.dc-carrying__list { list-style: none; margin: var(--dc-space-3) 0 0; padding: 0;
+  display: flex; flex-direction: column; }
+.dc-carrying__item { display: flex; flex-direction: column; gap: var(--dc-space-1);
+  padding-block: var(--dc-space-2); border-block-end: 1px solid var(--dc-border); }
+.dc-carrying__item:last-child { border-block-end: 0; }
+.dc-carrying__link { color: var(--dc-text); text-decoration: none; }
+.dc-carrying__link:hover { color: var(--dc-accent-strong); text-decoration: underline; }
+.dc-carrying__link:focus-visible { outline: none; box-shadow: var(--dc-ring);
+  border-radius: var(--dc-radius-sm); }
+.dc-carrying__state { text-transform: uppercase; letter-spacing: var(--dc-tracking-label);
+  font-size: var(--dc-text-xs); }

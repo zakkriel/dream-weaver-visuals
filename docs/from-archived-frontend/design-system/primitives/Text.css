@@ -1,0 +1,5 @@
+.dc-text { margin: 0; color: var(--dc-text); font-family: var(--dc-font-body);
+  font-size: var(--dc-text-md); line-height: var(--dc-leading-normal); }
+.dc-text--sm { font-size: var(--dc-text-sm); }
+.dc-text--muted { color: var(--dc-text-muted); }
+.dc-text--italic { font-style: italic; }

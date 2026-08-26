@@ -1,0 +1,8 @@
+/* Disclosure. Tokens only — raw color literals are banned outside skins/. */
+.dc-collapsible { border: 1px solid var(--dc-border); border-radius: var(--dc-radius-md);
+  padding: var(--dc-space-2) var(--dc-space-3); background-color: var(--dc-surface); }
+.dc-collapsible__summary { cursor: pointer; font-family: var(--dc-font-body);
+  font-size: var(--dc-text-sm); color: var(--dc-text-muted); }
+.dc-collapsible__summary:focus-visible { outline: none; border-radius: var(--dc-radius-sm);
+  box-shadow: var(--dc-ring); }
+.dc-collapsible__body { margin-top: var(--dc-space-3); }
