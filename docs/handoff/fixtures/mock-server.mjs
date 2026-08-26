@@ -306,11 +306,19 @@ function framesFor(text, press) {
   }
 }
 
-/** Exact-match allowlist, mirroring the backend's own CORS shape (SPEC-021). */
+/**
+ * Exact-match allowlist, mirroring the backend's own CORS shape (SPEC-021).
+ *
+ * 5273 is the live dev port. 5173 and 127.0.0.1:5173 belonged to `dreamchat-frontend`, the archived
+ * predecessor repo, and are retired with it — kept here only so an old bookmark against this dev
+ * mock does not fail with an unexplained CORS error.
+ */
 const ALLOWED_ORIGINS = new Set([
+  "http://localhost:5273",
+  "http://127.0.0.1:5273",
+  "http://localhost:4173",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "http://localhost:4173",
 ]);
 
 function cors(req, res) {

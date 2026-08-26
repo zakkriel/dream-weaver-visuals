@@ -1,5 +1,33 @@
 # Contracts — the nine schemas the surfaces consume
 
+> **⚠️ HISTORICAL SNAPSHOT — this directory is NOT the contract.**
+>
+> These nine files are a 2026-08-09 capture taken against the now-archived `dreamchat-frontend`
+> (`workspace:ADR-W003`). **No gate checks them.** The live contract is `contracts/` at the repo root,
+> byte-compared against the backend by `bun run verify:contract` and by
+> `../harness/check.sh contract-drift`; the live pins are the `const PIN` block in
+> `src/api/index.ts`.
+>
+> Where a schema family below still exists, it has moved on. Where it does not, this repo dropped the
+> surface entirely:
+>
+> | This snapshot | Live today |
+> |---|---|
+> | `world_directory.v1` | `world_directory.v2` |
+> | `scene_current.v2` | `scene_current.v4` |
+> | `beat_frame.v2` | `beat_frame.v5` |
+> | `carrying.v1` | `carrying.v1` — unchanged |
+> | `compendium_index.v1` | **dropped** — no Compendium index surface in this repo |
+> | `actor_page.v2` | **dropped** — no actor dossier surface in this repo |
+> | `location_page.v1` | **dropped** |
+> | `artifact_page.v1` | **dropped** |
+> | `timeline.v1` | **dropped** |
+>
+> The sentence below — "they are the authority on what data exists" — was true of this pack on the day
+> it was cut and is **false now**. It is kept because the reasoning around it (pin by exact equality; a
+> nested payload can change without the envelope's version moving) is still correct and still worth
+> reading.
+
 These are **verbatim copies** of the JSON Schemas the frontend is generated against, vendored from the
 backend. They are the authority on what data exists. If a field is not in here, **it does not exist**,
 and designing against it means asking us for a new backend field (law §3.1 rule 2 in the README).

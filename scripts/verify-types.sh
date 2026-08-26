@@ -13,9 +13,10 @@ declare -a PAIRS=(
   "contracts/narration.v3.schema.json:src/api/types/narration.ts"
   "contracts/image_regenerate.v1.schema.json:src/api/types/image_regenerate.ts"
   "contracts/carrying.v1.schema.json:src/api/types/carrying.ts"
-  "contracts/world_genesis_frame.v2.schema.json:src/api/types/world_genesis_frame.ts"
-  "contracts/world_kickstart_turn.v1.schema.json:src/api/types/world_kickstart_turn.ts"
+  "contracts/world_genesis_frame.v3.schema.json:src/api/types/world_genesis_frame.ts"
+  "contracts/world_kickstart_turn.v2.schema.json:src/api/types/world_kickstart_turn.ts"
   "contracts/world_interview_turn.v1.schema.json:src/api/types/world_interview_turn.ts"
+  "contracts/world_refreshed.v1.schema.json:src/api/types/world_refreshed.ts"
   "contracts/art_styles.v1.schema.json:src/api/types/art_styles.ts"
 )
 

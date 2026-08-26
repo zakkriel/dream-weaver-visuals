@@ -25,6 +25,7 @@ declare -a FILES=(
   world_genesis_frame.v3.schema.json
   world_kickstart_turn.v2.schema.json
   world_interview_turn.v1.schema.json
+  world_refreshed.v1.schema.json
   art_styles.v1.schema.json
 )
 

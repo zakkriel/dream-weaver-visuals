@@ -6,6 +6,7 @@ import type { BeatFrame5OneSSEFrameOfPOSTWorldsWBeatsSupersedesBeatFrame4WithNar
 import type { Transcript2TheViewerSLivedStoryDeliveredNarrationNewestFirstCursorPaginated as TranscriptT } from "./types/transcript";
 import type { Carrying as CarryingT } from "./types/carrying";
 import type { ImageRegenerate1ResponseForPOSTWorldsWImagesRegenerate as ImageRegenerateT } from "./types/image_regenerate";
+import type { WorldRefreshed1POSTWorldsIdRefresh200TheSuccessorDirectoryEntryAndTheSourceItSupersedes as WorldRefreshedT } from "./types/world_refreshed";
 
 /**
  * The transport seam. Every request the app makes is built here and nowhere else.
@@ -51,14 +52,7 @@ export type ImageTier = "thumbnail" | "preview" | "final";
  * always true here: refresh instantiates a template, so the successor has entities from the start —
  * the opposite of bare creation.
  */
-export type RefreshedWorld = {
-  schema_version: "world_refreshed/1";
-  source_world_id: string;
-  id: string;
-  display_name: string;
-  theme: WorldSummary["theme"];
-  playable: true;
-};
+export type RefreshedWorld = WorldRefreshedT;
 
 
 export type ImageRegenerate = ImageRegenerateT;
