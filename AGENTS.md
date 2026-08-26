@@ -9,6 +9,9 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
+> **Workspace harness:** `../AGENTS.md` + `../docs/00_workspace/` govern anything crossing a repo
+> boundary. Read it before cross-repo work; this file governs everything inside this repo.
+
 # dream-weaver-visuals — how two teams share one repo
 
 This is the DreamChat frontend. **Lovable owns how it looks. The engineering side owns what is true.**
@@ -41,7 +44,10 @@ If a component needs different data, the route changes. If it needs to look diff
 ### Rules for the visual side
 
 5. **The law list is `docs/handoff/README.md` §3.** Thirteen numbered rules with reasons. They are not
-   preferences; several exist because breaking them leaks what a character has not earned.
+   preferences; several exist because breaking them leaks what a character has not earned. Note the
+   pack is a 2026-08-09 snapshot cut against the now-archived `dreamchat-frontend`: each of the
+   thirteen is authoritative only through the backend rule ID it cites, and anything in the pack about
+   ports, schema versions or contracts is historical — see the banner at the top of that file.
 6. **Never invent a displayed value.** If a design needs a field that is not in `contracts/`, say so
    and we will ask the backend. That is a normal, welcome request. Filling the hole client-side is the
    one thing that cannot be undone quietly, because it looks like it works.
@@ -53,11 +59,18 @@ If a component needs different data, the route changes. If it needs to look diff
 
 Every payload comes through `src/api/`. Nothing else fetches.
 
-- **Pins are exact.** `src/api/index.ts` pins `world_directory/2`, `scene_current/3`, `beat_frame/4`,
-  `carrying/1` and `transcript/1` by string equality. A mismatch fails the load rather than reading a
-  v4 payload through v3 field access. When the backend supersedes a version it DELETES the old
-  schema, so a re-pin is a re-vendor: copy, `bun run gen:types`, move the pin, re-capture the
-  fixtures that carried the old version — a stale capture fails `src/laws/fixtures.test.ts` on purpose.
+- **Pins are exact.** The pin table is the `const PIN` block in `src/api/index.ts` and nowhere else.
+  **Do not restate the versions here** — this section once claimed `scene_current/3`, `beat_frame/4`
+  and `transcript/1` while the code pinned `/4`, `/5` and `/2`, so an agent trusting this file would
+  have targeted three wrong versions. Read the block. What is invariant, and what this file may
+  promise: every pin is matched by string equality, a mismatch fails the load rather than reading a
+  v4 payload through v3 field access, and **every pin has all five artifacts behind it** — a vendored
+  schema in `contracts/`, a `gen:types` entry, a committed type, and an entry in BOTH
+  `scripts/verify-types.sh` and `scripts/verify-contract.sh`. `../harness/check.sh pin-vendored`
+  fails otherwise; `world_refreshed/1` shipped pinned and enforced with none of the five.
+  A re-pin is a re-vendor: copy the schema, `bun run gen:types`, move the pin, add it to both verify
+  scripts, and re-capture the fixtures that carried the old version — a stale capture fails
+  `src/laws/fixtures.test.ts` on purpose.
 - **Types are generated.** `src/api/types/` is codegen from `contracts/`. **Never hand-edit it** —
   `bun run verify:types` diffs it byte-for-byte. Regenerate with `bun run gen:types`.
 - **Schemas are vendored.** `contracts/` holds copies of the backend's schemas; `bun run
@@ -108,7 +121,8 @@ looks like it works.
 `Content-Type: application/json`, which preflights. Image fetches go to `{base}{path}` and follow a
 302 to the asset host, so that host must be reachable from the browser too.
 
-Port **5273** is this repo's. `dreamchat-frontend` (the donor repo) still owns `:5173`.
+Port **5273** is this repo's. `:5173` belonged to `dreamchat-frontend` and is retired with it — that
+repo is archived and superseded by this one (`workspace:ADR-W003`).
 
 ---
 
