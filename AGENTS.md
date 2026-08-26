@@ -37,7 +37,8 @@ If a component needs different data, the route changes. If it needs to look diff
    `@lovable.dev/vite-tanstack-config`. `bun run dev` must keep working exactly as the editor expects.
 3. **Never add plugins to `vite.config.ts`** — the wrapper already includes TanStack devtools,
    `tanstackStart`, `viteReact`, `tailwindcss`, `tsConfigPaths`, nitro and the error loggers. Extra
-   config goes through the documented `vite: { … }` passthrough, which is all the dev proxy uses.
+   config goes through the documented `vite: { … }` passthrough, which is what carries the dev proxy
+   and the `test: { dir: "src" }` that keeps `docs/90_archive/` out of the test graph.
 4. **Rebase our branches on Lovable's pushes; keep PRs small and fast** so `main` never diverges long.
    Never force-push `main` — it rewrites the editor's history.
 
@@ -71,6 +72,9 @@ Every payload comes through `src/api/`. Nothing else fetches.
   A re-pin is a re-vendor: copy the schema, `bun run gen:types`, move the pin, add it to both verify
   scripts, and re-capture the fixtures that carried the old version — a stale capture fails
   `src/laws/fixtures.test.ts` on purpose.
+- **A pin can be right and still be stale.** A nested payload can change without the envelope's
+  version moving, and a grouping's meaning can change without the shape moving. Both traps, with the
+  incidents that produced them: `docs/contract-versioning.md`.
 - **Types are generated.** `src/api/types/` is codegen from `contracts/`. **Never hand-edit it** —
   `bun run verify:types` diffs it byte-for-byte. Regenerate with `bun run gen:types`.
 - **Schemas are vendored.** `contracts/` holds copies of the backend's schemas; `bun run
@@ -212,7 +216,7 @@ player's intent. There is a test that the parts sum back to the original.
 
 ### Prose and speech are separate fields
 
-`beat_frame/4` and `transcript/1` carry a narration segment as
+The beat frame and the transcript both carry a narration segment as
 `{speaker_id, speaker_label, kind, text, quote}` — byte-identical in both, on purpose, so history and
 live render through one path. `Voiced` in `PlayStage` is that path.
 
@@ -227,7 +231,7 @@ browser check that counts blank paragraphs on screen.
 
 ### The record
 
-`transcript/1` at `GET /worlds/{w}/transcript`, viewer-scoped, newest first, `?before=<entry_no>`
+The transcript, at `GET /worlds/{w}/transcript`, is viewer-scoped, newest first, `?before=<entry_no>`
 paginated until `next_before` is null. Read it through `loadHistory` in `src/api/load.ts`, never
 `fetchHistory` directly, so fixture mode is respected.
 
@@ -243,7 +247,7 @@ Two rules that are not ours to relax:
    *"Jonas"*, because a memory of an experience is itself a perception (D-7). This client renders the
    record and never re-resolves a remembered line against the present cast. It is not a bug. Do not
    "fix" it.
-2. **A remembered line wears no portrait.** `transcript/1` stores no picture per entry, so the
+2. **A remembered line wears no portrait.** The transcript stores no picture per entry, so the
    silhouette is the honest likeness of a memory (D-8). Borrowing today's portrait would leak an
    identity backwards through the viewer's own record (B-1).
 
@@ -290,7 +294,11 @@ backend. Without that the proxy shadows the page and the picker serves raw JSON 
 ```
 contracts/            vendored JSON Schemas — the authority on what data exists
 docs/handoff/         the visual handoff pack: the brief, the law, per-surface payload notes
+                      reference-vs-law.md: which mockup features are struck, and by which rule
 docs/lovable-drafts/  unrouted design drafts that have no contract behind them yet
+docs/contract-versioning.md  the two ways an exact pin still goes stale
+docs/90_archive/      closed records from the archived predecessor — provenance, not authority
+docs/CONSOLIDATION-2026-08-26.md  the file-by-file verdict on everything that came from it
 src/api/              transport, pins, image URLs; src/api/types/ is CODEGEN
 src/laws/             the rule tests
 src/fixtures/         real captured payloads, offline fallback only
@@ -305,7 +313,7 @@ src/components/ui/    vendored shadcn primitives
 bun run typecheck        # tsc --noEmit
 bun run verify:types     # src/api/types/ vs contracts/     (hermetic)
 bun run build
-bun run test             # the law tests
+bun run test             # the law tests — scoped to src/ by test.dir in vite.config.ts
 bun run verify:contract  # contracts/ vs backend main       (needs the sibling clone or network)
 ```
 

@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 // @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
 // or the app will break with duplicate plugins:
 //   - TanStack devtools (dev-only, first), tanstackStart, viteReact, tailwindcss, tsConfigPaths,
@@ -37,5 +38,14 @@ export default defineConfig({
         },
       },
     },
+    // The test graph is `src/`, and nothing else — the same scope tsconfig.json already declares
+    // with `include: ["src/**"]`. Vitest's default glob is repo-wide, so without this it collects
+    // `docs/90_archive/design-system/**/*.test.tsx`: 20 test files from the archived predecessor,
+    // which import `@testing-library/react` (not a dependency here) and assume a DOM. That took CI
+    // from 5 files / 140 tests green to 20 files failing the moment those docs landed. The archive
+    // is provenance, not a test suite, and `docs/90_archive/README.md` says so — this is what makes
+    // that sentence true rather than aspirational. Set here rather than in the `test` script so
+    // `bunx vitest run` behaves the same as `bun run test`.
+    test: { dir: "src" },
   },
 });
