@@ -15,7 +15,7 @@ tool will see it.
 `README.md` §3 is the law: thirteen numbered rules, each citing the backend rule ID that owns it. This
 file is the per-feature verdict *on the reference material*. It adds no rules. Where a row cites a
 bracketed id, the text lives in
-`dreamchat-world-backend/docs/00_strategy/06_rules_register.md` (rule **D-6** — we restate, we do not
+`dreamchat-world-backend/docs/law/06_rules_register.md` (rule **D-6** — we restate, we do not
 own).
 
 ---

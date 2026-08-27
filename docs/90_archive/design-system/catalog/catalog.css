@@ -1,5 +1,0 @@
-/* The source line under a knowledge item or timeline record: how it is known, and when. */
-.dc-source { display: flex; flex-wrap: wrap; align-items: center; gap: var(--dc-space-1);
-  color: var(--dc-text-muted); font-size: var(--dc-text-xs); letter-spacing: var(--dc-tracking-label); }
-.dc-source__kind { display: inline-flex; align-items: center; gap: var(--dc-space-1);
-  color: var(--dc-accent); text-transform: uppercase; }

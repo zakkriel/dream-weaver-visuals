@@ -1,3 +1,0 @@
-.dc-timeline { list-style: none; margin: 0; padding: 0; }
-.dc-timeline__rec { padding: var(--dc-space-2) 0; border-bottom: 1px solid var(--dc-border); }
-.dc-timeline__meta { color: var(--dc-text-muted); font-size: var(--dc-text-xs); }

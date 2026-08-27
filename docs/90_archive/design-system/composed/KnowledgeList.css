@@ -1,6 +1,0 @@
-.dc-knowledge { list-style: none; margin: 0; padding: 0; }
-.dc-knowledge__item { display: flex; gap: var(--dc-space-2); padding: var(--dc-space-2) 0;
-  border-bottom: 1px solid var(--dc-border); }
-.dc-knowledge__gem { color: var(--dc-accent); flex: none; margin-top: 2px;
-  filter: drop-shadow(0 0 5px var(--dc-accent)); }
-.dc-knowledge__meta { color: var(--dc-text-muted); font-size: var(--dc-text-xs); }

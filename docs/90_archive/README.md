@@ -48,7 +48,7 @@ Every line below is lifted from that repo's own `ARCHIVED.md`, which is still pr
 retired with the predecessor.**
 
 **Authority for that.** `dreamchat-world-backend/AGENTS.md:51`,
-`dreamchat-world-backend/docs/30_architecture/system_map.md` §1, and `workspace:ADR-W003`
+`dreamchat-world-backend/docs/maps/system_map.md` §1, and `workspace:ADR-W003`
 (`../../../docs/adr/ADR-W003_a_superseded_repo_is_archived_in_place.md`).
 
 **The discoverability trap, which cost real time.** If you went looking for "the frontend" and landed

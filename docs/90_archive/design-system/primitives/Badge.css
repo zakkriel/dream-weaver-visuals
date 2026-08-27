@@ -1,6 +1,0 @@
-.dc-badge { display: inline-block; padding: 0 var(--dc-space-2); border-radius: var(--dc-radius-sm);
-  font-family: var(--dc-font-body); font-size: var(--dc-text-xs); font-weight: 700;
-  letter-spacing: var(--dc-tracking-label); text-transform: uppercase; color: var(--dc-on-accent); }
-.dc-badge--high { background: var(--dc-status-high); }
-.dc-badge--med { background: var(--dc-status-med); }
-.dc-badge--low { background: var(--dc-status-low); }

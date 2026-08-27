@@ -1,4 +1,11 @@
-# The predecessor's design system — held, pending one founder decision
+# The predecessor's design system — DECIDED 2026-08-27
+
+**DECIDED (2026-08-27, founder ruling in the audit round; recorded in
+`../../CONSOLIDATION-2026-08-26.md`):** subset A lifted — `skins/fonts/` (6 files, 94.8 KB) stays
+live in this directory; subset B is thereby satisfied too, since its one incremental file's
+declarations are already live at `../../handoff/fantasy.css`. The 14 remaining source/test files
+were moved to `TODELETE_IGNORE/` per the deletion trigger below. This file stays as the decision
+record; the measurements below describe the tree as it was on 2026-08-26.
 
 **Archived reference. Not built, not tested, not imported, and it cannot compile in this repo as it
 stands.** This directory is the hand-built design system from `dreamchat-frontend`, the archived
@@ -127,9 +134,9 @@ and skins only" drops it.
 
 Stated honestly, because the irreversibility claim is usually overstated:
 
-- **Nothing, today.** The source repo is still on disk at
-  `/Users/pelao/REPOS/dreamchat/dreamchat-frontend/`, with its `src/`, lockfile and `index.html`. This
-  is a copy.
+- **The source repo is quarantined, not on disk as a live tree.** `dreamchat-frontend` was moved to
+  `TODELETE_IGNORE/` pending deletion (`workspace:ADR-W006`) — never read, never cited, never
+  restored without a ruling. Nothing outside this directory holds these files in readable form.
 - **Irrecoverable from text:** the five `.woff2` binaries, 94 KB. Every other file here is source or
   prose.
 - **Lost regardless of the sibling checkout:** in-repo reachability. Anyone working only in
@@ -137,11 +144,8 @@ Stated honestly, because the irreversibility claim is usually overstated:
   atmosphere/scrim/sheen/blur/status declarations. That loss becomes permanent whenever the archived
   repo is finally removed.
 
-## The deletion trigger
+## The deletion trigger — EXECUTED 2026-08-27
 
-**If the founder chooses the Lovable + shadcn direction:** lift subset A or B first, then delete
-`docs/90_archive/design-system/` whole and record the answer in
-`../../CONSOLIDATION-2026-08-26.md`.
-
-Until that answer exists, this directory is held unwired. It is the only reason `docs/90_archive/` is
-larger than a page, and it should not outlive the decision it is waiting on.
+The founder ruled (2026-08-27, audit round AF-5): lift the fonts, quarantine the remainder.
+Subset A was lifted first (`skins/fonts/`, kept here), the remaining 14 files were quarantined,
+and the answer is recorded in `../../CONSOLIDATION-2026-08-26.md` as this section required.

@@ -1,8 +1,0 @@
-.dc-panel { background-color: var(--dc-surface); background-image: var(--dc-panel-sheen);
-  border: 1px solid var(--dc-border); border-radius: var(--dc-radius-lg);
-  padding: var(--dc-space-5); box-shadow: var(--dc-shadow-1);
-  -webkit-backdrop-filter: blur(var(--dc-glass-blur)); backdrop-filter: blur(var(--dc-glass-blur)); }
-.dc-panel--raised { background-color: var(--dc-surface-raised); box-shadow: var(--dc-shadow-2); }
-.dc-panel__title { margin: 0 0 var(--dc-space-3); color: var(--dc-text-muted);
-  font-family: var(--dc-font-body); font-size: var(--dc-text-xs); font-weight: 700;
-  letter-spacing: var(--dc-tracking-label); text-transform: uppercase; }

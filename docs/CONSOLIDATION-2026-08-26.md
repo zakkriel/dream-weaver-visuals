@@ -329,3 +329,20 @@ now a stale entry in the workspace's own map. Harmless — `90_archive/` is alre
 workspace `AGENTS.md` pre-flight is explicit that a map describing a shape that changed gets amended in
 the same change. This one cannot be: it is a **workspace-repo** change, so it is a separate branch and
 PR by the round protocol.
+
+---
+
+## The fifth decision, taken — the design system (2026-08-27, founder ruling, audit round AF-5)
+
+The decision `90_archive/design-system/DECISION-PENDING.md` reserved to the founder is taken:
+
+- **Lifted (subset A):** `skins/fonts/` — 6 files, 94.8 KB (5 `.woff2` + `fonts.css`), the only
+  irrecoverable-from-text bytes in the tree and the only self-hosted webfonts in the workspace.
+  They stay live at `90_archive/design-system/skins/fonts/`.
+- **Subset B satisfied without a second lift:** its one incremental file's declarations were
+  already live at `docs/handoff/fantasy.css` (with `base.css` and `moods.css`) since this
+  consolidation round.
+- **Quarantined:** the 14 remaining unimported files (2 `catalog/`, 4 `composed/`, 6 `primitives/`,
+  2 `skins/` tests) moved to `TODELETE_IGNORE/` per `workspace:ADR-W006`. Verified before the move:
+  `grep -rE '90_archive|design-system' src/` → no matches; nothing in live code imports any of it.
+- `DECISION-PENDING.md` stays in place, updated to DECIDED, as the decision record.
