@@ -7,7 +7,7 @@
 > - **§3's thirteen rules ARE the live law for the visual side**, cited as such by this repo's
 >   `AGENTS.md`. But their authority is the **backend rule ID each one cites** — `D-7`, `B-1`, `B-5`,
 >   `C-11`, `GA-3` and the rest, whose text lives in
->   `dreamchat-world-backend/docs/00_strategy/06_rules_register.md`. This file restates them for a
+>   `dreamchat-world-backend/docs/law/06_rules_register.md`. This file restates them for a
 >   design tool that cannot read that repo; it does not own them (rule **D-6**).
 > - **Everything here about ports, schema versions, or contracts is historical.** The live contract is
 >   `contracts/` at this repo's root, drift-checked by `bun run verify:contract`; the live pins are the

@@ -1,5 +1,21 @@
 # Fixtures — real data, and a mock server to build against
 
+> **⚠️ STATUS, 2026-08-26 — `mock-server.mjs` no longer drives this app.** It emits
+> `world_directory/1`, `scene_current/2` and `beat_frame/2`. The live client pins
+> `world_directory/2`, `scene_current/4` and `beat_frame/5` (the `const PIN` block in
+> `src/api/index.ts`), and `getJson()` compares `schema_version` by exact string equality — so
+> pointing the app at this server throws `SchemaMismatchError` on the **first** read, every time. It
+> also serves no `/transcript` and no `/carrying`, both of which the live client reads.
+>
+> Treat it as a captured record of the 2026-08-09 handoff, not a running tool. The payload captures
+> in `payloads/` and the portraits in `assets/` are unaffected — they are historical captures and are
+> honest about it. Making the server work again means re-emitting four payload families at current
+> versions; that is a code round with its own verification, deliberately not done in the 2026-08-26
+> documentation consolidation.
+>
+> Two earlier copies of this same program — one named `fake-engine.mjs` — were deleted in that
+> consolidation. This is the surviving copy, and the only one that knows port 5273 exists.
+
 Everything here is a **real capture** from a running DreamChat backend on 2026-08-09. It is dev seed
 data, not user data: nothing is redacted and nothing needs to be.
 
