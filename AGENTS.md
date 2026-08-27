@@ -67,8 +67,9 @@ Every payload comes through `src/api/`. Nothing else fetches.
   promise: every pin is matched by string equality, a mismatch fails the load rather than reading a
   v4 payload through v3 field access, and **every pin has all five artifacts behind it** — a vendored
   schema in `contracts/`, a `gen:types` entry, a committed type, and an entry in BOTH
-  `scripts/verify-types.sh` and `scripts/verify-contract.sh`. `../harness/check.sh pin-vendored`
-  fails otherwise; `world_refreshed/1` shipped pinned and enforced with none of the five.
+  `scripts/verify-types.sh` and `scripts/verify-contract.sh`. That is a **review obligation, not a
+  gate**: `../harness/check.sh pin-vendored` enforced it and was deleted 2026-08-27 because it read only
+  this tree. `world_refreshed/1` shipped pinned and enforced with none of the five.
   A re-pin is a re-vendor: copy the schema, `bun run gen:types`, move the pin, add it to both verify
   scripts, and re-capture the fixtures that carried the old version — a stale capture fails
   `src/laws/fixtures.test.ts` on purpose.
