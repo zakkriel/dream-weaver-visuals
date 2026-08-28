@@ -243,7 +243,6 @@ export function PlayStage({
   pending,
   onInput,
   onSubmit,
-  onContinue,
   aux,
   expanded = false,
   onExpandedChange,
@@ -271,7 +270,6 @@ export function PlayStage({
   pending: boolean;
   onInput: (value: string) => void;
   onSubmit: (event: FormEvent) => void;
-  onContinue: () => void;
   aux: ReactNode;
   /** The dialogue card grown into the full-history view, with its own scroller. */
   expanded?: boolean;
@@ -669,9 +667,12 @@ export function PlayStage({
                 <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 3 10.5 13.5M21 3l-6.6 18-3.9-7.5L3 9.6z" /></svg>
                 {pending ? "Sending…" : "Send"}
               </Button>
-              <Button type="button" variant="ghost" disabled={pending} onClick={onContinue} className="dc-btn-ghost dc-btn-icon" aria-label="Play forward the world" title="Play forward the world">
-                <svg viewBox="0 0 24 24" aria-hidden fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="m5 5 8 7-8 7zM17 5v14" /></svg>
-              </Button>
+              {/* There is one control here on purpose. A Continue button sat beside Send until
+                  2026-08-28, to advance a journey one leg at a time; journeys now run their own legs
+                  inside the beat that starts them, so there is never a trip left part-way to advance.
+                  Do not add a second press: a leg boundary asks the player nothing, and the one thing
+                  that can change a journey's outcome is whether the WORLD cuts in — which is the
+                  world's roll, never the player's choice. */}
             </form>
             </StageIsland>
           </div>

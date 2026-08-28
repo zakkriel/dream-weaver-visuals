@@ -54,13 +54,21 @@ export function haltCopy(reason: string): string {
 
 const HALT: Record<string, string> = {
   telegraph: "The world moves — answer it.",
-  bounce: "That didn't land as possible — say it differently.",
+  // The backend emits this when a typed sentence produced no actions at all (SPEC-037). It states the
+  // two facts that are certain — nothing happened, and it cost nothing — and deliberately does NOT
+  // diagnose: we do not know whether the sentence was unreadable, named something absent, or asked for
+  // a verb the vocabulary has no shape for. An in-world voice ("nothing here answers to that") is
+  // rejected on purpose — if the cause was a parse failure, it would teach the player something false
+  // about the world, which is the one thing the perception rules exist to prevent (B-1, D-7).
+  bounce: "Nothing came of that. No time passed.",
+  // `nothing_to_continue` and `journey_leg` lived here until 2026-08-28. Both belonged to the Continue
+  // button, and the button is gone: a journey now runs all its legs inside the beat that starts it, so
+  // it is never left part-way and there is never a leg to report or a press to refuse.
   unresolved: "Be specific — who or which?",
   premise_broken: "The moment changed before you could act.",
   turn_budget: "That cannot be done at all.",
   gate_reject: "The world blocked that.",
   world_eruption: "Something breaks in on the moment.",
-  journey_leg: "You are on your way. Continue.",
   journey_arrived: "You arrive.",
   journey_interrupted: "Something cuts across your path.",
   journey_barred: "The way is shut.",
@@ -318,16 +326,16 @@ function Play() {
   );
 
   const inFlight = useRef(false);
-  async function submit(press: "text" | "continue", text: string) {
+  async function submit(text: string) {
     if (inFlight.current) return;
     inFlight.current = true;
-    if (press === "text") setLines((prev) => [...prev, { who: "you", text }]);
+    setLines((prev) => [...prev, { who: "you", text }]);
     setInput("");
     setOutcome(null);
     setFailed(false);
     setPending(true);
     try {
-      await submitBeat(worldId, press, text, onFrame);
+      await submitBeat(worldId, text, onFrame);
     } catch {
       setFailed(true);
     } finally {
@@ -340,7 +348,7 @@ function Play() {
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const text = input.trim();
-    if (text !== "") void submit("text", text);
+    if (text !== "") void submit(text);
   }
 
   /**
@@ -435,7 +443,6 @@ function Play() {
       pending={pending}
       onInput={setInput}
       onSubmit={onSubmit}
-      onContinue={() => void submit("continue", "")}
       aux={
         <>
           <StageIsland label="What matters now" className="px-5 py-5">

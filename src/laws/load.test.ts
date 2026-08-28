@@ -151,14 +151,14 @@ describe("fixture mode serves the worlds we captured, and only those", () => {
   it("replays the captured beat stream so the play surface is drivable", async () => {
     await enterBackendlessPreview();
     const frames: BeatFrame[] = [];
-    await submitBeat(LANTERN, "text", "I look around", (f) => frames.push(f));
+    await submitBeat(LANTERN, "I look around", (f) => frames.push(f));
     expect(frames.length).toBeGreaterThan(0);
     expect(frames).toEqual(captureFor(LANTERN)?.beats);
   });
 
   it("has no beat stream to replay for an uncaptured world", async () => {
     await enterBackendlessPreview();
-    await expect(submitBeat(UNKNOWN, "text", "x", () => {})).rejects.toThrow();
+    await expect(submitBeat(UNKNOWN, "x", () => {})).rejects.toThrow();
   });
 });
 
@@ -189,7 +189,7 @@ describe("live mode is completely unaffected", () => {
     await enterLive();
     const spy = vi.fn(async () => new Response("", { status: 500 }));
     globalThis.fetch = spy as unknown as typeof fetch;
-    await expect(submitBeat(LANTERN, "text", "x", () => {})).rejects.toThrow();
+    await expect(submitBeat(LANTERN, "x", () => {})).rejects.toThrow();
     expect(spy).toHaveBeenCalled();
   });
 

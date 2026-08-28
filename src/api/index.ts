@@ -258,11 +258,9 @@ export async function regenerateArt(worldId: string): Promise<ImageRegenerate> {
   return payload as ImageRegenerate;
 }
 
-/** What the player did: said something, or pressed Continue (which carries no text at all). */
-export type Press = "text" | "continue";
-
 /**
- * Submit one beat and hand each frame to `onFrame` as it arrives.
+ * Submit one beat — the player's own sentence, the only way a turn is ever spent — and hand each
+ * frame to `onFrame` as it arrives.
  *
  * SSE-shaped (`data: {json}\n\n`) but over `fetch` rather than `EventSource`, because the beat is a
  * POST and EventSource cannot POST.
@@ -271,21 +269,24 @@ export type Press = "text" | "continue";
  * status and throws here; once the status line is sent, every later failure arrives as an `error`
  * frame. Callers must handle both. No frame ORDER is assumed — a driver that cannot stream emits the
  * identical frames at the end, so this dispatches whatever arrives in arrival order.
+ *
+ * There was a second kind of press until 2026-08-28: `POST beats/continue`, bodyless, which advanced
+ * a journey by one leg. Journeys now run their own legs inside the beat that starts them, so nothing
+ * is ever left mid-trip and the endpoint is gone from the backend. Do not reintroduce a bodyless
+ * press: an empty beat is a real sentence the parse could make nothing of, and the two must never
+ * share a shape again (that conflation is SPEC-037).
  */
 export async function streamBeat(
   world: string,
-  press: Press,
   text: string,
   onFrame: (frame: BeatFrame) => void,
 ): Promise<void> {
-  const path = press === "continue" ? "beats/continue" : "beats";
-  // `exactOptionalPropertyTypes` is on, so `body: undefined` is not the same as omitting `body`.
-  // Continue carries no body at all: an empty chain against an active journey IS the continue press.
-  const init: RequestInit =
-    press === "continue"
-      ? { method: "POST" }
-      : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text }) };
-  const res = await apiFetch(`${apiBase()}/worlds/${encodeURIComponent(world)}/${path}`, init);
+  const init: RequestInit = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  };
+  const res = await apiFetch(`${apiBase()}/worlds/${encodeURIComponent(world)}/beats`, init);
   if (!res.ok) throw new Error(`request failed: ${res.status}`);
   if (res.body === null) throw new Error("beat stream carried no body");
 

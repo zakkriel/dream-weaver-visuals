@@ -7,7 +7,6 @@ import {
   type BeatFrame,
   type Carrying,
   type Fetched,
-  type Press,
   type Scene,
   type WorldDirectory,
 } from "./index";
@@ -206,7 +205,6 @@ export const loadCarrying = (worldId: string, read: () => Promise<Fetched<Carryi
  */
 export async function submitBeat(
   worldId: string,
-  press: Press,
   text: string,
   onFrame: (frame: BeatFrame) => void,
 ): Promise<void> {
@@ -223,7 +221,7 @@ export async function submitBeat(
     }
     return;
   }
-  return streamBeat(worldId, press, text, onFrame);
+  return streamBeat(worldId, text, onFrame);
 }
 
 /** The bundled captures, for callers that need one directly. */
