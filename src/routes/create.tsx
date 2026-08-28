@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Atmosphere } from "@/components/dc/Atmosphere";
 import {
   askInterview,
+  confirmIdentity,
   answerKickstart,
   CreationConflictError,
   KickstartRefusedError,
@@ -15,6 +16,7 @@ import {
   type ChoiceOption,
   type GenesisFrame,
   type InterviewAnswer,
+  type IdentityConfirm,
   type InterviewTurn,
   type KickstartTurn,
 } from "@/api/genesis";
@@ -205,7 +207,29 @@ function CreateWorld() {
     }
   }
 
-  async function build() {
+  async function beginCustomBuild() {
+    if (!canStart || inFlight.current) return;
+    inFlight.current = true;
+    setLane({ state: "asking" });
+    try {
+      const view = await confirmIdentity(trimmed, answers);
+      const voice = [...(view.voice ?? [])];
+      while (voice.length < 3) voice.push("");
+      setLane({ state: "confirming", view, voice: voice.slice(0, 3) });
+    } catch {
+      // Identity that cannot be shown is not a dead end: Custom can still build, same as a failed question.
+      inFlight.current = false;
+      await build();
+      return;
+    }
+    inFlight.current = false;
+  }
+
+  async function buildFromConfirm(view: IdentityConfirm, voice: string[]) {
+    await build({ identity: view.identity, voice });
+  }
+
+  async function build(opts?: { identity?: IdentityConfirm["identity"]; voice?: string[] }) {
     if (!canStart || inFlight.current) return;
     inFlight.current = true;
     const lines: string[] = [];
@@ -244,6 +268,8 @@ function CreateWorld() {
           }
         },
         artStyle,
+        opts?.identity,
+        opts?.voice,
       );
     } catch {
       // The stream never opened, or it broke before saying why. Distinct from a `refused` frame, which is
@@ -407,7 +433,7 @@ function CreateWorld() {
             onTyped={setTyped}
             answered={answers.length}
             onChoose={(label) => void answer(label, lane.turn)}
-            onBuild={() => void build()}
+            onBuild={() => void beginCustomBuild()}
           />
         )}
 
@@ -421,10 +447,57 @@ function CreateWorld() {
             <div>
               <button
                 type="button"
-                onClick={() => void build()}
+                onClick={() => void beginCustomBuild()}
                 className="dc-focus dc-enter rounded-dc-sm px-5 py-2.5 font-ui text-sm font-medium"
               >
                 Build the world
+              </button>
+            </div>
+          </section>
+        )}
+
+
+        {lane.state === "confirming" && (
+          <section aria-label="This is the world so far" className="flex flex-col gap-4">
+            <p className="max-w-[58ch] font-ui text-sm text-dc-text-muted">
+              This is what your description became, before anyone is written. The three lines of
+              voice you can rewrite — they are the sound of the world. Everything else is what we
+              heard.
+            </p>
+            <p className="max-w-[58ch] font-body text-base text-dc-text">{lane.view.condition.text}</p>
+            <p className="max-w-[58ch] font-body text-base text-dc-text">{lane.view.bargain.text}</p>
+            <p className="max-w-[58ch] font-ui text-sm text-dc-text-muted">
+              Therefore {lane.view.bargain.therefore}
+            </p>
+            <p className="max-w-[58ch] font-ui text-sm text-dc-text-muted">
+              Not {lane.view.departure.neighbour}: {lane.view.departure.how_not}
+            </p>
+            <p className="max-w-[58ch] font-ui text-sm text-dc-text-muted">
+              A normal problem here is {lane.view.register}.
+            </p>
+            <p className="max-w-[58ch] font-body text-sm text-dc-text">{lane.view.content_demand.text}</p>
+            <div className="flex flex-col gap-2">
+              {lane.voice.map((line, i) => (
+                <textarea
+                  key={i}
+                  value={line}
+                  rows={2}
+                  onChange={(e) => {
+                    const voice = [...lane.voice];
+                    voice[i] = e.target.value;
+                    setLane({ ...lane, voice });
+                  }}
+                  className="dc-focus dc-input max-w-[58ch] rounded-dc-sm px-3 py-2 font-body text-sm"
+                />
+              ))}
+            </div>
+            <div>
+              <button
+                type="button"
+                onClick={() => void buildFromConfirm(lane.view, lane.voice)}
+                className="dc-focus dc-enter rounded-dc-sm px-5 py-2.5 font-ui text-sm font-medium"
+              >
+                Build with this
               </button>
             </div>
           </section>
@@ -687,6 +760,7 @@ type Lane =
   | { state: "asking" }
   | { state: "question"; turn: InterviewTurn }
   | { state: "ready" }
+  | { state: "confirming"; view: IdentityConfirm; voice: string[] }
   | { state: "building"; lines: string[] }
   | {
       state: "choosing";

@@ -2,6 +2,7 @@ import { apiBase, apiFetch, SchemaMismatchError } from "./index";
 import type { ArtStyles1GETWorldsArtStylesSelectableWorldArtStylesInDisplayOrder as ArtStylesT } from "./types/art_styles";
 import type { WorldGenesisFrame3ONESSEFrameOfPOSTWorldsGenesisAWorldBuildIsALongAuthoredActWithIntermediateResultsSoItStreamsForTheSameReasonABeatDoesEveryFrameNamesSomethingThatWasReallyAuthoredWorkingFramesCarryALineOfTheWorldSOwnLanguageAsEachPartLandsChoiceIsTheTerminalSuccessOfTheStreamItNowCarriesTheREALWorldIdBecauseTheWorldCommitsWhenAuthoringEndsDurableWorlds20260821TheWorldAlreadyExistsListedAsNotYetEnterableAndOnlyThePlayerAndTheArrivalWaitForTheKickstartAnswersRefusedMeansTheBriefCouldNotBecomeAWorldAndSaysWhyErrorMeansTheMachineFailedAndSaysSoWithoutPretendingToBeTheWorldSVoiceEitherMayCarryWorldIdWhenTheWorldHadAlreadyCommittedBeforeTheFailureThatWorldIsResumableNotLostThereIsDeliberatelyNoProgressPercentageNoETAAndNoStageListLaw2NeverInventADisplayedValue as GenesisFrameT } from "./types/world_genesis_frame";
 import type { WorldInterviewTurn1TheResponseToPOSTWorldsInterviewONEQuestionAboutABriefOrNothingLeftToAskTheExchangeIsSTATELESSTheClientSendsTheBriefAndEveryPriorAnswerAndReceivesOneTurnSoThereIsNoSessionNoStoredInterviewAndNothingToResumeDoneTrueArrivesWithNoQuestionAndIsAGoodAnswerNotAFailureABriefThatLeavesNothingUndeterminedShouldBeAskedNothingAndTheSurfaceAlwaysLetsTheUserBuildImmediatelyRegardless as InterviewTurnT } from "./types/world_interview_turn";
+import type { WorldIdentityConfirm1 as IdentityConfirmT } from "./types/world_identity_confirm";
 import type { WorldKickstartTurn2TheResponseToPOSTWorldsGenesisKickstartSameGrammarAsTheInterviewTurnDoneFalseCarriesTheNextQuestionDoneTrueCarriesTheWorldBuiltAndPlayableTheRequestIsWorldIdAnswerAnEmptyAnswerReServesThePendingQuestionWhichIsHowAnUnfinishedCreationResumesAfterAnyInterruptionTheFreeTextAnswerIsAPropertyOfTheSurfaceAndIsDeliberatelyNotEnumeratedHere as KickstartTurnT } from "./types/world_kickstart_turn";
 
 /**
@@ -21,6 +22,7 @@ export type GenesisFrame = GenesisFrameT;
 export type InterviewTurn = InterviewTurnT;
 export type InterviewOption = NonNullable<InterviewTurnT["options"]>[number];
 export type KickstartTurn = KickstartTurnT;
+export type IdentityConfirm = IdentityConfirmT;
 export type ChoiceOption = NonNullable<KickstartTurnT["options"]>[number];
 export type ArtStyles = ArtStylesT;
 export type ArtStylePreset = ArtStylesT["styles"][number];
@@ -45,6 +47,7 @@ const PIN = {
   interview: "world_interview_turn/1",
   kickstart: "world_kickstart_turn/2",
   genesisFrame: "world_genesis_frame/3",
+  identityConfirm: "world_identity_confirm/1",
 } as const;
 
 /** The maximum brief the server will accept (8 KiB there); mirrored so the surface can say so first. */
@@ -80,6 +83,23 @@ export async function fetchArtStyles(): Promise<ArtStyles> {
  * Ask what is still worth knowing about a brief. Returns `{ done: true }` when nothing is — which is a
  * good answer, not a failure, and the surface treats it as "ready to build".
  */
+export async function confirmIdentity(
+  brief: string,
+  answers: InterviewAnswer[],
+): Promise<IdentityConfirm> {
+  const res = await apiFetch(`${apiBase()}/worlds/identity`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ brief, answers }),
+  });
+  if (!res.ok) throw new Error(`request failed: ${res.status}`);
+  const body = (await res.json()) as { schema_version?: unknown };
+  if (body.schema_version !== PIN.identityConfirm) {
+    throw new SchemaMismatchError(PIN.identityConfirm, body.schema_version);
+  }
+  return body as IdentityConfirm;
+}
+
 export async function askInterview(
   brief: string,
   answers: InterviewAnswer[],
@@ -166,12 +186,22 @@ export async function buildWorld(
   answers: InterviewAnswer[],
   onFrame: (frame: GenesisFrame) => void,
   artStyle?: string,
+  identity?: IdentityConfirm["identity"],
+  voice?: string[],
 ): Promise<void> {
-  const body: { brief: string; answers: InterviewAnswer[]; art_style?: string } = {
+  const body: {
+    brief: string;
+    answers: InterviewAnswer[];
+    art_style?: string;
+    identity?: IdentityConfirm["identity"];
+    voice?: string[];
+  } = {
     brief,
     answers,
   };
   if (artStyle !== undefined) body.art_style = artStyle;
+  if (identity !== undefined) body.identity = identity;
+  if (voice !== undefined) body.voice = voice;
 
   const res = await apiFetch(`${apiBase()}/worlds/genesis`, {
     method: "POST",
