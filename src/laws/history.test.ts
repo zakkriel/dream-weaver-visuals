@@ -74,8 +74,10 @@ describe("transcript/2: one entry is a beat, not a line", () => {
     expect(page.older[0]).toMatchObject({ text: "I ask about the tide" });
   });
 
-  it("draws no line of the player's for a Continue press", () => {
-    // `stated: null` is "he typed nothing", which the schema calls out as a different fact from "".
+  it("draws no line of the player's when an entry carries no words", () => {
+    // `stated: null` is "no text came in with this beat", which the schema calls out as a different
+    // fact from "". It was the ordinary shape of a Continue press; that press was deleted 2026-08-28,
+    // but its rows are still in the transcript and must still render, so this stays.
     const page = toPage(payload([entry({ stated: null, segments: [seg()] })]), haltCopy);
     expect(page.older.map((l) => l.who)).toEqual(["world"]);
   });
@@ -104,11 +106,11 @@ describe("transcript/2: one entry is a beat, not a line", () => {
   });
 
   it("reads a halt back in the player's language, never the engine's", () => {
-    const page = toPage(payload([entry({ halt_reason: "journey_leg" })]), haltCopy);
+    const page = toPage(payload([entry({ halt_reason: "journey_arrived" })]), haltCopy);
     const note = page.older.find((l) => l.who === "note");
-    expect(note).toMatchObject({ text: "You are on your way. Continue." });
+    expect(note).toMatchObject({ text: "You arrive." });
     // The raw vocabulary never reaches the screen (F-2).
-    expect(JSON.stringify(page.older)).not.toContain("journey_leg");
+    expect(JSON.stringify(page.older)).not.toContain("journey_arrived");
   });
 
   it("says nothing for the ordinary ending", () => {
