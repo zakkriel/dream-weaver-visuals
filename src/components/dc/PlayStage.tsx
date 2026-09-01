@@ -86,8 +86,14 @@ function prefersReducedMotion(): boolean {
 }
 
 /**
- * One staged figure. Named for what it is: the backend renders a three-quarter-length figure to
- * mid-thigh now, not a bust, because in a visual novel the hands do half the acting.
+ * One staged figure.
+ *
+ * What the asset CONTAINS is a declared cross-repo contract — workspace
+ * `docs/00_workspace/contracts.md`, Edge B, "What a character sprite IS": a three-quarter-length figure,
+ * complete, transparent, 3:4. This file owns the other half of that contract, which is the staging:
+ * anchor `center bottom` and scale, because that is what turns one complete figure into the depth tiers
+ * a visual novel reads as. Neither half can see the other, and nothing fails if they drift — the stage
+ * just stops reading as a scene. Read the contract before changing either.
  *
  * `depth` is 0 for whoever spoke last. It drives stacking, a slight scale falloff and a slight lift, so
  * a crowded scene reads front-to-back instead of as one flat row.
