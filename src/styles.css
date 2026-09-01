@@ -476,15 +476,31 @@
 
 .dc-stage-sprites { z-index: 1; }
 .dc-stage-sprite-list { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
-.dc-stage-sprite { position: absolute; bottom: 0; left: 50%; width: min(34vw, 430px); height: min(70dvh, 720px); transform: translateX(-50%); opacity: 1; transition: opacity var(--dc-dur) var(--dc-ease); }
+/* A staged figure, visual-novel style: stood on the bottom edge, centred on its own share of the width.
+   `--dc-sprite-x` is an even distribution computed in PlayStage — (i+1)/(n+1) — which replaced
+   hand-written slot offsets that existed for exactly one, two and three figures and left a fourth
+   character stacked on top of the first.
+   `--dc-sprite-depth` is 0 for whoever spoke last. It stacks them front-to-back, shrinks each row a
+   little, and lifts the further ones slightly, so a crowded scene reads as depth rather than a flat
+   row. The scale floor keeps the furthest figure legible however many there are. */
+.dc-stage-sprite {
+  position: absolute;
+  bottom: calc(var(--dc-sprite-depth, 0) * 0.9%);
+  left: var(--dc-sprite-x, 50%);
+  /* Width follows the COUNT. The pitch between figures is 100/(n+1)% of the stage, and a fixed 34vw box
+     stays 34vw while that pitch collapses — at eight figures the pitch is 11% and they pile up. Measured
+     in a geometry harness before this line existed. ~170/(n+1)% keeps a figure a little under twice its
+     own pitch, which is the overlap the references actually have: shoulders tuck behind a neighbour, faces
+     stay clear. The absolute caps still win for one or two figures, where there is room to spare. */
+  width: min(34vw, 430px, calc(170% / (var(--dc-sprite-count, 1) + 1)));
+  height: min(70dvh, 720px);
+  transform: translateX(-50%) scale(max(0.82, 1 - var(--dc-sprite-depth, 0) * 0.045));
+  transform-origin: center bottom;
+  z-index: calc(40 - var(--dc-sprite-depth, 0));
+  opacity: 1;
+  transition: opacity var(--dc-dur) var(--dc-ease), transform var(--dc-dur) var(--dc-ease);
+}
 .dc-stage-sprite[data-dimmed="true"] { opacity: 0.58; }
-.dc-stage-sprite-list[data-count="1"] .dc-stage-sprite { --dc-sprite-slot: 0; }
-.dc-stage-sprite-list[data-count="2"] .dc-stage-sprite:nth-child(1) { --dc-sprite-slot: -1; }
-.dc-stage-sprite-list[data-count="2"] .dc-stage-sprite:nth-child(2) { --dc-sprite-slot: 1; }
-.dc-stage-sprite-list[data-count="3"] .dc-stage-sprite:nth-child(1) { --dc-sprite-slot: -2; }
-.dc-stage-sprite-list[data-count="3"] .dc-stage-sprite:nth-child(2) { --dc-sprite-slot: 0; }
-.dc-stage-sprite-list[data-count="3"] .dc-stage-sprite:nth-child(3) { --dc-sprite-slot: 2; }
-.dc-stage-sprite { left: calc(50% + (var(--dc-sprite-slot, 0) * min(12vw, 140px))); }
 .dc-stage-sprite-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; opacity: 1; transition: opacity 240ms var(--dc-ease); }
 .dc-stage-sprite-next { opacity: 0; }
 .dc-stage-sprite-hidden { opacity: 0; }
@@ -764,6 +780,7 @@
   }
   .dc-stage-sprite,
   .dc-stage-sprite-img {
+    /* The depth transform is still applied — it is layout, not motion — but it stops animating. */
     transition: none !important;
   }
 }
