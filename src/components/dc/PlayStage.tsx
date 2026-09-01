@@ -85,16 +85,25 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia?.("(prefers-reduced-motion: reduce)").matches === true;
 }
 
-function SpriteBust({
+/**
+ * One staged figure. Named for what it is: the backend renders a three-quarter-length figure to
+ * mid-thigh now, not a bust, because in a visual novel the hands do half the acting.
+ *
+ * `depth` is 0 for whoever spoke last. It drives stacking, a slight scale falloff and a slight lift, so
+ * a crowded scene reads front-to-back instead of as one flat row.
+ */
+function SpriteFigure({
   src,
   label,
   dimmed,
-  slot,
+  xPercent,
+  depth,
 }: {
   src: string;
   label: string;
   dimmed: boolean;
-  slot: number;
+  xPercent: number;
+  depth: number;
 }) {
   const [frontSrc, setFrontSrc] = useState(src);
   const [backSrc, setBackSrc] = useState<string | null>(null);
@@ -122,7 +131,10 @@ function SpriteBust({
     <li
       className="dc-stage-sprite"
       data-dimmed={dimmed ? "true" : "false"}
-      style={{ ["--dc-sprite-slot" as string]: slot }}
+      style={{
+        ["--dc-sprite-x" as string]: `${xPercent}%`,
+        ["--dc-sprite-depth" as string]: depth,
+      }}
     >
       <img
         src={frontSrc}
@@ -286,34 +298,55 @@ export function PlayStage({
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
   const [contextTab, setContextTab] = useState<"current" | "previous" | "threads">("current");
+  /**
+   * Everyone in the scene who has a figure, staged like a visual novel.
+   *
+   * TWO THINGS CHANGED HERE, both from the founder's reference screenshots (2026-09-01).
+   *
+   * FIRST, EVERYONE. This took `.slice(0, 3)` and showed three. A scene has whoever is in it, and the
+   * references stage two, three, sometimes more — one of them puts a foreground speaker, a mid-ground
+   * figure and a background figure on screen at once.
+   *
+   * SECOND, POSITION IS STABLE AND DEPTH IS WHAT MOVES. The old sort ordered the row by who spoke most
+   * recently, which also decided where each figure STOOD — so every line of dialogue made the cast swap
+   * seats. Characters now hold their place in scene order, and recency drives which of them is in front,
+   * how much it is scaled, and how dim it is. That is what the references do: bodies stay put, attention
+   * moves.
+   *
+   * `left` is an even distribution — (i+1)/(n+1) of the width — so it needs no per-count CSS and works
+   * for any number. The old stylesheet had hand-written slots for exactly one, two and three.
+   */
   const spriteParticipants = useMemo(() => {
     const withSprites = participants.filter((participant) => participant.sprites !== undefined);
     if (withSprites.length === 0) return [];
     const recency = new Map<string, number>();
     recentSpeakerIds.forEach((id, index) => recency.set(id, index));
-    return [...withSprites]
-      .sort((a, b) => {
-        const aRecent = recency.get(a.id);
-        const bRecent = recency.get(b.id);
-        if (aRecent !== undefined && bRecent !== undefined) return aRecent - bRecent;
-        if (aRecent !== undefined) return -1;
-        if (bRecent !== undefined) return 1;
-        return participants.findIndex((p) => p.id === a.id) - participants.findIndex((p) => p.id === b.id);
-      })
-      .slice(0, 3)
+
+    const staged = withSprites
       .map((participant) => {
         const emotion = participant.spriteEmotion ?? "neutral";
         return {
           id: participant.id,
           label: participant.label,
           sprite: participant.sprites?.[emotion] ?? participant.sprites?.neutral,
+          // Not in the recency list means never heard from: furthest back, behind anyone who has.
+          recency: recency.get(participant.id) ?? recentSpeakerIds.length + 1,
         };
       })
-      .filter((participant) => participant.sprite !== undefined) as {
-      id: string;
-      label: string;
-      sprite: string;
-    }[];
+      .filter((participant) => participant.sprite !== undefined);
+
+    // Depth rank: 0 is the front. Ties keep scene order, so it is deterministic.
+    const byRecency = [...staged].sort((a, b) => a.recency - b.recency);
+    const depthOf = new Map(byRecency.map((participant, rank) => [participant.id, rank]));
+
+    const count = staged.length;
+    return staged.map((participant, index) => ({
+      id: participant.id,
+      label: participant.label,
+      sprite: participant.sprite as string,
+      xPercent: ((index + 1) / (count + 1)) * 100,
+      depth: depthOf.get(participant.id) ?? 0,
+    }));
   }, [participants, recentSpeakerIds]);
 
   /**
@@ -465,14 +498,19 @@ export function PlayStage({
       <div aria-hidden className="dc-stage-grain" />
       {spriteParticipants.length > 0 && (
         <div aria-hidden className="dc-stage-sprites">
-          <ul className="dc-stage-sprite-list" data-count={spriteParticipants.length}>
-            {spriteParticipants.map((participant, index) => (
-              <SpriteBust
+          <ul
+            className="dc-stage-sprite-list"
+            data-count={spriteParticipants.length}
+            style={{ ["--dc-sprite-count" as string]: spriteParticipants.length }}
+          >
+            {spriteParticipants.map((participant) => (
+              <SpriteFigure
                 key={participant.id}
                 src={participant.sprite}
                 label={participant.label}
                 dimmed={speakingId !== null && participant.id !== speakingId}
-                slot={index}
+                xPercent={participant.xPercent}
+                depth={participant.depth}
               />
             ))}
           </ul>
