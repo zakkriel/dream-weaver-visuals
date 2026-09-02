@@ -285,6 +285,8 @@ export function PlayStage({
 }) {
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
+  // The portrait strip above the dialogue card is optional dressing — hidden unless asked for.
+  const [castVisible, setCastVisible] = useState(false);
   const [contextTab, setContextTab] = useState<"current" | "previous" | "threads">("current");
   const spriteParticipants = useMemo(() => {
     const withSprites = participants.filter((participant) => participant.sprites !== undefined);
@@ -531,7 +533,7 @@ export function PlayStage({
 
             <div className="dc-stage-spacer" />
 
-            {participants.length > 0 && (
+            {castVisible && participants.length > 0 && (
             <ul className="dc-cast">
               {participants.map((participant) => {
                 const speaking = participant.id === speakingId;
