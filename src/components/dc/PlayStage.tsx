@@ -522,6 +522,9 @@ export function PlayStage({
             <Button asChild variant="ghost" size="icon" className="dc-top-icon" title="Worlds">
               <Link to="/worlds" aria-label="Worlds"><CompassGlyph /></Link>
             </Button>
+            <Button type="button" variant="ghost" size="icon" className="dc-top-icon" aria-label={castVisible ? "Hide the cast" : "Show the cast"} aria-pressed={castVisible} title={castVisible ? "Hide the cast" : "Show the cast"} onClick={() => setCastVisible((value) => !value)}>
+              <ActorsGlyph />
+            </Button>
             <Button type="button" variant="ghost" size="icon" className="dc-top-icon" aria-label={contextExpanded ? "Dock context panel" : "Expand context panel"} aria-pressed={contextExpanded} title={contextExpanded ? "Dock context panel" : "Expand context panel"} onClick={() => setContextExpanded((value) => !value)}>
               <PanelGlyph expanded={contextExpanded} />
             </Button>
