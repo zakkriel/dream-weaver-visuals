@@ -285,6 +285,8 @@ export function PlayStage({
 }) {
   const chips = toneChips(placeTone);
   const [contextExpanded, setContextExpanded] = useState(false);
+  // The portrait strip above the dialogue card is optional dressing — hidden unless asked for.
+  const [castVisible, setCastVisible] = useState(false);
   const [contextTab, setContextTab] = useState<"current" | "previous" | "threads">("current");
   const spriteParticipants = useMemo(() => {
     const withSprites = participants.filter((participant) => participant.sprites !== undefined);
@@ -520,6 +522,9 @@ export function PlayStage({
             <Button asChild variant="ghost" size="icon" className="dc-top-icon" title="Worlds">
               <Link to="/worlds" aria-label="Worlds"><CompassGlyph /></Link>
             </Button>
+            <Button type="button" variant="ghost" size="icon" className="dc-top-icon" aria-label={castVisible ? "Hide the cast" : "Show the cast"} aria-pressed={castVisible} title={castVisible ? "Hide the cast" : "Show the cast"} onClick={() => setCastVisible((value) => !value)}>
+              <ActorsGlyph />
+            </Button>
             <Button type="button" variant="ghost" size="icon" className="dc-top-icon" aria-label={contextExpanded ? "Dock context panel" : "Expand context panel"} aria-pressed={contextExpanded} title={contextExpanded ? "Dock context panel" : "Expand context panel"} onClick={() => setContextExpanded((value) => !value)}>
               <PanelGlyph expanded={contextExpanded} />
             </Button>
@@ -531,7 +536,7 @@ export function PlayStage({
 
             <div className="dc-stage-spacer" />
 
-            {participants.length > 0 && (
+            {castVisible && participants.length > 0 && (
             <ul className="dc-cast">
               {participants.map((participant) => {
                 const speaking = participant.id === speakingId;
