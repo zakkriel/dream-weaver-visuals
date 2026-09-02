@@ -476,7 +476,7 @@
 
 .dc-stage-sprites { z-index: 1; }
 .dc-stage-sprite-list { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
-.dc-stage-sprite { position: absolute; bottom: 0; left: 50%; width: min(34vw, 430px); height: min(70dvh, 720px); transform: translateX(-50%); opacity: 1; transition: opacity var(--dc-dur) var(--dc-ease); }
+.dc-stage-sprite { position: absolute; bottom: max(26dvh, 240px); left: 50%; width: min(30vw, 380px); height: min(58dvh, 620px); transform: translateX(-50%); opacity: 1; transition: opacity var(--dc-dur) var(--dc-ease); filter: drop-shadow(0 18px 28px rgba(0,0,0,.55)); }
 .dc-stage-sprite[data-dimmed="true"] { opacity: 0.58; }
 .dc-stage-sprite-list[data-count="1"] .dc-stage-sprite { --dc-sprite-slot: 0; }
 .dc-stage-sprite-list[data-count="2"] .dc-stage-sprite:nth-child(1) { --dc-sprite-slot: -1; }
